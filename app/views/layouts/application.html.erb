@@ -6,7 +6,10 @@
   <%= javascript_include_tag :defaults %>
   <%= csrf_meta_tag %>
 </head>
+   
 <body>
+
+  <%= render 'layouts/header' %>
   
   <% flash.each do |key, value| %>
           <div class="flash <%= key %>"><%= value %></div>
