@@ -1,0 +1,45 @@
+military
+
+admiral
+sec officer
+
+science
+
+head of research
+research assistant
+
+gamestate
+
+gamestate_id    | ship_id   | session_id    | nodestatus    | playerstatus  | playerlocations   | timescale
+
+ship
+
+ship_id | name  | description   | image | layout
+
+
+Actions
+
+repair
+sabotage
+investigate
+use
+kill (traitor)
+move
+
+Unique Rooms
+
+Airlock
+Bridge
+Admirals Quarters
+Head research office
+Engine Room
+
+Bridge/Main Control Rom ger abstrakt information om vad som är fel. Investigate för att få mer detaljer.
+
+Handlingar kostar ticks.
+Ticks representerar tid.
+Ticks sker i tur och ordning.
+Skepp representeras i rutnät.
+1 tick = 1 ap
+
+
