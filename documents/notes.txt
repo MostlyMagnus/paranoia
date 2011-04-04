@@ -34,12 +34,12 @@ Admirals Quarters
 Head research office
 Engine Room
 
-Bridge/Main Control Rom ger abstrakt information om vad som är fel. Investigate för att få mer detaljer.
+Bridge/Main Control Room ger abstrakt information om vad som ï¿½r fel. Investigate fï¿½r att fï¿½ mer detaljer.
 
 Handlingar kostar ticks.
 Ticks representerar tid.
 Ticks sker i tur och ordning.
-Skepp representeras i rutnät.
+Skepp representeras i rutnï¿½t.
 1 tick = 1 ap
 
 
