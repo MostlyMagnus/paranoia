@@ -18,7 +18,7 @@ ship_id | name  | description   | image | layout
 
 Pawn
 
-pawn_id | user_id | role | actionqueue
+pawn_id | user_id | persona_id | role | actionqueue
 
 
 Actions
