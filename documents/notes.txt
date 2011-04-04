@@ -23,6 +23,7 @@ repair
 sabotage
 investigate
 use
+interrogate (agent)
 kill (traitor)
 move
 
@@ -41,5 +42,12 @@ Ticks representerar tid.
 Ticks sker i tur och ordning.
 Skepp representeras i rutn�t.
 1 tick = 1 ap
+
+Pawn:
+- user
+- role (traitor/agent/normal)
+- actionQueue (?)
+
+
 
 
