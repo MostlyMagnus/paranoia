@@ -16,6 +16,10 @@ ship
 
 ship_id | name  | description   | image | layout
 
+Pawn
+
+pawn_id | user_id | role | actionqueue
+
 
 Actions
 
@@ -43,10 +47,7 @@ Ticks sker i tur och ordning.
 Skepp representeras i rutn�t.
 1 tick = 1 ap
 
-Pawn:
-- user
-- role (traitor/agent/normal)
-- actionQueue (?)
+
 
 
 
