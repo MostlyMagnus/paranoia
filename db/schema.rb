@@ -15,6 +15,7 @@ ActiveRecord::Schema.define(:version => 20110402133936) do
   create_table "pawns", :force => true do |t|
     t.integer  "user_id"
     t.integer  "gamestate_id"
+    t.integer  "persona_id"
     t.integer  "role"
     t.string   "action_queue"
     t.datetime "created_at"

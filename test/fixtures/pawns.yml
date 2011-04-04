@@ -6,6 +6,7 @@
 #  id           :integer         not null, primary key
 #  user_id      :integer
 #  gamestate_id :integer
+#  persona_id   :integer
 #  role         :integer
 #  action_queue :string(255)
 #  created_at   :datetime
