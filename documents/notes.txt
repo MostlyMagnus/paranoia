@@ -21,12 +21,15 @@ Pawn
 pawn_id | user_id | persona_id | role | actionqueue
 
 
+Also required: An OBJECT object that can accept repair/sabotage/use. Maybe?
+
 Actions
 
 repair
 sabotage
-investigate
 use
+
+investigate
 interrogate (agent)
 kill (traitor)
 move
