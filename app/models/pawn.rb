@@ -23,4 +23,46 @@ class Pawn < ActiveRecord::Base
   validates :gamestate_id,  :presence => true
   validates :role,          :presence => true
 
+  def repair(params)
+    target_id = params[:target_id]
+  end
+  
+  def sabotage(params)
+    target_id = params[:target_id]
+  end
+  
+  def use(params)
+    target_id = params[:target_id]
+  end
+  
+
+  def investigate(params)
+    target_id = params[:target_id]
+  end
+
+  def interrogate(params)
+    target_id = params[:target_id]
+  end
+
+  def kill(params)
+    target_id = params[:target_id]
+  end
+
+
+  def be_investigated(params)
+    targeter_id = params[:targeter_id]
+  end
+
+  def be_interrogated(params)
+    targeter_id = params[:targeter_id]
+  end
+
+  def be_killed(params)
+    targeter_id = params[:targeter_id]
+  end
+
+
+  def move(params)
+  end
+  
 end
