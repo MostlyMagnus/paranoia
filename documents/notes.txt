@@ -23,6 +23,17 @@ pawn_id | user_id | persona_id | role | actionqueue
 
 Also required: An OBJECT object that can accept repair/sabotage/use. Maybe?
 
+
+Note: Ruby does not support ENUM. One way to do it is to have a helper class with a set of defined constants:
+
+class Enum
+     ENUM1 = 15 
+     ENUM2 = 17
+end
+
+A constant value is identified by a leading capitol letter.
+
+
 Actions
 
 repair
