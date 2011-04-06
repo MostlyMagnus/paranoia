@@ -10,7 +10,17 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110402133936) do
+ActiveRecord::Schema.define(:version => 20110406102234) do
+
+  create_table "gamestates", :force => true do |t|
+    t.integer  "ship_id"
+    t.string   "nodestatus"
+    t.string   "playerstatus"
+    t.string   "playerlocations"
+    t.integer  "timescale"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "pawns", :force => true do |t|
     t.integer  "user_id"
