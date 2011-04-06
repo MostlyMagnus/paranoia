@@ -3,7 +3,8 @@ class Updater
   def needUpdate?
   end
   
-  def crunch
+private  
+def crunch
     
     gamestate = Gamestate.find_by_id(current_user.session_id)
     
