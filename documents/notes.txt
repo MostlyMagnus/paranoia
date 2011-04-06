@@ -10,7 +10,7 @@ research assistant
 
 gamestate
 
-gamestate_id    | ship_id   | session_id    | nodestatus    | playerstatus  | playerlocations   | timescale
+gamestate_id    | ship_id   | nodestatus    | playerstatus  | playerlocations   | timescale
 
 ship
 
