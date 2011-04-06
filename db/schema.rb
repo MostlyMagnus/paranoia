@@ -10,14 +10,14 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110406110118) do
+ActiveRecord::Schema.define(:version => 20110406190449) do
 
   create_table "gamestates", :force => true do |t|
     t.integer  "ship_id"
     t.string   "nodestatus"
     t.string   "playerstatus"
     t.string   "playerlocations"
-    t.integer  "timescale"
+    t.float    "timescale"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.datetime "update_when"
