@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20110406102234
+# Schema version: 20110406190449
 #
 # Table name: gamestates
 #
@@ -8,9 +8,10 @@
 #  nodestatus      :string(255)
 #  playerstatus    :string(255)
 #  playerlocations :string(255)
-#  timescale       :integer
+#  timescale       :float
 #  created_at      :datetime
 #  updated_at      :datetime
+#  update_when     :datetime
 #
 
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
