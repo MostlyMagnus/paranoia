@@ -1,18 +1,11 @@
 class Updater
   
   def update
-    gamestate = Gamestate.find_by_id(current_user.session_id)
+    Gamestate.find_by_id(current_user.session_id).update_when
+ 
     
-    now = Time.now
-    gamestate.update_when
-    
-    # This is VERY elegant. And not done.
-    if gamestate.update_when.hour < now.hour 
-      if gamestate.update_when.min < now.min 
-        if gamestate.update_when.sec < now.sec 
-          
-        end
-      end
+    if Gamestate.find_by_id(current_user.session_id).update_when < Time.now
+      crunch
     end
 
   end
