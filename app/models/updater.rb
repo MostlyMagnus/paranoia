@@ -1,18 +1,32 @@
 class Updater
   
-  def needUpdate?
-  end
-  
-private  
-def crunch
-    
+  def update
     gamestate = Gamestate.find_by_id(current_user.session_id)
     
-  #  gamestates.each do |gamestate|
-  #   pawns = Pawn.find_by_gamestate_id(gamestate.id)
+    now = Time.now
+    gamestate.update_when
+    
+    # This is VERY elegant. And not done.
+    if gamestate.update_when.hour > now.hour do
+      if gamestate.update_when.min > now.min do
+        gamestate.update_when.sec > now.sec do
+          
+        end
+      end
+    end
+
+  end
+  
+  private  
+    def crunch
       
+      gamestate = Gamestate.find_by_id(current_user.session_id)
+      
+      =begin
+      gamestates.each do |gamestate|
+        pawns = Pawn.find_by_gamestate_id(gamestate.id)
+      end
+      =end
       
     end
-    
-  end
 end
