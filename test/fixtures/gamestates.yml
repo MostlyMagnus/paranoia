@@ -1,0 +1,15 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  ship_id: 1
+  nodestatus: MyString
+  playerstatus: MyString
+  playerlocations: MyString
+  timescale: 1
+
+two:
+  ship_id: 1
+  nodestatus: MyString
+  playerstatus: MyString
+  playerlocations: MyString
+  timescale: 1
