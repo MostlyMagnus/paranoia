@@ -9,7 +9,7 @@ class Updater
     # This is VERY elegant. And not done.
     if gamestate.update_when.hour > now.hour 
       if gamestate.update_when.min > now.min 
-        gamestate.update_when.sec > now.sec 
+        if gamestate.update_when.sec > now.sec 
           
         end
       end
