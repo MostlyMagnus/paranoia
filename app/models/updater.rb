@@ -5,10 +5,10 @@ class Updater
   
   def crunch
     
-    gamestates = Gamestate.all
+    gamestate = Gamestate.find_by_id(current_user.session_id)
     
-    gamestates.each do |gamestate|
-      pawns = Pawn.find_by_gamestate_id(gamestate.id)
+  #  gamestates.each do |gamestate|
+  #   pawns = Pawn.find_by_gamestate_id(gamestate.id)
       
       
     end
