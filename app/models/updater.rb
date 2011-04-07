@@ -1,14 +1,9 @@
-class Updater
-  def update(current_user)
-    # We do one get from the gamestate table to avoid too many queries
-    
-    # We need to get the current user in here some how
-    # also, it should be... current_user.pawn.session_id
-    
-    gamestate = Gamestate.find_by_id(current_user.session_id)
+class Updater < ActiveRecord::Base
+  def update(gamestate_id)
+    gamestate = Gamestate.find_by_id(gamestate_id)
  
     if gamestate.update_when < Time.now
-      crunch
+      #crunch
     end
 
   end

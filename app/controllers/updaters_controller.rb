@@ -3,9 +3,9 @@ class UpdatersController < ApplicationController
   
   def update
     
-    @updater = Updater.new
+    #@updater = Updater.new
     
-    @updater.update(current_user)
+    #@updater.update(current_user)
     
   end
 end
