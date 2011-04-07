@@ -1,6 +1,12 @@
 Paranoia::Application.routes.draw do  
   resources :users
   resources :sessions, :only => [:new, :create, :destroy]
+  resources :updaters
+  resources :gamestates do
+    member do
+      get :join
+    end
+  end
   
   match '/signup',  :to => 'users#new'
 
@@ -11,5 +17,7 @@ Paranoia::Application.routes.draw do
   match '/signin',  :to => 'sessions#new'
   match '/signout', :to => 'sessions#destroy'
 
+  match '/update', :to => 'updaters#update'
+  
   root :to => 'pages#home'
 end

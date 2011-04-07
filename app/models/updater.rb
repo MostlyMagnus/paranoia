@@ -1,8 +1,10 @@
 class Updater
-  def update
+  def update(current_user)
     # We do one get from the gamestate table to avoid too many queries
     
     # We need to get the current user in here some how
+    # also, it should be... current_user.pawn.session_id
+    
     gamestate = Gamestate.find_by_id(current_user.session_id)
  
     if gamestate.update_when < Time.now
@@ -25,12 +27,12 @@ class Updater
       while gamestateTemp.update_when < timeTemp.now do
         @count = count + 1
         
-        @gamestateTemp.update_when.advance(:hours => 2*(gamestate.timescale*1))  
+        @gamestateTemp.update_when = @gamestateTemp.update_when.advance(:hours => 2*(gamestate.timescale*1))  
       end
       # end of ugly
       
       
       # for each turn that needs to be done          
-      gamestate.update_when.advance(:hours => 2*(gamestate.timescale*1))  
+      gamestate.update_when = gamestate.update_when.advance(:hours => 2*(gamestate.timescale*1))  
     end
 end
