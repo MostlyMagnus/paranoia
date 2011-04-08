@@ -14,3 +14,31 @@
 
 class Ship < ActiveRecord::Base
 end
+
+#for n in rooms
+#      puts n
+#end
+
+class Level
+	attr_accessor :lvl_str, :rooms
+
+	def initialize(str)
+		@lvl_str = str
+		@rooms = Array.new
+		tmp = ""
+		str.each_char do |ch|
+			if ch.eql? "\["
+				next
+			elsif ch.eql? "\]"
+				@rooms.push(tmp)
+				tmp = ""
+			else
+				tmp << ch
+			end
+		end
+	end
+
+	def to_s
+		@lvl_str
+	end
+end
