@@ -1,17 +1,36 @@
 module GamestatesHelper
   def updateGamestate
     gamestate = Gamestate.find_by_id(params[:id])
-     
+      
     if gamestate.update_when < Time.now
       crunch(gamestate)
     else
       flash[:success] = "We are up to date."
     end
-    
   end
-  
+    
   def nextUpdate 
     Gamestate.find_by_id(params[:id]).update_when.localtime
+  end
+  
+  def aq
+    @gamestate = Gamestate.find_by_id(params[:id])
+    @pawns = Pawn.find_all_by_gamestate_id(@gamestate.id)    
+    
+    
+    for i in 0..4 
+      @pawns.each do |p|
+        if !p.actions[i].nil?
+                
+          concat " pawn user id "
+          concat p.user_id
+          concat " action no "
+          concat p.actions[i].queue_number
+  
+        end
+      end
+    end
+    
   end
     
   def currentTurn
@@ -25,7 +44,7 @@ module GamestatesHelper
     # turns will only happen when NO ONE has activated the gamestate for a given time, we can
     # do this outside of the turn loop, and then clear the user queues.
     
-    Pawn.find_all_by_gamestate_id(gamestate.id).each do |p|
+    Pawn.find_all_by_gamestate_id(gamestate.id).each do |p|      
     end
 
     # Now let's do some idle logic for the correct amount of turns

@@ -18,6 +18,7 @@ class Pawn < ActiveRecord::Base
   # attr_accessible #none
   
   belongs_to :user
+  has_many :actions
   
   validates :user_id,       :presence => true
   validates :gamestate_id,  :presence => true

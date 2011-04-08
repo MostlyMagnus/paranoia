@@ -5,6 +5,7 @@ class GamestatesController < ApplicationController
 
   def show    
     @gamestate = Gamestate.find_by_id(params[:id])
+    @pawns = Pawn.find_all_by_gamestate_id(@gamestate.id)
   end
   
   def index

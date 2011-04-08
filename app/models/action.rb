@@ -13,4 +13,7 @@
 #
 
 class Action < ActiveRecord::Base
+  belongs_to :pawn
+  
+  default_scope :order => 'queue_number ASC'
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110408110929) do
+ActiveRecord::Schema.define(:version => 20110408171541) do
 
   create_table "actions", :force => true do |t|
     t.integer  "pawn_id"
@@ -37,7 +37,6 @@ ActiveRecord::Schema.define(:version => 20110408110929) do
     t.integer  "gamestate_id"
     t.integer  "persona_id"
     t.integer  "role"
-    t.string   "action_queue"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
