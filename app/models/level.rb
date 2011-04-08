@@ -1,4 +1,4 @@
-
+require 'room.rb'
 
 =begin
  Access codes:
@@ -16,7 +16,7 @@
 =end
 
 cnt = 0
-file = File.new("ships/test.sid", "r")
+file = File.new("../debug_levels/test.sid", "r")
 name = "N/A"
 level = ""
 while (line = file.gets)
@@ -41,11 +41,68 @@ level.each_char do |i|
 		cnt = cnt + 1
 	elsif i.eql? "\]"
 		rooms.push(tmp)
+		tmp = ""
 	else
 		tmp = tmp + i
 	end
 end
 
-puts cnt
+#for n in rooms
+#	puts n
+#end
+
+class Level
+	attr_accessor :lvl_str, :rooms
+
+	def initialize(str)
+		@lvl_str = str
+		@rooms = Array.new
+		tmp = ""
+		str.each_char do |ch|
+			if ch.eql? "\["
+				next
+			elsif ch.eql? "\]"
+				@rooms.push(tmp)
+				tmp = ""
+			else
+				tmp << ch
+			end
+		end
+	end
+	
+	def to_s
+		@lvl_str
+	end
+end 
+test_level = Level.new(level)
+puts test_level
+
+=begin
+class Ship
+	#attr_accessor 
+	
+	def initialize( s )
+end
+=end
+
+
+class Pos
+	attr_accessor :x, :y
+	
+	def initialize(x, y)
+		@x = x
+		@y = y
+	end
+	
+	 
+	def to_s
+		"(#{x},#{y})"
+	end
+
+end
+x = Pos.new(1,2)
+
+#class Player
+#end 
 
 
