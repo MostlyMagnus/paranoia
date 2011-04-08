@@ -14,21 +14,47 @@
 
 class Action < ActiveRecord::Base
   belongs_to :pawn
-    
-  default_scope :order => 'queue_number ASC'
-
-  # Lets add a priority value that does not get saved in the database
-  def priority
-    @priority
-  end
   
-  def priority=value
-    @priority=value
+  default_scope :order => 'queue_number ASC'
+  
+  attr_accessor :priority
+  
+  def initialize
+    @priority = 0
   end
+
 end
 
 class A_Nil < Action
+  
+  def initialize(priority=100)
+    @priority = priority
+  end
+  
 end
 
 class A_Use < Action
+  
+  def initialize(node, priority=50)
+    @priority = priority
+  end
+  
+end
+
+class A_Kill < Action
+  
+  def initialize(pawn, priority=-100)
+    @pawn = pawn
+    @priority = priority
+  end
+  
+end
+
+class A_Repair < Action
+  
+  def initialize(node, priority=80)
+    @node = node
+    @priority = priority
+  end
+  
 end
