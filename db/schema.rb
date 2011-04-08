@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110406190449) do
+ActiveRecord::Schema.define(:version => 20110408041711) do
 
   create_table "gamestates", :force => true do |t|
     t.integer  "ship_id"
@@ -29,6 +29,15 @@ ActiveRecord::Schema.define(:version => 20110406190449) do
     t.integer  "persona_id"
     t.integer  "role"
     t.string   "action_queue"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "ships", :force => true do |t|
+    t.string   "name"
+    t.string   "description"
+    t.string   "image"
+    t.string   "layout"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
