@@ -10,12 +10,12 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110408171541) do
+ActiveRecord::Schema.define(:version => 20110408204913) do
 
   create_table "actions", :force => true do |t|
     t.integer  "pawn_id"
     t.integer  "queue_number"
-    t.integer  "type"
+    t.integer  "action_type"
     t.string   "params"
     t.datetime "created_at"
     t.datetime "updated_at"
