@@ -64,3 +64,4 @@ end
 
 file = File.new("../../devel_ships/ship1.sid", "r")
 load_ship_from_file(file)
+
