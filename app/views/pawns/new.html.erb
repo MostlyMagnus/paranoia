@@ -3,8 +3,9 @@
   <div><%= f.hidden_field :role %></div>  
   <div><%= f.hidden_field :user_id %></div>
   
-  <div><%= f.select :gamestate_id, Gamestate.all.collect { |p| [p.id] } %></div>
   
+  <div><%= f.select :gamestate_id, @gamestate_ids %></div>
+    
   <div class="actions"><%= f.submit "Join" %></div>
 <% end %>
 

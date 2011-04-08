@@ -7,7 +7,7 @@
       <li><%= link_to "Profile", current_user %></li>
       <li><%= link_to "Sign out", signout_path, :method => :delete %></li>
       <li><%= link_to "Join game", joingame_path %></li>
-      <li><%= link_to "Your active games", root_path %></li>      
+      <li><%= link_to "My active games", mygames_path %></li>      
       <% else %>
       <li><%= link_to "Sign in", signin_path %></li>
       <% end %>

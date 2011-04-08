@@ -3,7 +3,15 @@ class PawnsController < ApplicationController
    @pawn = Pawn.new
    
    @pawn.user_id = current_user.id
-   @pawn.role = 1   
+   @pawn.role = 1
+   
+   @gamestate_ids = Array.new
+   
+   Gamestate.all.each do |gamestate|
+      if !current_user.pawns.find_by_gamestate_id(gamestate.id)
+        @gamestate_ids.push(gamestate.id)
+      end
+    end
   end
   
   def create

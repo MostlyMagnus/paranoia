@@ -1,0 +1,5 @@
+<ul>
+  <% @user.pawns.each do |p| gamestate = Gamestate.find_by_id(p.gamestate_id) %>
+    <li><%= link_to gamestate, gamestate %></li>
+  <% end %>
+</ul>

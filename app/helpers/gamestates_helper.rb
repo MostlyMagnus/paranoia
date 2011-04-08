@@ -10,6 +10,16 @@ module GamestatesHelper
     
   end
   
+  def nextUpdate 
+    Gamestate.find_by_id(params[:id]).update_when.localtime
+  end
+    
+  def currentTurn
+    gamestate = Gamestate.find_by_id(params[:id])
+    
+    ((gamestate.updated_at - gamestate.created_at)/(3600 * gamestate.timescale)).floor
+  end
+    
   def crunch(gamestate)
     # Since users won't be able to queue up more than one turn worth of actions, and several
     # turns will only happen when NO ONE has activated the gamestate for a given time, we can
@@ -22,12 +32,18 @@ module GamestatesHelper
     @updatesRequired = ((Time.now - gamestate.update_when)/(3600 * gamestate.timescale)).floor
 
     for i in 1..@updatesRequired
-      # Idle logic goes here  
+      # Idle logic goes here (detoriation, random events, etc)  
     end
 
-    # When we're done, we update the update_when of our gamestate and then save it.
-    # Currently, I do not do this, since I don't want to change the db all the time.
-    # Instead, for debug reasons, we flash the new update time to the screen.
-    flash[:success] = gamestate.update_when.advance(:hours => gamestate.timescale * (@updatesRequired+1))    
+    # When we're done, we update the update_when of our gamestate.
+    gamestate.update_when = gamestate.update_when.advance(:hours => gamestate.timescale * (@updatesRequired+1))
+    
+    # We attempt to save the gamestate.
+    if gamestate.save
+      flash[:success] = "Gamestate updated"
+    else
+      flash[:error] = gamestate.errors.full_messages
+    end
+    
   end    
 end
