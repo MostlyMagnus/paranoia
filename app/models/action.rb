@@ -13,7 +13,7 @@
 #
 
 class ActionTypeDef
-  A_NIL     = 0
+  A_NIL     = nil
   A_USE     = 1
   A_KILL    = 2
   A_REPAIR  = 3
