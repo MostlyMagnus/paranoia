@@ -15,6 +15,34 @@
 #
 
 class Gamestate < ActiveRecord::Base
+
+  
+  def crunch
+    # Since users won't be able to queue up more than one turn worth of actions, and several
+    # turns will only happen when NO ONE has activated the gamestate for a given time, we can
+    # do this outside of the turn loop, and then clear the user queues.
+    self.buildExecuteAndClearActions
+
+    # Now let's do some idle logic for the correct amount of turns
+    @updatesRequired = ((Time.now - self.update_when)/(3600 * self.timescale)).floor
+
+    for i in 1..@updatesRequired
+      # Idle logic goes here (detoriation, random events, etc)  
+    end
+
+    # When we're done, we update the update_when of our gamestate.
+    self.update_when = self.update_when.advance(:hours => self.timescale * (@updatesRequired+1))
+    
+    # We attempt to save the gamestate.
+    if self.save
+      #flash[:success] = "Gamestate updated"
+    else
+      #flash[:error] = gamestate.errors.full_messages
+    end
+    
+  end
+  
+    
   def buildExecuteAndClearActions 
     # This 
     @pawns = Pawn.find_all_by_gamestate_id(self.id) 
@@ -30,9 +58,7 @@ class Gamestate < ActiveRecord::Base
     end
     
   end
-  
-  private
-  
+   
   def clearActionQueue
     @action_queue.clear
   end
