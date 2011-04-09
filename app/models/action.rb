@@ -78,7 +78,7 @@ end
 class A_Kill < Action
   
   def initialize(params = Hash.new)
-    @action_type = 5# ActionTypeDef::A_KILL
+    @action_type = ActionTypeDef::A_KILL
     
     if !params[:pawn].nil? then @pawn = params[:pawn] end    
     default_priority(-100)    
