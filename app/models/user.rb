@@ -18,6 +18,8 @@ class User < ActiveRecord::Base
   
   # has_many since we might want a single user to be able to play several games - maybe?
   has_many :pawns, :dependent => :destroy
+  has_many :lobbys, :through => :lobby_users
+  #there is a ownership of lobbys but this needs to be sorted
   
   email_regex = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
 
