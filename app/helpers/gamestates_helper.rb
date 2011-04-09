@@ -1,9 +1,9 @@
 module GamestatesHelper
   def updateGamestate
     gamestate = Gamestate.find_by_id(params[:id])
-    
+    gamestate.crunch
     if gamestate.update_when < Time.now
-      gamestate.crunch
+      flash[:success] = gamestate.crunch
     else
       flash[:success] = "We are up to date."
     end

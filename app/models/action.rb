@@ -41,6 +41,10 @@ class Action < ActiveRecord::Base
   def default_priority(priority = nil)
     if !priority.nil? then @priority = priority else @priority = -1000 end
   end
+  
+  def mergeWithAction(action)
+    @attributes = action.attributes
+  end
 end
 
 # A nil action in case something goes wrong and we don't have a action_type set
