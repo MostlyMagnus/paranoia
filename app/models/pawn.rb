@@ -23,4 +23,7 @@ class Pawn < ActiveRecord::Base
   validates :gamestate_id,  :presence => true
   validates :role,          :presence => true
 
+  def actionQueue
+    Action.find_all_by_pawn_id(self.id)
+  end
 end

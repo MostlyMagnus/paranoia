@@ -1,2 +1,10 @@
 <div>Current turn <%= currentTurn %></div>
 <div>Next update <%= nextUpdate %></div>
+
+<div>Action Queue
+
+<% actionQueue.each do |a| %>
+<li><%= a %></li>
+<% end %>
+
+</div>
