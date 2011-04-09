@@ -23,26 +23,43 @@ module GamestatesHelper
       @pawns.each do |p|
         if !p.actions[i].nil?
           
-          if p.actions[i].action_type.nil?
-            action_queue.push(A_Nil.new(p.actions[i]))
-            action_queue.last.priority = 0
-          elsif p.actions[i].action_type == 1
-            action_queue.push(A_Use.new(p.actions[i]))
-            action_queue.last.priority = 1
-          else
-            
+          case p.actions[i].action_type
+            when ActionTypeDef::A_NIL
+              
+              action_queue.push(A_Nil.new(p.actions[i]))
+              
+            when ActionTypeDef::A_USE
+              
+              action_queue.push(A_Use.new(p.actions[i]))
+              
+            when ActionTypeDef::A_REPAIR
+              
+              action_queue.push(A_Repair.new(p.actions[i]))
+              
+            when ActionTypeDef::A_KILL
+              
+              action_queue.push(A_Kill.new(p.actions[i]))
+              
           end
+ 
         end
       end
       
       # Lets sort
-      action_queue.sort! { |a,b| b.priority <=> a.priority }
+      action_queue.sort! { |a,b| a.priority <=> b.priority }
       
-      # The array is now sorted on priority, with the HIGHEST priority value first.
-      for i in 0..action_queue.size-1
-        concat action_queue[i].kind_of? A_Nil
-        concat action_queue[i].priority
+      # The array is now sorted on priority, with the LOWEST priority value first.
+      concat " Action Turn "
+      concat i
+      concat " [[[ "
+      for j in 0..action_queue.size-1
+        concat " "
+        concat action_queue[j]
+        concat " at prio "
+        concat action_queue[j].priority
+        concat " "
       end
+      concat " ]]] "
  
       # Here we have our action_queue complete
       # We should empty it.

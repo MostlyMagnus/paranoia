@@ -1,16 +1,23 @@
 # == Schema Information
-# Schema version: 20110408110929
+# Schema version: 20110408204913
 #
 # Table name: actions
 #
 #  id           :integer         not null, primary key
 #  pawn_id      :integer
 #  queue_number :integer
-#  type         :integer
+#  action_type  :integer
 #  params       :string(255)
 #  created_at   :datetime
 #  updated_at   :datetime
 #
+
+class ActionTypeDef
+  A_NIL     = 0
+  A_USE     = 1
+  A_KILL    = 2
+  A_REPAIR  = 3
+end
 
 class Action < ActiveRecord::Base
   belongs_to :pawn
@@ -19,42 +26,75 @@ class Action < ActiveRecord::Base
   
   attr_accessor :priority
   
-  def initialize
-    @priority = 0
+  # Lets pass a hash of paramters instead, so that all the constructors have
+  # the same number of parameters
+  
+  # If nothing is passed we default to an empty hash to please Ruby
+  def initialize(params = Hash.new)
+    # super to make sure that the ActiveRecord constructor gets called
+    super
+    
+    # if we actually passed a params[:priority] then we set @priority to that
+    if !params[:priority].nil? then @priority = params[:priority] end
   end
-
+  
+  def default_priority(priority = nil)
+    if !priority.nil? then @priority = priority else @priority = -1000 end
+  end
 end
 
+# A nil action in case something goes wrong and we don't have a action_type set
 class A_Nil < Action
-  
-  def initialize(priority=100)
-    @priority = priority
-  end
-  
+  def initialize(params = Hash.new)
+    #
+    # NOTE - Execute in this order
+    #     default_priority(x) - sets the default priority of the action
+    #
+    #     super calls the parent constructor. If we've passed a :priority
+    #           in the params hash this will overwrite the previous priority
+    #
+    # Always let super end the constructor
+    #
+    @action_type = ActionTypeDef::A_NIL
+    
+    default_priority(-500)    
+    
+    super        
+  end 
 end
 
 class A_Use < Action
   
-  def initialize(node, priority=50)
-    @priority = priority
+  def initialize(params = Hash.new)
+    @action_type = ActionTypeDef::A_USE
+    
+    if !params[:node].nil? then @node = params[:node] end
+    default_priority(50)
+    super
   end
   
 end
 
 class A_Kill < Action
   
-  def initialize(pawn, priority=-100)
-    @pawn = pawn
-    @priority = priority
+  def initialize(params = Hash.new)
+    @action_type = 5# ActionTypeDef::A_KILL
+    
+    if !params[:pawn].nil? then @pawn = params[:pawn] end    
+    default_priority(-100)    
+    super
   end
   
 end
 
 class A_Repair < Action
   
-  def initialize(node, priority=80)
-    @node = node
-    @priority = priority
+  def initialize(params = Hash.new)
+    @action_type = ActionTypeDef::A_REPAIR
+    
+    if !params[:node].nil? then @node = params[:node] end
+    default_priority(80)
+    super
   end
   
 end

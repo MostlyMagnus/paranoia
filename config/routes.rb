@@ -5,7 +5,7 @@ Paranoia::Application.routes.draw do
   resources :updaters
   resources :gamestates do
     member do
-      get :join
+      get :bogusdata
     end
   end
   

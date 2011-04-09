@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20110402133936
+# Schema version: 20110408204913
 #
 # Table name: pawns
 #
@@ -8,7 +8,6 @@
 #  gamestate_id :integer
 #  persona_id   :integer
 #  role         :integer
-#  action_queue :string(255)
 #  created_at   :datetime
 #  updated_at   :datetime
 #

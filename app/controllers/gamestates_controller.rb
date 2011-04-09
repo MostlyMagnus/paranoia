@@ -14,4 +14,19 @@ class GamestatesController < ApplicationController
   def mygames
     @user = User.find_by_id(current_user)  
   end
+  
+  def bogusdata
+    @gamestate = Gamestate.find_by_id(params[:id])
+    @pawns = Pawn.find_all_by_gamestate_id(@gamestate.id)
+
+    @pawns.each do |p|
+      for i in 1..5
+        p.actions.create!(:queue_number => i, :action_type => ActionTypeDef::A_KILL)
+      end
+      
+    end
+   
+    
+    redirect_to root_path
+  end
 end
