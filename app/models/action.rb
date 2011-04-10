@@ -42,8 +42,18 @@ class Action < ActiveRecord::Base
     if !priority.nil? then @priority = priority else @priority = -1000 end
   end
   
-  def mergeWithAction(action)
-    @attributes = action.attributes
+  
+  def typeToString 
+    case self.action_type
+      when ActionTypeDef::A_NIL
+        "A_Nil"
+      when ActionTypeDef::A_USE
+        "A_Use"
+      when ActionTypeDef::A_KILL
+        "A_Kill"
+      when ActionTypeDef::A_REPAIR
+        "A_Repair"
+    end
   end
 end
 
