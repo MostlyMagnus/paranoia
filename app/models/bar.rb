@@ -1,5 +1,4 @@
 
-
 =begin
  Access codes:
    nwse (north, west, south, east) 

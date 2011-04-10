@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110409185237) do
+ActiveRecord::Schema.define(:version => 20110410091848) do
 
   create_table "actions", :force => true do |t|
     t.integer  "pawn_id"
