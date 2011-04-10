@@ -1,8 +1,8 @@
 # == Schema Information
-# Schema version: 20110402133936
+# Schema version: 20110410174552
 #
 # Table name: users
-# 
+#
 #  id                 :integer         not null, primary key
 #  name               :string(255)
 #  email              :string(255)

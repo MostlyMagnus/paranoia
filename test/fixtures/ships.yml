@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20110408041711
+# Schema version: 20110410191013
 #
 # Table name: ships
 #
@@ -7,7 +7,7 @@
 #  name        :string(255)
 #  description :string(255)
 #  image       :string(255)
-#  layout      :string(255)
+#  layout      :string
 #  created_at  :datetime
 #  updated_at  :datetime
 #

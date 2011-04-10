@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110410091848) do
+ActiveRecord::Schema.define(:version => 20110410191013) do
 
   create_table "actions", :force => true do |t|
     t.integer  "pawn_id"
@@ -65,7 +65,7 @@ ActiveRecord::Schema.define(:version => 20110410091848) do
     t.string   "name"
     t.string   "description"
     t.string   "image"
-    t.string   "layout"
+    t.string   "layout",      :limit => nil
     t.datetime "created_at"
     t.datetime "updated_at"
   end
