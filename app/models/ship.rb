@@ -27,6 +27,7 @@ class Ship < ActiveRecord::Base
     # 0,0;x00x;g1;n1$1,0;x0x0;c1;$2,0;x0x0;c1;$3,0;xx00;c1$0,1;0x0x;c1;$3,1;0x0x;c1;$0,2;0xrx;e;n0,n2$3,2;1xrx;b;n3$0,3;r0xx;e;n0,n2$1,3;x0x0;c1;$2,3;x0x0;c1;$3,3;rxx0;b;n3$
     splitShip = layout.split("$")
     
+# This works better, but we still have the issue if there isnt actually a node defined
     splitShip.each do |room|
       splitRoom = room.split(";")
       
