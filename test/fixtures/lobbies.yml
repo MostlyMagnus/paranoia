@@ -1,0 +1,41 @@
+# == Schema Information
+# Schema version: 20110410174552
+#
+# Table name: lobbies
+#
+#  id                 :integer         not null, primary key
+#  name               :string(255)
+#  description        :string(255)
+#  min_slots          :integer
+#  max_slots          :integer
+#  has_password       :integer
+#  password           :string(255)
+#  ship_id            :integer
+#  created_by_user_id :integer
+#  created_at         :datetime
+#  updated_at         :datetime
+#
+
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  name: MyString
+  description: MyString
+  min_slots: 1
+  max_slots: 1
+  has_password: 1
+  password: MyString
+  ship_id: 1
+  created_by_id: 1
+  created_at: 2011-04-09 20:52:11
+
+two:
+  name: MyString
+  description: MyString
+  min_slots: 1
+  max_slots: 1
+  has_password: 1
+  password: MyString
+  ship_id: 1
+  created_by_id: 1
+  created_at: 2011-04-09 20:52:11

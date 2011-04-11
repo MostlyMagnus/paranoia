@@ -1,0 +1,21 @@
+# == Schema Information
+# Schema version: 20110410174552
+#
+# Table name: lobby_users
+#
+#  id         :integer         not null, primary key
+#  user_id    :integer
+#  lobby_id   :integer
+#  created_at :datetime
+#  updated_at :datetime
+#
+
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  user_id: 1
+  lobby_id: 1
+
+two:
+  user_id: 1
+  lobby_id: 1

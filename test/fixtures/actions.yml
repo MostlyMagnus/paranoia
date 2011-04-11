@@ -1,13 +1,13 @@
 # == Schema Information
 # Schema version: 20110408204913
 #
-# Table name: pawns
+# Table name: actions
 #
 #  id           :integer         not null, primary key
-#  user_id      :integer
-#  gamestate_id :integer
-#  persona_id   :integer
-#  role         :integer
+#  pawn_id      :integer
+#  queue_number :integer
+#  action_type  :integer
+#  params       :string(255)
 #  created_at   :datetime
 #  updated_at   :datetime
 #
@@ -15,11 +15,13 @@
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
 
 one:
-  user_id: 1
-  session_id: 1
-  action_queue: MyString
+  pawn_id: 1
+  queue_number: 1
+  type: 1
+  params: MyString
 
 two:
-  user_id: 1
-  session_id: 1
-  action_queue: MyString
+  pawn_id: 1
+  queue_number: 1
+  type: 1
+  params: MyString

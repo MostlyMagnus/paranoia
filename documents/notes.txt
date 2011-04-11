@@ -20,6 +20,9 @@ Pawn
 
 pawn_id | user_id | persona_id | role | actionqueue
 
+Action
+
+id | pawn_id (fk) | action_number | type | params
 
 Also required: An OBJECT object that can accept repair/sabotage/use. Maybe?
 

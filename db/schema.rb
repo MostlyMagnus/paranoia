@@ -10,7 +10,16 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110406190449) do
+ActiveRecord::Schema.define(:version => 20110410191013) do
+
+  create_table "actions", :force => true do |t|
+    t.integer  "pawn_id"
+    t.integer  "queue_number"
+    t.integer  "action_type"
+    t.string   "params"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "gamestates", :force => true do |t|
     t.integer  "ship_id"
@@ -23,12 +32,40 @@ ActiveRecord::Schema.define(:version => 20110406190449) do
     t.datetime "update_when"
   end
 
+  create_table "lobbies", :force => true do |t|
+    t.string   "name"
+    t.string   "description"
+    t.integer  "min_slots"
+    t.integer  "max_slots"
+    t.integer  "has_password"
+    t.string   "password"
+    t.integer  "ship_id"
+    t.integer  "created_by_user_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "lobby_users", :force => true do |t|
+    t.integer  "user_id"
+    t.integer  "lobby_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "pawns", :force => true do |t|
     t.integer  "user_id"
     t.integer  "gamestate_id"
     t.integer  "persona_id"
     t.integer  "role"
-    t.string   "action_queue"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "ships", :force => true do |t|
+    t.string   "name"
+    t.string   "description"
+    t.string   "image"
+    t.string   "layout",      :limit => nil
     t.datetime "created_at"
     t.datetime "updated_at"
   end

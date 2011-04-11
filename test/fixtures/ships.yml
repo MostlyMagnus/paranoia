@@ -1,0 +1,27 @@
+# == Schema Information
+# Schema version: 20110410191013
+#
+# Table name: ships
+#
+#  id          :integer         not null, primary key
+#  name        :string(255)
+#  description :string(255)
+#  image       :string(255)
+#  layout      :string
+#  created_at  :datetime
+#  updated_at  :datetime
+#
+
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  name: MyString
+  description: MyString
+  image: MyString
+  layout: MyString
+
+two:
+  name: MyString
+  description: MyString
+  image: MyString
+  layout: MyString
