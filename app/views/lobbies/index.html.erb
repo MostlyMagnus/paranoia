@@ -1,0 +1,26 @@
+
+<h1>I has lobbies</h1> 
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Description</th>
+    <th>min slots</th>
+    <th>max slots</th>
+    <th></th>
+    <th></th>
+  </tr>
+ 
+<% @lobbies.each do |lobby| %>
+  <tr>
+    <td><%= lobby.name %></td>
+    <td><%= lobby.description %></td>
+    <td><%= lobby.min_slots %></td>
+    <td><%= lobby.max_slots %></td>
+  </tr>
+<% end %>
+</table>
+ 
+<br />
+
+<%= link_to 'Create New Lobby', newgame_path %>
