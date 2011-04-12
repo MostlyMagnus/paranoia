@@ -21,31 +21,29 @@ class Ship < ActiveRecord::Base
   def buildRooms
     # Instead of having this in initialize, moved to a different function
     # Constructor does not get called on commands like Ship.find_by_id
-    @rooms  = Array.new
+    @rooms  = Hash.new
     tmp     = ""
         
-    layout.each_char do |ch|  
-      if      ch.eql?     "\["
-        next
-      elsif   ch.eql?     "\]"
-        # Lets split the unparsed room by its tokenizers, the semicolon
-        splitRoom = tmp.split(";")
-        
-        # First we get the position
-        pos = S_Position.new(Integer(splitRoom[0].split(",")[0]), Integer(splitRoom[0].split(",")[1]))
- 
-        # Then we get the access codes
-        access = S_Access.new(splitRoom[1][0], splitRoom[1][1], splitRoom[1][2], splitRoom[1][3])
-        
-        # Lets put it in our array
-        @rooms.push(Room.new(pos, access, splitRoom[2], splitRoom[3]))
-        
-        # Now clean up
-        tmp = ""
-      else
-        tmp << ch
-      end
-    end    
+    # 0,0;x00x;g1;n1$1,0;x0x0;c1;$2,0;x0x0;c1;$3,0;xx00;c1$0,1;0x0x;c1;$3,1;0x0x;c1;$0,2;0xrx;e;n0,n2$3,2;1xrx;b;n3$0,3;r0xx;e;n0,n2$1,3;x0x0;c1;$2,3;x0x0;c1;$3,3;rxx0;b;n3$
+    splitShip = layout.split("$")
+    
+    splitShip.each do |room|
+      splitRoom = room.split(";")
+      
+      # First we get the position
+      pos = S_Position.new(Integer(splitRoom[0].split(",")[0]), Integer(splitRoom[0].split(",")[1]))
+
+      # Then we get the access codes
+      access = S_Access.new(String(splitRoom[1][0]), String(splitRoom[1][1]), String(splitRoom[1][2]), String(splitRoom[1][3]))
+
+      # Lets make sure we dont try to push some random data from some random
+      # place in memory - does it even work like that in this language?
+      if splitRoom[2].nil? then splitRoom[2] = "-" end
+      if splitRoom[3].nil? then splitRoom[3] = "-" end
+      
+      # Lets put it in our array        
+      @rooms[pos.hash] = Room.new(pos, access, splitRoom[2], splitRoom[3])
+    end
   end   
 end
 
