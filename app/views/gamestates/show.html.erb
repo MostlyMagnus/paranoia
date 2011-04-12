@@ -2,27 +2,14 @@
 <div>Next update <%= nextUpdate %></div>
 
 <div>Action Queue
-
-<% actionQueue.each do |a| %>
-<li><%= a.typeToString %></li>
-<% end %>
-
+  <% actionQueue.each do |a| %>
+  <li><%= a.typeToString %></li>
+  <% end %>
 </div>
 
-<!-- This is awful. Must figure out where to put a good module renderer for the ship. -->
-<div>
-<table>
-    
-<% for y in 0..10 %>
-  <tr>
-  <% for x in 0..10 %>
-    <td style="width:30px; height: 30px" id="x<%= x %>y<%= y %>">
-      <% position = S_Position.new(x, y) %>
-          <%= @ship.rooms[position.hash] %>
-    </td>
-  <% end %>
-  </tr>
-<% end %>
 
-</table>
+<div>
+  <%= @ship.rooms.each do |value| %>
+   <%= value.room_type %> @ <%= value.position %><br>
+  <% end %>
 </div>
