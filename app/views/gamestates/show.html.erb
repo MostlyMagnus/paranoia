@@ -9,7 +9,20 @@
 
 
 <div>
-  <%= @ship.rooms.each do |value| %>
-   <%= value.room_type %> @ <%= value.position %><br>
+  Room render
+<table border="1">
+  <% for y in 0..10 %>
+    <tr>
+    <% for x in 0..10 %>
+      <td style="width:32px; height: 32px">
+        <%=
+        if @ship.rooms[x][y].kind_of? Room  then  
+          @ship.rooms[x][y].room_type
+        end
+        %>
+      </td>
+    <% end %>
+    </tr>
   <% end %>
+</table>
 </div>
