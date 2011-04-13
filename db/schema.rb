@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110410191013) do
+ActiveRecord::Schema.define(:version => 20110413180052) do
 
   create_table "actions", :force => true do |t|
     t.integer  "pawn_id"
@@ -25,7 +25,6 @@ ActiveRecord::Schema.define(:version => 20110410191013) do
     t.integer  "ship_id"
     t.string   "nodestatus"
     t.string   "playerstatus"
-    t.string   "playerlocations"
     t.float    "timescale"
     t.datetime "created_at"
     t.datetime "updated_at"
