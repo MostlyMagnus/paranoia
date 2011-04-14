@@ -179,8 +179,8 @@ class Gamestate < ActiveRecord::Base
 end
 
 class GamestatePawn
-  def initialize(id, x, y, status)
-    @pawn_id = id
+  def initialize(pawn_id, x, y, status)
+    @pawn_id = pawn_id
     @x = x
     @y = y
     @status = status
