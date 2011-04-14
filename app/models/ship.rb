@@ -47,7 +47,45 @@ class Ship < ActiveRecord::Base
       
       #puts @rooms[pos.hash].room_type
     end
-  end   
+  end
+  
+  def whereCanIMoveFromHere?(pawn, pos)
+    # Future code here should take into account access levels
+    # @rooms[pos.x][pos.y].access[:north]
+
+    allowedMoves = S_Access.new(0, 0, 0, 0)
+       
+    if @rooms[pos.x][pos.y-1].kind_of? Room then
+      #There's a room north
+      unless @rooms[pos.x][pos.y].access[:north] == "x"
+        allowedMoves[:north] = 1   
+      end
+    end
+ 
+    if @rooms[pos.x][pos.y+1].kind_of? Room then
+      #There's a room south
+      unless @rooms[pos.x][pos.y].access[:south] == "x"
+        allowedMoves[:south] = 1   
+      end
+    end
+      
+    if @rooms[pos.x-1][pos.y].kind_of? Room then
+      #There's a room west
+      unless @rooms[pos.x][pos.y].access[:west] == "x"
+        allowedMoves[:west] = 1   
+      end
+    end
+ 
+    if @rooms[pos.x+1][pos.y].kind_of? Room then
+      #There's a room east
+      unless @rooms[pos.x][pos.y].access[:east] == "x"
+        allowedMoves[:east] = 1   
+      end
+    end
+    
+    # Return
+    allowedMoves
+  end
 end
 
 class AccessStructDef
@@ -63,5 +101,6 @@ class Room
     @node_type  = node_type #maybe the nodes should be in a different place?
   end
 
-  attr_accessor :position, :access, :room_type 
+  attr_accessor :position, :access, :room_type
+  
 end

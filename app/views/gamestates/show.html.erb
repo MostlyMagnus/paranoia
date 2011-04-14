@@ -8,21 +8,65 @@
 </div>
 
 
-<div>
-  Room render (* denotes current player position)
-<table border="1">
-  <% for y in 0..10 %>
-    <tr>
-    <% for x in 0..10 %>
-      <td style="width:32px; height: 32px">
-        <%= if (@gamestate.gamestatePawns[@user_pawn.id].x == x && @gamestate.gamestatePawns[@user_pawn.id].y == y) then "*" end %>
-        
-        <%= if @ship.rooms[x][y].kind_of? Room  then
-          @ship.rooms[x][y].room_type
-        end %>
-      </td>
+<table><tr><td>
+
+  <div>
+    Room render (* denotes current player position)
+  <table border="1">
+    <% for y in 0..10 %>
+      <tr>
+      <% for x in 0..10 %>
+        <td style="width:32px; height: 32px">
+          <%= if (@gamestate.gamestatePawns[@user_pawn.id].x == x && @gamestate.gamestatePawns[@user_pawn.id].y == y) then "*" end %>
+          
+          <%= if @ship.rooms[x][y].kind_of? Room  then
+            @ship.rooms[x][y].room_type
+          end %>
+        </td>
+      <% end %>
+      </tr>
     <% end %>
+  </table>
+  </div>
+
+</td><td>
+  
+  <div>
+  
+  <div>V_Pos: <%= @vPos %>  </div>  
+  <div>R_Acc: <%= @ship.rooms[@vPos.x][@vPos.y].access %></div>
+  <div>A_Mov: <%= @allowedMoves %>  </div>
+  
+  <div> Movement Controls </div>
+  
+  
+  <table border="1" style="">
+    <tr>
+      <td></td>
+      <td>
+
+      </td>
+      <td></td>
     </tr>
-  <% end %>
-</table>
-</div>
+    
+    <tr>
+      <td>
+
+      </td>
+      <td></td>
+      <td>
+
+      </td>
+    </tr>
+    <tr>
+      <td></td>
+      <td>
+
+      </td>
+      <td></td>
+    </tr>
+  </table>  
+
+  </div>
+
+</td></tr></table>

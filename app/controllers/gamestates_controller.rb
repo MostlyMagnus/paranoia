@@ -13,6 +13,11 @@ class GamestatesController < ApplicationController
     @ship = Ship.find_by_id(@gamestate.ship_id)
     
     @ship.buildRooms
+    
+    @vPos = S_Position.new(@gamestate.gamestatePawns[@user_pawn.id].x, @gamestate.gamestatePawns[@user_pawn.id].y) 
+    @vRoom = @ship.rooms[@vPos.x][@vPos.y]
+  
+    @allowedMoves = @ship.whereCanIMoveFromHere?(@user_pawn, @vPos)    
   end
   
   def index

@@ -21,5 +21,9 @@ module GamestatesHelper
 
   def actionQueue
     Pawn.find_by_user_id_and_gamestate_id(current_user.id, params[:id]).actionQueue
-  end    
+  end
+    
+  def directionsToMove
+    
+  end
 end

@@ -13,6 +13,7 @@
 #  update_when  :datetime
 #
 S_Position  = Struct.new(:x, :y)
+S_Access    = Struct.new(:north, :south, :east, :west)
 
 class Gamestate < ActiveRecord::Base
   attr_accessor :gamestatePawns
