@@ -51,7 +51,7 @@ class Gamestate < ActiveRecord::Base
       splitPawn = gamestate_pawn.split(";")
       
       # Get the id
-      id = splitPawn[0]
+      pawn_id = splitPawn[0]
       
       # Get the position
       pos = S_Position.new(Integer(splitPawn[1].split(",")[0]), Integer(splitPawn[1].split(",")[1]))
@@ -60,7 +60,7 @@ class Gamestate < ActiveRecord::Base
       status = splitPawn[2]
       
       # Lets put it in our array        
-      @gamestatePawns[id] = GamestatePawn.new(id, pos.x, pos.y, status )      
+      @gamestatePawns[pawn_id] = GamestatePawn.new( pawn_id, pos.x, pos.y, status )      
     end    
   end
   
