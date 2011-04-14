@@ -5,7 +5,11 @@ class GamestatesController < ApplicationController
 
   def show    
     @gamestate = Gamestate.find_by_id(params[:id])
+    @gamestate.buildGamestatePawns
+    
     @pawns = Pawn.find_all_by_gamestate_id(@gamestate.id)
+    @user_pawn = Pawn.find_by_gamestate_id_and_user_id(params[:id], current_user.id)
+       
     @ship = Ship.find_by_id(@gamestate.ship_id)
     
     @ship.buildRooms

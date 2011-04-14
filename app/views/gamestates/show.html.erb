@@ -9,17 +9,17 @@
 
 
 <div>
-  Room render
+  Room render (* denotes current player position)
 <table border="1">
   <% for y in 0..10 %>
     <tr>
     <% for x in 0..10 %>
       <td style="width:32px; height: 32px">
-        <%=
-        if @ship.rooms[x][y].kind_of? Room  then  
+        <%= if (@gamestate.gamestatePawns[@user_pawn.id].x == x && @gamestate.gamestatePawns[@user_pawn.id].y == y) then "*" end %>
+        
+        <%= if @ship.rooms[x][y].kind_of? Room  then
           @ship.rooms[x][y].room_type
-        end
-        %>
+        end %>
       </td>
     <% end %>
     </tr>

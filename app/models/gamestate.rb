@@ -17,7 +17,10 @@ S_Position  = Struct.new(:x, :y)
 class Gamestate < ActiveRecord::Base
   attr_accessor :gamestatePawns
   
-  def crunch    
+  def crunch
+    # Get the gamestatePawns from this gamestates status string
+    buildGamestatePawns
+    
     # Since users won't be able to queue up more than one turn worth of actions, and several
     # turns will only happen when NO ONE has activated the gamestate for a given time, we can
     # do this outside of the turn loop, and then clear the user queues.
@@ -33,6 +36,9 @@ class Gamestate < ActiveRecord::Base
     # When we're done, we update the update_when of our gamestate.
     self.update_when = self.update_when.advance(:hours => self.timescale * (@updatesRequired+1))
     
+    # Update self.playerstatus to reflect any updates done
+    updatePlayerStatus
+    
     # We attempt to save the gamestate.
     if self.save
       "Gamestate updated"
@@ -42,6 +48,21 @@ class Gamestate < ActiveRecord::Base
     
   end
 
+  def updatePlayerStatus
+    # Make sure the string is clean.
+    tempPlayerStatus = ""
+    
+    # Add the right characters to tempPlayerStatus for each_value in the hash.
+    # Each value is of the class GamestatePawn. We also convert all the values
+    # to string values so we can combine it.
+    @gamestatePawns.each_value do |gamestatePawn|
+      tempPlayerStatus += String(gamestatePawn.pawn_id) + ";" + String(gamestatePawn.x) + "," + String(gamestatePawn.y) + ";" + String(gamestatePawn.status) + "$"
+    end
+    
+    # Update the models playerstatus.
+    self.playerstatus = tempPlayerStatus
+  end
+  
   def buildGamestatePawns
     @gamestatePawns = Hash.new
     
