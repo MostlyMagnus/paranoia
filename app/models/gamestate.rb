@@ -1,21 +1,20 @@
 # == Schema Information
-# Schema version: 20110406190449
+# Schema version: 20110413180052
 #
 # Table name: gamestates
 #
-#  id              :integer         not null, primary key
-#  ship_id         :integer
-#  nodestatus      :string(255)
-#  playerstatus    :string(255)
-#  playerlocations :string(255)
-#  timescale       :float
-#  created_at      :datetime
-#  updated_at      :datetime
-#  update_when     :datetime
+#  id           :integer         not null, primary key
+#  ship_id      :integer
+#  nodestatus   :string(255)
+#  playerstatus :string(255)
+#  timescale    :float
+#  created_at   :datetime
+#  updated_at   :datetime
+#  update_when  :datetime
 #
+S_Position  = Struct.new(:x, :y)
 
 class Gamestate < ActiveRecord::Base
-
   
   def crunch    
     # Since users won't be able to queue up more than one turn worth of actions, and several
@@ -40,6 +39,29 @@ class Gamestate < ActiveRecord::Base
       self.errors.full_messages
     end
     
+  end
+
+  def buildGamestatePawns
+    @gamestatePawns = Hash.new
+    
+    splitGamestatePawns = @playerstatus.split("$")
+    
+    splitGamestatePawns.each do |gamestate_pawn|
+      #id; x,y; status$
+      splitPawn = gamestate_pawn.split(";")
+      
+      # Get the id
+      id = splitPawn[0]
+      
+      # Get the position
+      pos = S_Position.new(Integer(splitPawn[1].split(",")[0]), Integer(splitPawn[1].split(",")[1]))
+      
+      # Get the status (alive, dead, etc)
+      status = splitPawn[2]
+      
+      # Lets put it in our array        
+      @gamestatePawns[id] = GamestatePawn.new(id, pos.x, pos.y, status )      
+    end    
   end
   
   private
@@ -154,4 +176,15 @@ class Gamestate < ActiveRecord::Base
   def executeA_Kill(action)
   end
   
+end
+
+class GamestatePawn
+  def initialize(id, x, y, status)
+    @pawn_id = id
+    @x = x
+    @y = y
+    @status = status
+  end
+  
+  attr_accessor :pawn_id, :x, :y, :status
 end
