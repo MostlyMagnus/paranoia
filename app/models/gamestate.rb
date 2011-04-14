@@ -15,6 +15,7 @@
 S_Position  = Struct.new(:x, :y)
 
 class Gamestate < ActiveRecord::Base
+  attr_accessor :gamestatePawns
   
   def crunch    
     # Since users won't be able to queue up more than one turn worth of actions, and several
@@ -44,20 +45,22 @@ class Gamestate < ActiveRecord::Base
   def buildGamestatePawns
     @gamestatePawns = Hash.new
     
-    splitGamestatePawns = @playerstatus.split("$")
+    splitGamestatePawns = self.playerstatus.split("$")
     
     splitGamestatePawns.each do |gamestate_pawn|
       #id; x,y; status$
       splitPawn = gamestate_pawn.split(";")
       
       # Get the id
-      pawn_id = splitPawn[0]
+
+      pawn_id = Integer(splitPawn[0])
+
       
       # Get the position
       pos = S_Position.new(Integer(splitPawn[1].split(",")[0]), Integer(splitPawn[1].split(",")[1]))
       
       # Get the status (alive, dead, etc)
-      status = splitPawn[2]
+      status = Integer(splitPawn[2])
       
       # Lets put it in our array        
       @gamestatePawns[pawn_id] = GamestatePawn.new( pawn_id, pos.x, pos.y, status )      
