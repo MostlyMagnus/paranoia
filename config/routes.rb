@@ -6,9 +6,10 @@ Paranoia::Application.routes.draw do
   
   resources :gamestates do
     member do
-      get :gamestate
-      get :ship
-      get :possiblemoves
+      
+      get :ajax_gamestate
+      get :ajax_ship
+      get :ajax_possiblemoves
     end
   end
   

@@ -27,12 +27,16 @@ class GamestatesController < ApplicationController
     @user = User.find_by_id(current_user)  
   end
   
-  def gamestate
+  def ajax_gamestate
+    render :layout => false
+
     @gamestate = Gamestate.find_by_id(params[:id])
     @gamestate.buildGamestatePawns    
   end
   
-  def ship
+  def ajax_ship
+    render :layout => false
+    
     @gamestate = Gamestate.find_by_id(params[:id])
     @ship = Ship.find_by_id(@gamestate.ship_id)
     
@@ -47,7 +51,7 @@ class GamestatesController < ApplicationController
     @ship_JonasFormat[:map] = @ship.rooms    
   end
   
-  def possiblemoves
+  def ajax_possiblemoves
   end
   
 end
