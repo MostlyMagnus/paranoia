@@ -67,5 +67,37 @@ Skepp representeras i rutn�t.
 
 
 
+ EN MAPP!
+<?php
+$map[2][2] = 4;
+$map[2][3] = 4;
+$map[2][4] = 4;
+$map[3][3] = 2;
+$map[4][2] = 4;
+$map[4][3] = 4;
+$map[4][4] = 4;
+$map[6][2] = 4;
+$map[6][3] = 4;
+$map[6][4] = 4;
+$map[7][2] = 4;
+$map[7][3] = 2;
+$map[7][4] = 4;
+$map[8][2] = 4;
+$map[8][3] = 2;
+$map[8][4] = 4;
+$map[10][4] = 4;
+$map[11][4] = 2;
+$map[12][2] = 4;
+$map[12][3] = 4;
+$map[12][4] = 4;
+
+$return['success'] = true;
+$return['name'] = 'Jonebone\'s MappuNi';
+$return['width'] = 20;
+$return['height'] = 10;
+$return['map'] = $map;
+echo json_encode($return);
+?>
+
 
 
