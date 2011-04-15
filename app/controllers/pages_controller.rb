@@ -12,4 +12,6 @@ class PagesController < ApplicationController
     @title = "About"
   end
 
+  def tempIndex
+  end
 end

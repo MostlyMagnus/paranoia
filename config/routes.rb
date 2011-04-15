@@ -9,6 +9,8 @@ Paranoia::Application.routes.draw do
     end
   end
   
+  match '/tempIndex', :to => 'pages#tempIndex'
+  
   match '/signup',  :to => 'users#new'
 
   match '/contact', :to => 'pages#contact'
