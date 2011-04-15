@@ -3,9 +3,12 @@ Paranoia::Application.routes.draw do
   resources :pawns
   resources :sessions, :only => [:new, :create, :destroy]
   resources :updaters
+  
   resources :gamestates do
     member do
-      get :bogusdata
+      get :gamestate
+      get :ship
+      get :possiblemoves
     end
   end
   
