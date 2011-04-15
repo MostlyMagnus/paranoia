@@ -35,6 +35,16 @@ class GamestatesController < ApplicationController
   def ship
     @gamestate = Gamestate.find_by_id(params[:id])
     @ship = Ship.find_by_id(@gamestate.ship_id)
+    
+    @ship.buildRooms
+    
+    @ship_JonasFormat = Hash.new
+    
+    @ship_JonasFormat[:success] = true
+    @ship_JonasFormat[:name] = @ship.name
+    @ship_JonasFormat[:width] = 16
+    @ship_JonasFormat[:height] = 8
+    @ship_JonasFormat[:map] = @ship.rooms    
   end
   
   def possiblemoves
