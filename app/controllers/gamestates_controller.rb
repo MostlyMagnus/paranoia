@@ -28,15 +28,11 @@ class GamestatesController < ApplicationController
   end
   
   def ajax_gamestate
-    render :layout => false
-
     @gamestate = Gamestate.find_by_id(params[:id])
-    @gamestate.buildGamestatePawns    
+    render :text => @gamestate.makeGamestateSubjective!(current_user.id).to_json
   end
   
-  def ajax_ship
-    render :layout => false
-    
+  def ajax_ship    
     @gamestate = Gamestate.find_by_id(params[:id])
     @ship = Ship.find_by_id(@gamestate.ship_id)
     
@@ -48,7 +44,10 @@ class GamestatesController < ApplicationController
     @ship_JonasFormat[:name] = @ship.name
     @ship_JonasFormat[:width] = 16
     @ship_JonasFormat[:height] = 8
-    @ship_JonasFormat[:map] = @ship.rooms    
+    
+    @ship_JonasFormat[:map] = @ship.rooms
+    
+    render :text => @ship_JonasFormat.to_json
   end
   
   def ajax_possiblemoves

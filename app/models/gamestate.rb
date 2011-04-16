@@ -86,7 +86,18 @@ class Gamestate < ActiveRecord::Base
       @gamestatePawns[pawn_id] = GamestatePawn.new(pawn_id, pos.x, pos.y, status )      
     end    
   end
-  
+
+  def makeGamestateSubjective!(current_user_id)
+    buildGamestatePawns
+       
+    self.playerstatus = ""
+    
+    currentUserPawn = Pawn.find_by_user_id_and_gamestate_id(current_user_id, self.id)
+    self.playerstatus = currentUserPawn
+    
+    self
+  end
+    
   private
   
   def buildExecuteAndClearActions 
