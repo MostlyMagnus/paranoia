@@ -88,12 +88,11 @@ class Gamestate < ActiveRecord::Base
   end
 
   def makeGamestateSubjective!(current_user_id)
+    # This code needs to be written so that it returns a gamestate where only the visible pawns are
+    # in the playerstatus. For now, return the entire thing.
     buildGamestatePawns
-       
-    self.playerstatus = ""
     
-    currentUserPawn = Pawn.find_by_user_id_and_gamestate_id(current_user_id, self.id)
-    self.playerstatus = currentUserPawn
+    self.playerstatus = gamestatePawns
     
     self
   end
