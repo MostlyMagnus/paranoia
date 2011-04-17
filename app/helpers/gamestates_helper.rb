@@ -1,7 +1,7 @@
 module GamestatesHelper
   def updateGamestate
     gamestate = Gamestate.find_by_id(params[:id])
-    
+        
     if gamestate.update_when < Time.now
       flash[:success] = gamestate.crunch
     else
@@ -23,7 +23,4 @@ module GamestatesHelper
     Pawn.find_by_user_id_and_gamestate_id(current_user.id, params[:id]).actionQueue
   end
     
-  def directionsToMove
-    
-  end
 end

@@ -50,7 +50,22 @@ class GamestatesController < ApplicationController
     render :text => @ship_JonasFormat.to_json
   end
   
-  def ajax_possiblemoves
+  def ajax_possibleactions
+    @gamestate = Gamestate.find_by_id(params[:id])
+    @gamestate.buildGamestatePawns
+
+    @ship = Ship.find_by_id(@gamestate.ship_id)
+    @ship.buildRooms
+    
+    @user_pawn = Pawn.find_by_gamestate_id_and_user_id(params[:id], current_user.id)
+    vPos = @gamestate.getVirtualPosition(@user_pawn)
+        
+    possibleActions = Hash.new
+
+    possibleActions[:moves]   = @ship.whereCanIMoveFromHere?(@user_pawn, vPos)
+    possibleActions[:actions] = 0
+    
+    render :text => possibleActions.to_json
   end
   
 end
