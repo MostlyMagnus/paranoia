@@ -31,42 +31,8 @@
 
 </td><td>
   
-  <div>
-  
-  <div>V_Pos: <%= @vPos %>  </div>  
-  <div>R_Acc: <%= @ship.rooms[@vPos.x][@vPos.y].access %></div>
-  <div>A_Mov: <%= @allowedMoves %>  </div>
-  
-  <div> Movement Controls </div>
-  
-  
-  <table border="1" style="">
-    <tr>
-      <td></td>
-      <td>
-        <%= @allowedMoves[:north] %>
-      </td>
-      <td></td>
-    </tr>
-    
-    <tr>
-      <td>
-        <%= @allowedMoves[:west] %>
-      </td>
-      <td></td>
-      <td>
-        <%= @allowedMoves[:east] %>
-      </td>
-    </tr>
-    <tr>
-      <td></td>
-      <td>
-        <%= @allowedMoves[:south] %>
-      </td>
-      <td></td>
-    </tr>
-  </table>  
-
+  <div>  
+    <div>V_Pos: <%= @vPos %>  </div>  
   </div>
 
 </td></tr></table>

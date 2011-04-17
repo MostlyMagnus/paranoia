@@ -13,25 +13,32 @@
 #  update_when  :datetime
 #
 require 'ActionQueue'
+require 'ActionTypeDef'
 
 S_Position  = Struct.new(:x, :y)
 S_Access    = Struct.new(:north, :south, :east, :west)
 
 class Gamestate < ActiveRecord::Base
   attr_accessor :gamestatePawns
+  def initialize    
+    super
+  end
   
   def crunch
     # Get the gamestatePawns from this gamestates status string
+
     buildGamestatePawns
-    
+        
     # Since users won't be able to queue up more than one turn worth of actions, and several
     # turns will only happen when NO ONE has activated the gamestate for a given time, we can
     # do this outside of the turn loop, and then clear the user queues.
     #buildExecuteAndClearActions
     
-    actionQueue = ActionQueue.new(self.id)
-    actionQueue.buildExecuteAndClearActions
+    actionQueue = ActionQueue.new(self)
+    self.gamestatePawns = actionQueue.buildExecuteAndClearActions
 
+    print @gamestatePawns
+    print "\n"
     # Now let's do some idle logic for the correct amount of turns
     @updatesRequired = ((Time.now - self.update_when)/(3600 * self.timescale)).floor
 
@@ -69,10 +76,7 @@ class Gamestate < ActiveRecord::Base
     self.playerstatus = tempPlayerStatus
   end
   
-  def buildGamestatePawns
-    # Maybe gamestate pawn should have a reference to the actual Pawn too? To be able
-    # to collect access information etc from its persona.
-    
+  def buildGamestatePawns    
     @gamestatePawns = Hash.new
     
     splitGamestatePawns = self.playerstatus.split("$")
@@ -117,9 +121,15 @@ class Gamestate < ActiveRecord::Base
     # To maximize this, I should rewrite the action parsing sub methods a bit.  
     buildGamestatePawns
     
-    vPos = S_Position.new(@gamestatePawns[pawn.id].x, @gamestatePawns[pawn.id].y)
+    virtualPawn = @gamestatePawns[pawn.id].clone
     
-    vPos
+    aq = ActionQueue.new(self)
+    
+    aq.executeActionQueueOnGamestatePawn(virtualPawn, ActionTypeDef::A_MOVE)
+
+    #return the pos of virutalPawn to test
+    S_Position.new(virtualPawn.x, virtualPawn.y)
+    
   end
 end
 

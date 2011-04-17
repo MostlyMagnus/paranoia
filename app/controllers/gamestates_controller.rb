@@ -13,11 +13,11 @@ class GamestatesController < ApplicationController
     @ship = Ship.find_by_id(@gamestate.ship_id)
     
     @ship.buildRooms
-    
-    @vPos = S_Position.new(@gamestate.gamestatePawns[@user_pawn.id].x, @gamestate.gamestatePawns[@user_pawn.id].y) 
+
+    @vPos = @gamestate.getVirtualPosition(@user_pawn)
     @vRoom = @ship.rooms[@vPos.x][@vPos.y]
   
-    @allowedMoves = @ship.whereCanIMoveFromHere?(@user_pawn, @vPos)    
+   # @allowedMoves = @ship.whereCanIMoveFromHere?(@user_pawn, @vPos)    
   end
   
   def index
@@ -59,13 +59,29 @@ class GamestatesController < ApplicationController
     
     @user_pawn = Pawn.find_by_gamestate_id_and_user_id(params[:id], current_user.id)
     vPos = @gamestate.getVirtualPosition(@user_pawn)
-        
+    
+    render :text => vPos.to_json
+    
     possibleActions = Hash.new
 
     possibleActions[:moves]   = @ship.whereCanIMoveFromHere?(@user_pawn, vPos)
     possibleActions[:actions] = 0
     
-    render :text => possibleActions.to_json
+    
+    #render :text => possibleActions.to_json
   end
-  
+
+  def bogusdata
+    @gamestate = Gamestate.find_by_id(params[:id])
+    @pawns = Pawn.find_all_by_gamestate_id(@gamestate.id)
+
+    @pawns.each do |p|
+      for i in 1..5
+        p.actions.create!(:queue_number => i, :action_type => ActionTypeDef::A_KILL)
+      end
+      
+    end
+   
+    redirect_to root_path
+  end  
 end

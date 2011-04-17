@@ -1,12 +1,17 @@
+require 'ActionTypeDef'
+
 class ActionQueue
   attr_accessor :action_queue
   
-  def initialize(gamestate_id)
-    @pawns = Pawn.find_all_by_gamestate_id(gamestate_id) 
+  def initialize(gamestate)
+    @gamestate = gamestate
+    
+    @pawns = Pawn.find_all_by_gamestate_id(@gamestate.id) 
     @action_queue = Array.new
   end
 
-  def buildExecuteAndClearActions     
+  def buildExecuteAndClearActions
+ 
     # Starting with tick #1, build it's action queue, sort it, execute it,
     # and then clear it. Repeat for the remaining ticks.    
     for tick in 1..5
@@ -25,7 +30,11 @@ class ActionQueue
     end
 
     # When done, clear the database of actions
-    clearActions 
+    #clearActions
+  
+    # Also, it seems that the execute code above doesn't quite work. The gamestate pawns aren't updated.
+    # If I were to have a look I'm sure it'd be clear why. For now, it doesn't work.
+    @gamestate.gamestatePawns
   end
   
   def getPawnsActionQueue(pawn_id)
@@ -34,7 +43,19 @@ class ActionQueue
     Action.find_all_by_pawn_id(pawn_id).each do |action|
       singleActionQueue.push(actionToSpecificActionType(action))
     end
-
+  end
+  
+  def executeActionQueueOnGamestatePawn(gamestatePawn, actionFilter = ActionTypeDef::A_NIL)    
+    if(actionFilter == ActionTypeDef::A_NIL)
+      #executeAction(action, gamestatePawn)
+      print "No filter"
+    else
+      Action.find_all_by_pawn_id(gamestatePawn.pawn_id).each do |action|
+        if(action.action_type == actionFilter)
+          executeAction(actionToSpecificActionType(action), gamestatePawn) 
+        end 
+      end
+    end
   end
   
   private
@@ -53,15 +74,7 @@ class ActionQueue
     @action_queue.clear
   end
   
-  def buildActionQueue(action_tick)
-    # Builds the action queue array by looking at the type attribute of each
-    # action tied to a pawn and tick. Based on that type it is, we push a different
-    # type of Action sub class into the array.
-    
-    # We should probably parse the params string here and assign the correct values
-    # as attributes to the sub classes. That way we can keep the execution code
-    # (further down) as centered on execution logic as possible.
-     
+  def buildActionQueue(action_tick)   
     @pawns.each do |p|
       if !p.actions[action_tick].nil?
         @action_queue.push(actionToSpecificActionType(p.actions[action_tick]))
@@ -84,6 +97,9 @@ class ActionQueue
       when ActionTypeDef::A_KILL
         returnAction = A_Kill.new(action.attributes)        
 
+      when ActionTypeDef::A_MOVE
+        returnAction = A_Move.new(action.attributes)
+
     end
     
     returnAction
@@ -95,27 +111,33 @@ class ActionQueue
     
   def executeActionQueue    
     for i in 0..@action_queue.size-1
-      executeAction(@action_queue[i])
+      executeAction(@action_queue[i], @gamestate.gamestatePawns[@action_queue[i].pawn_id])
     end
   end
   
-  def executeAction(action)
-    if      (action.kind_of? A_Nil)     then  executeA_Nil(action)
-    elsif   (action.kind_of? A_Use)     then  executeA_Use(action)
-    elsif   (action.kind_of? A_Repair)  then  executeA_Repair(action)
-    elsif   (action.kind_of? A_Kill)    then  executeA_Kill(action)
+  def executeAction(action, gamestatePawn)
+    if      (action.kind_of? A_Nil)     then  executeA_Nil(action, gamestatePawn)
+    elsif   (action.kind_of? A_Use)     then  executeA_Use(action, gamestatePawn)
+    elsif   (action.kind_of? A_Repair)  then  executeA_Repair(action, gamestatePawn)
+    elsif   (action.kind_of? A_Kill)    then  executeA_Kill(action, gamestatePawn)
+    elsif   (action.kind_of? A_Move)    then  executeA_Move(action, gamestatePawn)
     end
   end
    
-  def executeA_Nil(action)   
+  def executeA_Nil(action, gamestatePawn)   
   end
   
-  def executeA_Use(action)
+  def executeA_Use(action, gamestatePawn)
   end
   
-  def executeA_Repair(action)
+  def executeA_Repair(action, gamestatePawn)
   end
   
-  def executeA_Kill(action)
-  end  
+  def executeA_Kill(action, gamestatePawn)
+  end
+  
+  def executeA_Move(action, gamestatePawn)
+    gamestatePawn.x = action.toX
+    gamestatePawn.y = action.toY
+  end
 end
