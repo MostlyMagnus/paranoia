@@ -116,28 +116,37 @@ class ActionQueue
   end
   
   def executeAction(action, gamestatePawn)
-    if      (action.kind_of? A_Nil)     then  executeA_Nil(action, gamestatePawn)
-    elsif   (action.kind_of? A_Use)     then  executeA_Use(action, gamestatePawn)
-    elsif   (action.kind_of? A_Repair)  then  executeA_Repair(action, gamestatePawn)
-    elsif   (action.kind_of? A_Kill)    then  executeA_Kill(action, gamestatePawn)
-    elsif   (action.kind_of? A_Move)    then  executeA_Move(action, gamestatePawn)
+    if      (action.kind_of? A_Nil)     then  gamestatePawn = executeA_Nil(action, gamestatePawn)
+    elsif   (action.kind_of? A_Use)     then  gamestatePawn = executeA_Use(action, gamestatePawn)
+    elsif   (action.kind_of? A_Repair)  then  gamestatePawn = executeA_Repair(action, gamestatePawn)
+    elsif   (action.kind_of? A_Kill)    then  gamestatePawn = executeA_Kill(action, gamestatePawn)
+    elsif   (action.kind_of? A_Move)    then  gamestatePawn = executeA_Move(action, gamestatePawn)
     end
+    
+    #position is alright here, but wahhh
+    gamestatePawn
   end
    
   def executeA_Nil(action, gamestatePawn)   
+    gamestatePawn
   end
   
   def executeA_Use(action, gamestatePawn)
+    gamestatePawn
   end
   
   def executeA_Repair(action, gamestatePawn)
+    gamestatePawn
   end
   
   def executeA_Kill(action, gamestatePawn)
+    gamestatePawn
   end
   
   def executeA_Move(action, gamestatePawn)
     gamestatePawn.x = action.toX
     gamestatePawn.y = action.toY
+    
+    gamestatePawn
   end
 end
