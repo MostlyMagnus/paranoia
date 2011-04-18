@@ -1,4 +1,5 @@
 require 'ActionTypeDef'
+require 'GamestatePawn'
 
 class ActionQueue
   attr_accessor :action_queue
@@ -11,7 +12,10 @@ class ActionQueue
   end
 
   def buildExecuteAndClearActions
- 
+    @gamestatePawns = Hash.new
+   
+    buildGamestatePawns
+    
     # Starting with tick #1, build it's action queue, sort it, execute it,
     # and then clear it. Repeat for the remaining ticks.    
     for tick in 1..5
@@ -29,12 +33,11 @@ class ActionQueue
       clearActionQueue
     end
 
+    
     # When done, clear the database of actions
     #clearActions
-  
-    # Also, it seems that the execute code above doesn't quite work. The gamestate pawns aren't updated.
-    # If I were to have a look I'm sure it'd be clear why. For now, it doesn't work.
-    @gamestate.gamestatePawns
+    
+    @gamestatePawns
   end
   
   def getPawnsActionQueue(pawn_id)
@@ -111,11 +114,13 @@ class ActionQueue
     
   def executeActionQueue    
     for i in 0..@action_queue.size-1
-      executeAction(@action_queue[i], @gamestate.gamestatePawns[@action_queue[i].pawn_id])
+      executeAction(@action_queue[i], @gamestatePawns[@action_queue[i].pawn_id])      
     end
   end
   
   def executeAction(action, gamestatePawn)
+    #gamestatePawn = GamestatePawn.new
+    
     if      (action.kind_of? A_Nil)     then  gamestatePawn = executeA_Nil(action, gamestatePawn)
     elsif   (action.kind_of? A_Use)     then  gamestatePawn = executeA_Use(action, gamestatePawn)
     elsif   (action.kind_of? A_Repair)  then  gamestatePawn = executeA_Repair(action, gamestatePawn)
@@ -123,8 +128,8 @@ class ActionQueue
     elsif   (action.kind_of? A_Move)    then  gamestatePawn = executeA_Move(action, gamestatePawn)
     end
     
-    #position is alright here, but wahhh
-    gamestatePawn
+   # if action.kind_of? A_Move then print gamestatePawn.x end
+   gamestatePawn 
   end
    
   def executeA_Nil(action, gamestatePawn)   
@@ -149,4 +154,26 @@ class ActionQueue
     
     gamestatePawn
   end
+  
+  def buildGamestatePawns        
+    splitGamestatePawns = @gamestate.playerstatus.split("$")
+    
+    splitGamestatePawns.each do |gamestate_pawn|    
+      #id; x,y; status$
+      splitPawn = gamestate_pawn.split(";")
+      
+      # Get the id
+      pawn_id = Integer(splitPawn[0])
+  
+      # Get the position
+      pos = S_Position.new(Integer(splitPawn[1].split(",")[0]), Integer(splitPawn[1].split(",")[1]))
+      
+      # Get the status (alive, dead, etc)
+      status = Integer(splitPawn[2])
+      
+      # Lets put it in our array        
+      @gamestatePawns[pawn_id] = GamestatePawn.new(pawn_id, pos.x, pos.y, status )      
+    end
+  end
+  
 end

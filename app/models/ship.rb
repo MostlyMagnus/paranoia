@@ -12,8 +12,7 @@
 #  updated_at  :datetime
 #
 
-S_Position  = Struct.new(:x, :y)
-S_Access    = Struct.new(:north, :south, :east, :west)
+require 'StructDef'
 
 class Ship < ActiveRecord::Base
   attr_accessor :rooms

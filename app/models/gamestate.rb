@@ -14,9 +14,8 @@
 #
 require 'ActionQueue'
 require 'ActionTypeDef'
-
-S_Position  = Struct.new(:x, :y)
-S_Access    = Struct.new(:north, :south, :east, :west)
+require 'GamestatePawn'
+require 'StructDef'
 
 class Gamestate < ActiveRecord::Base
   attr_accessor :gamestatePawns
@@ -37,8 +36,6 @@ class Gamestate < ActiveRecord::Base
     actionQueue = ActionQueue.new(self)
     self.gamestatePawns = actionQueue.buildExecuteAndClearActions
 
-    print @gamestatePawns
-    print "\n"
     # Now let's do some idle logic for the correct amount of turns
     @updatesRequired = ((Time.now - self.update_when)/(3600 * self.timescale)).floor
 
@@ -63,17 +60,17 @@ class Gamestate < ActiveRecord::Base
 
   def updatePlayerStatus
     # Make sure the string is clean.
-    tempPlayerStatus = ""
+    #tempPlayerStatus = ""
     
     # Add the right characters to tempPlayerStatus for each_value in the hash.
     # Each value is of the class GamestatePawn. We also convert all the values
     # to string values so we can combine it.
-    @gamestatePawns.each_value do |gamestatePawn|
-      tempPlayerStatus += String(gamestatePawn.pawn_id) + ";" + String(gamestatePawn.x) + "," + String(gamestatePawn.y) + ";" + String(gamestatePawn.status) + "$"
-    end
+    #@gamestatePawns.each_value do |gamestatePawn|
+    #  tempPlayerStatus += String(gamestatePawn.pawn_id) + ";" + String(gamestatePawn.x) + "," + String(gamestatePawn.y) + ";" + String(gamestatePawn.status) + "$"
+    #end
     
     # Update the models playerstatus.
-    self.playerstatus = tempPlayerStatus
+    #self.playerstatus = tempPlayerStatus
   end
   
   def buildGamestatePawns    
@@ -133,13 +130,3 @@ class Gamestate < ActiveRecord::Base
   end
 end
 
-class GamestatePawn
-  def initialize(pawn_id, x, y, status)
-    @pawn_id = pawn_id
-    @x = x
-    @y = y
-    @status = status
-  end
-  
-  attr_accessor :pawn_id, :x, :y, :status
-end
