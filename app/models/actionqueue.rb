@@ -77,7 +77,8 @@ class ActionQueue
     @action_queue.clear
   end
   
-  def buildActionQueue(action_tick)   
+  def buildActionQueue(action_tick)
+    # Wait... Do I actually ever... Something is wrong here.
     @pawns.each do |p|
       if !p.actions[action_tick].nil?
         @action_queue.push(actionToSpecificActionType(p.actions[action_tick]))
@@ -114,45 +115,35 @@ class ActionQueue
     
   def executeActionQueue    
     for i in 0..@action_queue.size-1
-      executeAction(@action_queue[i], @gamestatePawns[@action_queue[i].pawn_id])      
+      # How do I pass the variable along as a reference? 
+      executeAction(@action_queue[i], @gamestatePawns[@action_queue[i].pawn_id])    
     end
   end
   
   def executeAction(action, gamestatePawn)
-    #gamestatePawn = GamestatePawn.new
-    
-    if      (action.kind_of? A_Nil)     then  gamestatePawn = executeA_Nil(action, gamestatePawn)
-    elsif   (action.kind_of? A_Use)     then  gamestatePawn = executeA_Use(action, gamestatePawn)
+    if      (action.kind_of? A_Nil)     then  executeA_Nil(action, gamestatePawn)
+    elsif   (action.kind_of? A_Use)     then  executeA_Use(action, gamestatePawn)
     elsif   (action.kind_of? A_Repair)  then  gamestatePawn = executeA_Repair(action, gamestatePawn)
-    elsif   (action.kind_of? A_Kill)    then  gamestatePawn = executeA_Kill(action, gamestatePawn)
-    elsif   (action.kind_of? A_Move)    then  gamestatePawn = executeA_Move(action, gamestatePawn)
-    end
-    
-   # if action.kind_of? A_Move then print gamestatePawn.x end
-   gamestatePawn 
+    elsif   (action.kind_of? A_Kill)    then  executeA_Kill(action, gamestatePawn)
+    elsif   (action.kind_of? A_Move)    then  executeA_Move(action, gamestatePawn)
+    end    
   end
    
   def executeA_Nil(action, gamestatePawn)   
-    gamestatePawn
   end
   
   def executeA_Use(action, gamestatePawn)
-    gamestatePawn
   end
   
   def executeA_Repair(action, gamestatePawn)
-    gamestatePawn
   end
   
   def executeA_Kill(action, gamestatePawn)
-    gamestatePawn
   end
   
-  def executeA_Move(action, gamestatePawn)
+  def executeA_Move(action, gamestatePawn)    
     gamestatePawn.x = action.toX
     gamestatePawn.y = action.toY
-    
-    gamestatePawn
   end
   
   def buildGamestatePawns        
