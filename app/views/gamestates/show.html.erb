@@ -17,7 +17,8 @@
       <tr>
       <% for x in 0..10 %>
         <td style="width:32px; height: 32px">
-          <%= if (@gamestate.gamestatePawns[@user_pawn.id].x == x && @gamestate.gamestatePawns[@user_pawn.id].y == y) then "*" end %>
+          <%= if (@gamestate.getPosition(@user_pawn).x == x && @gamestate.getPosition(@user_pawn).y == y) then "*" end %>
+          <%= if (@gamestate.getVirtualPosition(@user_pawn).x == x && @gamestate.getVirtualPosition(@user_pawn).y == y) then "v" end %>
           
           <%= if @ship.rooms[x][y].kind_of? Room  then
             @ship.rooms[x][y].room_type

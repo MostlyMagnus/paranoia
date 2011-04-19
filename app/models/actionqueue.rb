@@ -2,42 +2,39 @@ require 'ActionTypeDef'
 require 'GamestatePawn'
 
 class ActionQueue
-  attr_accessor :action_queue
+  attr_accessor :action_queue, :gamestatePawns
   
   def initialize(gamestate)
     @gamestate = gamestate
     
     @pawns = Pawn.find_all_by_gamestate_id(@gamestate.id) 
     @action_queue = Array.new
+    @gamestatePawns = Hash.new
+    
+    buildGamestatePawns
   end
 
-  def buildExecuteAndClearActions
-    @gamestatePawns = Hash.new
-   
+  def buildExecuteAndClearActions  
     buildGamestatePawns
     
     # Starting with tick #1, build it's action queue, sort it, execute it,
     # and then clear it. Repeat for the remaining ticks.    
-    for tick in 1..5
+    for tick in 0..4
       # Build the action queue based on the supplied tick
       buildActionQueue(tick)
       
       # Sorts the action queue based on priority derived from the action type
       # See action.rb for priority listings
-      sortActionQueue
+      sortActionQueue!
       
       # Now execute the action queue
-      executeActionQueue
+      executeActionQueue!
       
       # Clear the action queue before we do another tick
-      clearActionQueue
+      clearActionQueue!
     end
-
     
-    # When done, clear the database of actions
-    #clearActions
-    
-    @gamestatePawns
+    return @gamestatePawns
   end
   
   def getPawnsActionQueue(pawn_id)
@@ -48,17 +45,25 @@ class ActionQueue
     end
   end
   
-  def executeActionQueueOnGamestatePawn(gamestatePawn, actionFilter = ActionTypeDef::A_NIL)    
+  def executeActionQueueOnPawn(pawn, actionFilter = ActionTypeDef::A_NIL)
+    @gamestatePawns = Hash.new
+   
+    buildGamestatePawns    
+    
+    gamestatePawn = @gamestatePawns[pawn.id]
+    
     if(actionFilter == ActionTypeDef::A_NIL)
       #executeAction(action, gamestatePawn)
       print "No filter"
     else
       Action.find_all_by_pawn_id(gamestatePawn.pawn_id).each do |action|
         if(action.action_type == actionFilter)
-          executeAction(actionToSpecificActionType(action), gamestatePawn) 
+          executeAction!(actionToSpecificActionType(action), gamestatePawn) 
         end 
       end
     end
+    
+    return gamestatePawn
   end
   
   private
@@ -72,16 +77,15 @@ class ActionQueue
     end
   end
    
-  def clearActionQueue
+  def clearActionQueue!
     # Clear up the action_queue 
     @action_queue.clear
   end
   
-  def buildActionQueue(action_tick)
-    # Wait... Do I actually ever... Something is wrong here.
+  def buildActionQueue(action_tick)    
     @pawns.each do |p|
       if !p.actions[action_tick].nil?
-        @action_queue.push(actionToSpecificActionType(p.actions[action_tick]))
+        @action_queue.push(actionToSpecificActionType(p.actions[action_tick]))   
       end
     end  
   end
@@ -109,44 +113,45 @@ class ActionQueue
     returnAction
   end
     
-  def sortActionQueue 
+  def sortActionQueue!
     @action_queue.sort! { |a,b| a.priority <=> b.priority }
   end
     
-  def executeActionQueue    
+  def executeActionQueue!    
     for i in 0..@action_queue.size-1
-      # How do I pass the variable along as a reference? 
-      executeAction(@action_queue[i], @gamestatePawns[@action_queue[i].pawn_id])    
+      executeAction!(@action_queue[i], @gamestatePawns[@action_queue[i].pawn_id])
     end
   end
   
-  def executeAction(action, gamestatePawn)
-    if      (action.kind_of? A_Nil)     then  executeA_Nil(action, gamestatePawn)
-    elsif   (action.kind_of? A_Use)     then  executeA_Use(action, gamestatePawn)
-    elsif   (action.kind_of? A_Repair)  then  gamestatePawn = executeA_Repair(action, gamestatePawn)
-    elsif   (action.kind_of? A_Kill)    then  executeA_Kill(action, gamestatePawn)
-    elsif   (action.kind_of? A_Move)    then  executeA_Move(action, gamestatePawn)
-    end    
+  def executeAction!(action, gamestatePawn)
+    if      (action.kind_of? A_Nil)     then  executeA_Nil!(action, gamestatePawn)
+    elsif   (action.kind_of? A_Use)     then  executeA_Use!(action, gamestatePawn)
+    elsif   (action.kind_of? A_Repair)  then  executeA_Repair!(action, gamestatePawn)
+    elsif   (action.kind_of? A_Kill)    then  executeA_Kill!(action, gamestatePawn)
+    elsif   (action.kind_of? A_Move)    then  executeA_Move!(action, gamestatePawn)
+    end
   end
    
-  def executeA_Nil(action, gamestatePawn)   
+  def executeA_Nil!(action, gamestatePawn)   
   end
   
-  def executeA_Use(action, gamestatePawn)
+  def executeA_Use!(action, gamestatePawn)
   end
   
-  def executeA_Repair(action, gamestatePawn)
+  def executeA_Repair!(action, gamestatePawn)
   end
   
-  def executeA_Kill(action, gamestatePawn)
+  def executeA_Kill!(action, gamestatePawn)
   end
   
-  def executeA_Move(action, gamestatePawn)    
+  def executeA_Move!(action, gamestatePawn)    
     gamestatePawn.x = action.toX
     gamestatePawn.y = action.toY
   end
   
-  def buildGamestatePawns        
+  def buildGamestatePawns
+    @gamestatePawns.clear
+    
     splitGamestatePawns = @gamestate.playerstatus.split("$")
     
     splitGamestatePawns.each do |gamestate_pawn|    
