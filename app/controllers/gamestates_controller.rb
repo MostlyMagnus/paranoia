@@ -33,41 +33,14 @@ class GamestatesController < ApplicationController
   
   def ajax_ship    
     @gamestate = Gamestate.find_by_id(params[:id])
-    @ship = Ship.find_by_id(@gamestate.ship_id)
-    
-    @ship.buildRooms
-    
-    @ship_JonasFormat = Hash.new
-    
-    @ship_JonasFormat[:success] = true
-    @ship_JonasFormat[:name] = @ship.name
-    @ship_JonasFormat[:width] = 16
-    @ship_JonasFormat[:height] = 8
-    
-    @ship_JonasFormat[:map] = @ship.rooms
-    
-    render :text => @ship_JonasFormat.to_json
+   
+    render :text => @gamestate.AJAX_ship.to_json
   end
   
   def ajax_possibleactions
     @gamestate = Gamestate.find_by_id(params[:id])
-    @gamestate.buildGamestatePawns
-
-    @ship = Ship.find_by_id(@gamestate.ship_id)
-    @ship.buildRooms
     
-    @user_pawn = Pawn.find_by_gamestate_id_and_user_id(params[:id], current_user.id)
-    vPos = @gamestate.getVirtualPosition(@user_pawn)
-    
-    render :text => vPos.to_json
-    
-    possibleActions = Hash.new
-
-    possibleActions[:moves]   = @ship.whereCanIMoveFromHere?(@user_pawn, vPos)
-    possibleActions[:actions] = 0
-    
-    
-    #render :text => possibleActions.to_json
+    render :text => @gamestate.AJAX_possibilities.to_json
   end
 
   def bogusdata

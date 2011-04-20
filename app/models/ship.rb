@@ -31,7 +31,6 @@ class Ship < ActiveRecord::Base
       
       # First we get the position
       pos = S_Position.new(Integer(splitRoom[0].split(",")[0]), Integer(splitRoom[0].split(",")[1]))
-
       
       # Then we get the access codes
       access = S_Access.new(String(splitRoom[1][0]), String(splitRoom[1][1]), String(splitRoom[1][2]), String(splitRoom[1][3]))
@@ -84,6 +83,21 @@ class Ship < ActiveRecord::Base
     
     # Return
     allowedMoves
+  end
+  
+  def AJAX_formatForResponse
+    buildRooms
+    
+    toAjaxResponse = Hash.new
+    
+    toAjaxResponse[:success] = true
+    toAjaxResponse[:name] = name
+    toAjaxResponse[:width] = 16
+    toAjaxResponse[:height] = 8
+    
+    toAjaxResponse[:map] = @rooms
+    
+    return toAjaxResponse
   end
 end
 

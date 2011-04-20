@@ -19,20 +19,16 @@ require 'StructDef'
 
 class Gamestate < ActiveRecord::Base
   attr_accessor :gamestatePawns
+    
   def initialize
-    @actionQueue = ActionQueue.new(self)
+    #@actionQueue = ActionQueue.new(self)
     super
   end
   
   def crunch
-    # Get the gamestatePawns from this gamestates status string
-
-    #buildGamestatePawns
-        
     # Since users won't be able to queue up more than one turn worth of actions, and several
     # turns will only happen when NO ONE has activated the gamestate for a given time, we can
     # do this outside of the turn loop, and then clear the user queues.
-    #buildExecuteAndClearActions
     
     @actionQueue = ActionQueue.new(self)
     @actionQueue.buildExecuteAndClearActions
@@ -93,7 +89,6 @@ class Gamestate < ActiveRecord::Base
      
     virtualPawn = actionQueue.executeActionQueueOnPawn(pawn, ActionTypeDef::A_MOVE)
 
-    #return the pos of virutalPawn to test
     S_Position.new(Integer(virtualPawn.x), Integer(virtualPawn.y))
   end
   
@@ -104,5 +99,35 @@ class Gamestate < ActiveRecord::Base
     
     S_Position.new(virtualPawn.x, virtualPawn.y)
   end
+  
+  def AJAX_ship
+    # This really shouldn't be a query, but instead be a query in the class constructor
+    # But Im confused as to when it gets called.
+    
+    return Ship.find_by_id(ship_id).AJAX_formatForResponse
+  end
+  
+  def AJAX_possibilities
+    # Two types here
+    
+    # Possible moves    - the SHIP model handles this
+    # Possible actions  - the GAMESTATE should handle this
+    
+    # Ship.whereCanIMoveFrom(pawn, vpos)
+    
+    # possibleActions
+    #   
+    return self
+  end
+  
+  def possibleActions
+    # PossibleActionIndex
+    
+  end
 end
 
+class PossibleActionIndex
+  # A_Nil
+  # A_Move
+  # etc
+end
