@@ -94,7 +94,7 @@ class Gamestate < ActiveRecord::Base
     virtualPawn = actionQueue.executeActionQueueOnPawn(pawn, ActionTypeDef::A_MOVE)
 
     #return the pos of virutalPawn to test
-    S_Position.new(virtualPawn.x, virtualPawn.y)
+    S_Position.new(Integer(virtualPawn.x), Integer(virtualPawn.y))
   end
   
   def getPosition(pawn)

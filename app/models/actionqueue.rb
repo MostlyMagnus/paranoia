@@ -34,6 +34,8 @@ class ActionQueue
       clearActionQueue!
     end
     
+    clearActions
+    
     return @gamestatePawns
   end
   
