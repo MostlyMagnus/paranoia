@@ -28,4 +28,8 @@ class Lobby < ActiveRecord::Base
                     :length => { :minimum => 5 }
   
   
+  def join
+    logger.debug "Lobby:join"
+  end
+  
 end

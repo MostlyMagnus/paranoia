@@ -1,12 +1,19 @@
 class LobbiesController < ApplicationController
 
   def index
-    @lobbies = Lobby.all
+    @lobbies = [Lobby.first]
+    @nanja = "empty"
+    #logger.debug "The object is #{@nanja}"
+    #return render :text => "The object is #{@lobbies}"
     
+    #@lobbyjoin = Lobby.j
+    
+    #Logic should move into model
     if !@lobbies
+      @nanja = "no lobbies creating"
       l = Lobby.new(:name => "Lobby X", :description => "A Game in Space. Traitors are involved", :min_slots => 4, :max_slots => 12 )
-      @lobbies.push(l)
-      @lobbies.save
+      l.save
+      @lobbies = [Lobby.first]
     end
     
     respond_to do |format|
@@ -14,9 +21,19 @@ class LobbiesController < ApplicationController
       format.xml  { render :xml => @lobbies }
     end
   end
+  
+  def show
+    @lobby = Lobby.find(params[:id])
+    #return render :text => 'hello'
     
-    
+  end
+  
+  def join
+    return render :text => 'this is join!'
+  end
+  
   def create
+    return render :text => 'LobbiesController:create'
   end
 
 end
