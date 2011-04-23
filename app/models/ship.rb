@@ -16,7 +16,7 @@ require 'StructDef'
 
 class Ship < ActiveRecord::Base
   attr_accessor :rooms
-
+    
   def buildRooms
     # Instead of having this in initialize, moved to a different function
     # Constructor does not get called on commands like Ship.find_by_id
@@ -39,6 +39,9 @@ class Ship < ActiveRecord::Base
       # place in memory - does it even work like that in this language?
       if splitRoom[2].nil? then splitRoom[2] = "-" end
       if splitRoom[3].nil? then splitRoom[3] = "-" end
+
+      # We need to parse the nodes here. But how should they be stored? Can a single room have more than
+      # one node?
       
       # Lets put it in our array        
       @rooms[pos.x][pos.y] = Room.new(pos, access, splitRoom[2], splitRoom[3])
