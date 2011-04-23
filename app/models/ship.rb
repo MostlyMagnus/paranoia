@@ -47,42 +47,42 @@ class Ship < ActiveRecord::Base
     end
   end
   
-  def whereCanIMoveFromHere?(pawn, pos)
+  def whereCanIMoveFromHere?(pawn)
     # Future code here should take into account access levels
-    # @rooms[pos.x][pos.y].access[:north]
+    # @rooms[pawn.x][pawn.y].access[:north]
 
-    allowedMoves = S_Access.new(0, 0, 0, 0)
-       
-    if @rooms[pos.x][pos.y-1].kind_of? Room then
+    #allowedMoves = S_Access.new(0, 0, 0, 0)
+    allowedMoves = Hash[:north => 0, :south => 0, :east => 0, :west => 0]   
+    if @rooms[pawn.x][pawn.y-1].kind_of? Room then
       #There's a room north
-      unless @rooms[pos.x][pos.y].access[:north] == "x"
+      unless @rooms[pawn.x][pawn.y].access[:north] == "x"
         allowedMoves[:north] = 1   
       end
     end
  
-    if @rooms[pos.x][pos.y+1].kind_of? Room then
+    if @rooms[pawn.x][pawn.y+1].kind_of? Room then
       #There's a room south
-      unless @rooms[pos.x][pos.y].access[:south] == "x"
+      unless @rooms[pawn.x][pawn.y].access[:south] == "x"
         allowedMoves[:south] = 1   
       end
     end
       
-    if @rooms[pos.x-1][pos.y].kind_of? Room then
+    if @rooms[pawn.x-1][pawn.y].kind_of? Room then
       #There's a room west
-      unless @rooms[pos.x][pos.y].access[:west] == "x"
+      unless @rooms[pawn.x][pawn.y].access[:west] == "x"
         allowedMoves[:west] = 1   
       end
     end
  
-    if @rooms[pos.x+1][pos.y].kind_of? Room then
+    if @rooms[pawn.x+1][pawn.y].kind_of? Room then
       #There's a room east
-      unless @rooms[pos.x][pos.y].access[:east] == "x"
+      unless @rooms[pawn.x][pawn.y].access[:east] == "x"
         allowedMoves[:east] = 1   
       end
     end
     
     # Return
-    allowedMoves
+    return allowedMoves
   end
   
   def AJAX_formatForResponse

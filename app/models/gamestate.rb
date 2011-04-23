@@ -22,7 +22,24 @@ class Gamestate < ActiveRecord::Base
     
   def initialize
     #@actionQueue = ActionQueue.new(self)
-    super
+    super    
+  end
+  
+  def shipSetup
+    # Always call this function in code that needs to use this gamestates ship
+    if @ship.nil? then 
+      @ship = Ship.find_by_id(ship_id)
+      @ship.buildRooms
+    end
+  end
+  
+  def pawnSetup(current_user)
+    # Always call this function in code that needs to use the pawn of the user viewing
+    # the gamestate
+    
+    if @pawn.nil? then
+      @pawn = Pawn.find_by_user_id_and_gamestate_id(current_user.id, self.id)
+    end
   end
   
   def crunch
@@ -79,16 +96,17 @@ class Gamestate < ActiveRecord::Base
     
     self
   end
-  
-  def possibleActions(current_user_id)
-    
-  end
-  
-  def getVirtualPosition(pawn)
+
+  def getVirtualPawn(pawn)
+    # The virtual pawn is the current user pawn + any moves that are queued up.
     actionQueue = ActionQueue.new(self)
      
     virtualPawn = actionQueue.executeActionQueueOnPawn(pawn, ActionTypeDef::A_MOVE)
-
+  end
+    
+  def getVirtualPosition(pawn)
+    virtualPawn = getVirtualPawn(pawn)
+    
     S_Position.new(Integer(virtualPawn.x), Integer(virtualPawn.y))
   end
   
@@ -101,33 +119,35 @@ class Gamestate < ActiveRecord::Base
   end
   
   def AJAX_ship
-    # This really shouldn't be a query, but instead be a query in the class constructor
-    # But Im confused as to when it gets called.
-    
-    return Ship.find_by_id(ship_id).AJAX_formatForResponse
+    shipSetup
+    return @ship.AJAX_formatForResponse
   end
   
-  def AJAX_possibilities
-    # Two types here
+  def AJAX_possibilities(current_user)
+    shipSetup
+    pawnSetup(current_user)
     
-    # Possible moves    - the SHIP model handles this
-    # Possible actions  - the GAMESTATE should handle this
+    virtualPawn = getVirtualPawn(@pawn)
     
-    # Ship.whereCanIMoveFrom(pawn, vpos)
+    possibilities = Hash.new
     
-    # possibleActions
-    #   
-    return self
+    possibilities[:access] = @ship.whereCanIMoveFromHere?(virtualPawn)
+    possibilities[:possibleActions] = possibleActions(virtualPawn)
+       
+    return possibilities 
   end
   
-  def possibleActions
-    # PossibleActionIndex
+  def possibleActions(virtualPawn)
+    possibleActionIndex = Hash.new
     
+    possibleActionIndex[:a_use]     = somethingInteractiveHere?(virtualPawn)
+    possibleActionIndex[:a_kill]    = true  # You can always queue up a kill action.
+    possibleActionIndex[:a_repair]  = somethingInteractiveHere?(virtualPawn)
+     
+    return possibleActionIndex
   end
-end
-
-class PossibleActionIndex
-  # A_Nil
-  # A_Move
-  # etc
+  
+  def somethingInteractiveHere?(virtualPawn)
+    return false
+  end
 end

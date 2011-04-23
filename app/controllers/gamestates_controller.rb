@@ -27,20 +27,18 @@ class GamestatesController < ApplicationController
   end
   
   def ajax_gamestate
-    @gamestate = Gamestate.find_by_id(params[:id])
+    @gamestate = Gamestate.find_by_id(params[:id])    
     render :text => @gamestate.makeGamestateSubjective!(current_user.id).to_json
   end
   
   def ajax_ship    
-    @gamestate = Gamestate.find_by_id(params[:id])
-   
+    @gamestate = Gamestate.find_by_id(params[:id])    
     render :text => @gamestate.AJAX_ship.to_json
   end
   
   def ajax_possibleactions
-    @gamestate = Gamestate.find_by_id(params[:id])
-    
-    render :text => @gamestate.AJAX_possibilities.to_json
+    @gamestate = Gamestate.find_by_id(params[:id])    
+    render :text => @gamestate.AJAX_possibilities(current_user).to_json
   end
 
   def bogusdata
