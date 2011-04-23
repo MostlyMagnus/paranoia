@@ -34,19 +34,18 @@ class Ship < ActiveRecord::Base
       
       # Then we get the access codes
       access = S_Access.new(String(splitRoom[1][0]), String(splitRoom[1][1]), String(splitRoom[1][2]), String(splitRoom[1][3]))
-
-      # Lets make sure we dont try to push some random data from some random
-      # place in memory - does it even work like that in this language?
-      if splitRoom[2].nil? then splitRoom[2] = "-" end
-      if splitRoom[3].nil? then splitRoom[3] = "-" end
-
-      # We need to parse the nodes here. But how should they be stored? Can a single room have more than
-      # one node?
       
-      # Lets put it in our array        
-      @rooms[pos.x][pos.y] = Room.new(pos, access, splitRoom[2], splitRoom[3])
+      # Parse the nodes into an array.  
+      nodes = Array.new
       
-      #puts @rooms[pos.hash].room_type
+      if !splitRoom[3].nil? then
+        splitRoom[3].split(",").each do |node|
+            nodes.push(node)    
+        end
+      end
+            
+      # Lets put it in our hash (-That's what SHE said!)        
+      @rooms[pos.x][pos.y] = Room.new(pos, access, splitRoom[2], nodes)      
     end
   end
   
@@ -110,13 +109,13 @@ class AccessStructDef
 end
 
 class Room
-  def initialize(pos, access, room_type, node_type)
+  def initialize(pos, access, room_type, nodes)
     @position   = pos
     @access     = access
     @room_type  = room_type
-    @node_type  = node_type #maybe the nodes should be in a different place?
+    @nodes  = nodes
   end
 
-  attr_accessor :position, :access, :room_type
+  attr_accessor :position, :access, :room_type, :nodes
   
 end
