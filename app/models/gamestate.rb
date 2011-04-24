@@ -18,7 +18,7 @@ require 'GamestatePawn'
 require 'StructDef'
 
 class Gamestate < ActiveRecord::Base
-  attr_accessor :gamestatePawns
+  attr_accessor :gamestatePawns, :ship
     
   def initialize
     #@actionQueue = ActionQueue.new(self)
@@ -46,6 +46,10 @@ class Gamestate < ActiveRecord::Base
     # Since users won't be able to queue up more than one turn worth of actions, and several
     # turns will only happen when NO ONE has activated the gamestate for a given time, we can
     # do this outside of the turn loop, and then clear the user queues.
+    
+    # If there is no node status built, then we need to build it. This should never happen later
+    # but for now I wrote the code so we have a syntax for parsing and working with nodes.
+    if self.nodestatus.nil? then self.nodestatus = buildNodestatus end
     
     @actionQueue = ActionQueue.new(self)
     @actionQueue.buildExecuteAndClearActions
@@ -149,5 +153,20 @@ class Gamestate < ActiveRecord::Base
   
   def somethingInteractiveHere?(virtualPawn)
     return false
+  end
+  
+  def buildNodestatus
+    shipSetup
+    
+    id = 0
+    nodestatusString = ""
+    
+    @ship.nodes.each do |node|
+      #id; type; x, y; health$
+      nodestatusString += String(id)+";"+node.node_type+";"+String(node.position[:x])+","+String(node.position[:y])+";1$"
+      id+=1
+    end
+    
+    return nodestatusString
   end
 end
