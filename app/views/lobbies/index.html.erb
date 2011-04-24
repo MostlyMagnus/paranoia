@@ -18,12 +18,10 @@
     <td><%= lobby.description %></td>
     <td><%= lobby.user_id %></td>
     <td><%= lobby.max_slots %></td>
-    <td><%= link_to 'join game', lobbies_path(lobby.id) %></td>
+    <td><%= link_to 'join game', :action => "show", :id => lobby.id %></td>
   </tr>
 <% end %>
 </table>
 <br />
-
-<%= link_to 'join this', lobbies_path(@l_test) %>
 
 

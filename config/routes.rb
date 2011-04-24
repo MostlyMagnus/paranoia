@@ -1,7 +1,7 @@
 Paranoia::Application.routes.draw do  
   resources :users
   resources :pawns
-  resources :lobbies
+  resources :lobbies 
   resources :sessions, :only => [:new, :create, :destroy]
   resources :updaters
   

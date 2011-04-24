@@ -2,6 +2,7 @@ class LobbiesController < ApplicationController
 
   def index
     @user_lobbies = Lobby.find_user_lobbies
+    @user_lobbies = Lobby.find_available_lobbies
     #return render :text => "The object is #{@lobbies}"
 
   end
