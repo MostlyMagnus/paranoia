@@ -6,8 +6,10 @@ class LobbiesController < ApplicationController
     #logger.debug "The object is #{@nanja}"
     #return render :text => "The object is #{@lobbies}"
     
-    #@lobbyjoin = Lobby.j
+    @user_lobbies = Lobby.find_user_lobbies
     
+    #@lobbyjoin = Lobby.j
+    @l_test = Lobby.find(1)
     #Logic should move into model
     if !@lobbies
       @nanja = "no lobbies creating"

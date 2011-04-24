@@ -3,7 +3,7 @@
 </h1>
 
 <strong> <%= @lobby.description %> </strong> <br /> 
-<%= link_to 'leave this lobby' %> <br><br>
-<%= link_to 'back to lobbies' %> <br>
+<%= link_to 'leave this lobby', :confirm => 'are you sure?' %> <br><br>
+<%= link_to 'back to lobbies', lobbies_path %> <br>
 
 
