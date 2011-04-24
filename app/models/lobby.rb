@@ -38,6 +38,18 @@ class Lobby < ActiveRecord::Base
     s << ' from lobbies'
     s << ' inner join lobby_users on lobby_users.lobby_id = lobbies.id'
     s << ' where lobby_users.user_id = 2'
+    
+    q = self.find_by_sql(s)
+    q.each do |row|
+        RAILS_DEFAULT_LOGGER.debug row.inspect()
+    end
+    q
+  end
+  
+  def self.find_available_lobbies
+    s = 'select distinct lobbies.id, lobbies.name, lobbies.description, lobbies.max_slots, lobby_users.user_id'
+    s << ' from lobbies'
+    s << ' inner join lobby_users on lobby_users.lobby_id = lobbies.id' 
     self.find_by_sql(s)
   end
   
