@@ -6,7 +6,7 @@
       <% if signed_in? %>
       <li><%= link_to "Profile", current_user %></li>
       <li><%= link_to "Sign out", signout_path, :method => :delete %></li>
-      <li><%= link_to "Create game", creategame_path %></li>
+      <li><%= link_to "Lobbies", lobbies_path %></li>
       <li><%= link_to "Join game", joingame_path %></li>
       <li><%= link_to "My active games", mygames_path %></li>      
       <% else %>

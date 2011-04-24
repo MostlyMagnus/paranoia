@@ -28,4 +28,21 @@ class Lobby < ActiveRecord::Base
                     :length => { :minimum => 5 }
   
   
+  def join
+    logger.debug "Lobby:join"
+  end
+  
+  def self.find_user_lobbies
+    #self.joins(:lobby_users).where(:lobby_users => {:lobby_id = id})
+    s = 'select lobbies.id, lobbies.name, lobbies.description, lobbies.max_slots, lobby_users.user_id'
+    s << ' from lobbies'
+    s << ' inner join lobby_users on lobby_users.lobby_id = lobbies.id'
+    s << ' where lobby_users.user_id = 2'
+    self.find_by_sql(s)
+  end
+  
+  def self.find_non_user_lobbies
+    
+  end
+  
 end
