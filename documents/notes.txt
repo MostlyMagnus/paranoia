@@ -99,5 +99,20 @@ $return['map'] = $map;
 echo json_encode($return);
 ?>
 
+------------
 
+Re: Possible Actions
+
+An array of a two variable struct
+
+possibleActions
+  S_Action
+    Text
+    Params
+
+That way, the frontend can simply do a 
+
+possibleActions.each do |action| 
+  # Print all possible actions, parse params into POST data.
+end
 
