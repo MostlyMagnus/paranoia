@@ -116,3 +116,10 @@ possibleActions.each do |action|
   # Print all possible actions, parse params into POST data.
 end
 
+
+__NODES__
+* Water container
+* Generator
+* Airlock activator
+* Control panel (view status of the ship)
+* Engine
