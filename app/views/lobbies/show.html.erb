@@ -1,9 +1,22 @@
 <h1>
-  <%= @lobby.name %>
+  <%= "#{@lobby.name} [#{@lobby.lobby_users.length}/#{@lobby.max_slots}]" %>
 </h1>
 
-<strong> <%= @lobby.description %> </strong> <br /> 
-<%= link_to 'leave this lobby', :confirm => 'are you sure?' %> <br><br>
-<%= link_to 'back to lobbies', lobbies_path %> <br>
+<strong> <%= @lobby.description %> </strong> <br />
 
+<table border=1>
+  <tr>
+    <th>Players (debug)</th>
+  </tr>
+<% @lobby.lobby_users.each do |luser| %> 
+  <tr>
+    <td><%= luser.user_id %></td>
+  </tr>
+<% end %>
+</table>
+
+<br>
+<%= link_to 'leave this lobby', lobbies_path %> <br>
+<%= link_to 'back to lobbies', lobbies_path %> <br>
+<%= link_to 'debug_start_game', mygames_path %> <br>
 

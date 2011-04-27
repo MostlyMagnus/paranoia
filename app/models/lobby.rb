@@ -28,6 +28,8 @@ class Lobby < ActiveRecord::Base
                     :length => { :minimum => 5 }
   
   
+  attr_accessor :has_current_user
+  
   def join
     logger.debug "Lobby:join"
   end
@@ -46,14 +48,21 @@ class Lobby < ActiveRecord::Base
     q
   end
   
-  def self.find_available_lobbies
-    s = 'select distinct lobbies.id, lobbies.name, lobbies.description, lobbies.max_slots, lobby_users.user_id'
-    s << ' from lobbies'
-    s << ' inner join lobby_users on lobby_users.lobby_id = lobbies.id' 
-    self.find_by_sql(s)
+  def self.find_available_lobbies(current_user)
+    lobbies = self.all
+    lobbies.each do |lobby|
+      lobby.has_current_user = lobby.lobby_users.exists?(:user_id => current_user.id)
+      logger.debug ">> setting has_current_player #{lobby.has_current_user}"
+    end
   end
   
   def self.find_non_user_lobbies
+    
+  end
+  
+  def self.create_new
+    #l = Lobby.new(:id => 1, :name => 'Lobby x', :description => 'desc', :max_slots => 12)
+    self.create(:name => 'Lobby x', :description => 'desc', :max_slots => 12)
     
   end
   
