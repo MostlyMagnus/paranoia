@@ -14,7 +14,7 @@ class ActionQueue
     buildGamestatePawns
   end
 
-  def buildExecuteAndClearActions  
+  def buildExecuteAndClearActions!  
     buildGamestatePawns
     
     # Starting with tick #1, build it's action queue, sort it, execute it,
@@ -152,6 +152,11 @@ class ActionQueue
   end
   
   def buildGamestatePawns
+    # Make sure we don't, for some reason, have no playerstatus string. If we
+    # don't, buildPlayerstatus will build a default one for us, with all the pawns
+    # at 0,0.
+    if gamestate.playerstatus.nil? then gamestate.playerstatus = buildPlayerstatus(gamestate) end
+    
     @gamestatePawns.clear
     
     splitGamestatePawns = @gamestate.playerstatus.split("$")
@@ -172,6 +177,17 @@ class ActionQueue
       # Lets put it in our array        
       @gamestatePawns[pawn_id] = GamestatePawn.new(pawn_id, pos.x, pos.y, status )      
     end
+  end
+  
+  def buildPlayerstatus(gamestate)    
+    playerstatusString = ""
+    
+    Pawn.find_all_by_gamestate_id(gamestate.id).each do |pawn|      
+      #id; x,y; status$
+      playerstatusString += String(pawn.id)+";0,0;1"
+    end
+    
+    return playerstatusString
   end
   
 end

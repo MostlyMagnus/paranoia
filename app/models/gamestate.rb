@@ -15,6 +15,7 @@
 require 'ActionQueue'
 require 'ActionTypeDef'
 require 'GamestatePawn'
+require 'NodeHandler'
 require 'StructDef'
 
 class Gamestate < ActiveRecord::Base
@@ -47,12 +48,11 @@ class Gamestate < ActiveRecord::Base
     # turns will only happen when NO ONE has activated the gamestate for a given time, we can
     # do this outside of the turn loop, and then clear the user queues.
     
-    # If there is no node status built, then we need to build it. This should never happen later
-    # but for now I wrote the code so we have a syntax for parsing and working with nodes.
-    if self.nodestatus.nil? then self.nodestatus = buildNodestatus end
+    # Set up the handler to deal with all the nodes on the ship
+    @nodeHandler = NodeHandler.new(self)
     
     @actionQueue = ActionQueue.new(self)
-    @actionQueue.buildExecuteAndClearActions
+    @actionQueue.buildExecuteAndClearActions!
 
     # Now let's do some idle logic for the correct amount of turns
     @updatesRequired = ((Time.now - self.update_when)/(3600 * self.timescale)).floor
@@ -155,18 +155,4 @@ class Gamestate < ActiveRecord::Base
     return false
   end
   
-  def buildNodestatus
-    shipSetup
-    
-    id = 0
-    nodestatusString = ""
-    
-    @ship.nodes.each do |node|
-      #id; type; x, y; health$
-      nodestatusString += String(id)+";"+node.node_type+";"+String(node.position[:x])+","+String(node.position[:y])+";1$"
-      id+=1
-    end
-    
-    return nodestatusString
-  end
 end
