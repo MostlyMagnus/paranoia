@@ -3,22 +3,20 @@
 
 <table border=1>
   <tr>
-    <th>id</th>
     <th>Name</th>
     <th>Description</th>
-    <th>user_id</th>
-    <th>max slots</th>
+    <th>Speed</th>
+    <th>Slots</th>
     <th></th>
   </tr>
  
 <% @user_lobbies.each do |lobby| %>
   <tr>
-    <td><%= lobby.id %></td>
     <td><%= lobby.name %></td>
     <td><%= lobby.description %></td>
-    <td><%= lobby.user_id %></td>
-    <td><%= lobby.max_slots %></td>
-    <td><%= link_to 'join game', :action => "show", :id => lobby.id %></td>
+    <td> N/A </td>
+    <td><%= "#{lobby.lobby_users.length}/#{lobby.max_slots}" %></td>
+    <td><%= link_to (lobby.has_current_user ? 'view' : 'join'), lobby %></td>
   </tr>
 <% end %>
 </table>
