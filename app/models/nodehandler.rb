@@ -1,5 +1,15 @@
 require 'StructDef'
 
+class NodeTypeDef
+  N_NIL               = nil
+
+  N_AIRLOCK_ACTIVATOR = "a"
+  N_CONTROL_PANEL     = "c"
+  N_ENGINE            = "e"
+  N_GENERATOR         = "g"  
+  N_WATER_CONTAINER   = "w"
+end
+
 class NodeHandler
   attr_accessor :logicNodes
 
@@ -21,13 +31,19 @@ class NodeHandler
       nodeSplit = nodeStatus.split(";")
             
       pos = S_Position.new(Integer(nodeSplit[2].split(",")[0]), Integer(nodeSplit[2].split(",")[1]))
+          
+      pushNode = nil
       
-      # We should push the right type of subclass into the hash here, but for now
-      # we only have the default logic node.
-      
-      # Problem: what if there is several nodes in the same slot? Then this
-      # will overwrite. Think think.
-      @logicNodes[pos.x][pos.y] = LogicNode.new(pos, nodeSplit[1], nodeSplit[3])
+      case nodeSplit[1]
+        when NodeTypeDef::N_AIRLOCK_ACTIVATOR then pushNode = N_Airlock_Activator.new(pos, nodeSplit[1], nodeSplit[3])
+        when NodeTypeDef::N_CONTROL_PANEL     then pushNode = N_Control_Panel.new(pos, nodeSplit[1], nodeSplit[3])
+        when NodeTypeDef::N_ENGINE            then pushNode = N_Engine.new(pos, nodeSplit[1], nodeSplit[3])
+        when NodeTypeDef::N_GENERATOR         then pushNode = N_Generator.new(pos, nodeSplit[1], nodeSplit[3])
+        when NodeTypeDef::N_WATER_CONTAINER   then pushNode = N_Water_Container.new(pos, nodeSplit[1], nodeSplit[3])
+        else                                       pushNode = N_Nil.new(pos, nodeSplit[1], nodeSplit[3])
+      end
+        
+      @logicNodes[pos.x][pos.y] = pushNode
     end
     
   end
@@ -58,6 +74,20 @@ class LogicNode
   attr_accessor :position, :node_type, :health
 end
 
-class Node_Nil < LogicNode 
-  attr_accessor :interactive
+class N_Airlock_Activator < LogicNode 
+end
+
+class N_Control_Panel < LogicNode 
+end
+
+class N_Engine < LogicNode 
+end
+
+class N_Generator < LogicNode 
+end
+
+class N_Water_Container < LogicNode 
+end
+
+class N_Nil < LogicNode 
 end

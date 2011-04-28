@@ -39,9 +39,7 @@ class Ship < ActiveRecord::Base
       
       # Parse the nodes into an array.    
       if !splitRoom[3].nil? then
-        splitRoom[3].split(",").each do |node|
-            @nodes.push(Node.new(pos, node))    
-        end
+        @nodes.push(Ship_Node.new(pos, splitRoom[3]))    
       end
             
       # Lets put it in our hash (-That's what SHE said!)        
@@ -119,7 +117,7 @@ class Room
   
 end
 
-class Node
+class Ship_Node
   def initialize(pos, node_type)
     @position   = pos
     @node_type  = node_type

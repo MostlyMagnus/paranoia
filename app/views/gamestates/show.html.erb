@@ -20,9 +20,15 @@
           <%= if (@gamestate.getPosition(@user_pawn).x == x && @gamestate.getPosition(@user_pawn).y == y) then "*" end %>
           <%= if (@gamestate.getVirtualPosition(@user_pawn).x == x && @gamestate.getVirtualPosition(@user_pawn).y == y) then "v" end %>
           
+          <%= if @gamestate.nodeHandler.logicNodes[x][y].kind_of? LogicNode then
+            @gamestate.nodeHandler.logicNodes[x][y].node_type
+          end %>
+          
           <%= if @ship.rooms[x][y].kind_of? Room  then
             @ship.rooms[x][y].room_type
           end %>
+          
+
         </td>
       <% end %>
       </tr>

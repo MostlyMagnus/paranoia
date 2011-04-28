@@ -13,20 +13,6 @@
 #  update_when  :datetime
 #
 
-# == Schema Information
-# Schema version: 20110413180052
-#
-# Table name: gamestates
-#
-#  id           :integer         not null, primary key
-#  ship_id      :integer
-#  nodestatus   :string(255)
-#  playerstatus :string(255)
-#  timescale    :float
-#  created_at   :datetime
-#  updated_at   :datetime
-#  update_when  :datetime
-#
 require 'ActionQueue'
 require 'ActionTypeDef'
 require 'GamestatePawn'
@@ -34,7 +20,7 @@ require 'NodeHandler'
 require 'StructDef'
 
 class Gamestate < ActiveRecord::Base
-  attr_accessor :gamestatePawns, :ship
+  attr_accessor :gamestatePawns, :ship, :nodeHandler
     
   def initialize
     #@actionQueue = ActionQueue.new(self)
@@ -58,13 +44,17 @@ class Gamestate < ActiveRecord::Base
     end
   end
   
+  def nodeSetup
+    @nodeHandler = NodeHandler.new(self)
+  end
+  
   def crunch
     # Since users won't be able to queue up more than one turn worth of actions, and several
     # turns will only happen when NO ONE has activated the gamestate for a given time, we can
     # do this outside of the turn loop, and then clear the user queues.
     
     # Set up the handler to deal with all the nodes on the ship
-    @nodeHandler = NodeHandler.new(self)
+    nodeSetup
     
     @actionQueue = ActionQueue.new(self)
     @actionQueue.buildExecuteAndClearActions!

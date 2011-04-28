@@ -155,7 +155,7 @@ class ActionQueue
     # Make sure we don't, for some reason, have no playerstatus string. If we
     # don't, buildPlayerstatus will build a default one for us, with all the pawns
     # at 0,0.
-    if gamestate.playerstatus.nil? then gamestate.playerstatus = buildPlayerstatus(gamestate) end
+    if @gamestate.playerstatus.nil? then @gamestate.playerstatus = buildPlayerstatus(@gamestate) end
     
     @gamestatePawns.clear
     
