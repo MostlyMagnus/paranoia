@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20110410174552
+# Schema version: 20110427204910
 #
 # Table name: lobbies
 #
@@ -14,6 +14,7 @@
 #  created_by_user_id :integer
 #  created_at         :datetime
 #  updated_at         :datetime
+#  game_speed         :integer
 #
 
 class Lobby < ActiveRecord::Base

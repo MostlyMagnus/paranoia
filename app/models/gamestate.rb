@@ -12,6 +12,21 @@
 #  updated_at   :datetime
 #  update_when  :datetime
 #
+
+# == Schema Information
+# Schema version: 20110413180052
+#
+# Table name: gamestates
+#
+#  id           :integer         not null, primary key
+#  ship_id      :integer
+#  nodestatus   :string(255)
+#  playerstatus :string(255)
+#  timescale    :float
+#  created_at   :datetime
+#  updated_at   :datetime
+#  update_when  :datetime
+#
 require 'ActionQueue'
 require 'ActionTypeDef'
 require 'GamestatePawn'
