@@ -11,7 +11,7 @@ class NodeTypeDef
 end
 
 class NodeHandler
-  attr_accessor :logicNodes
+  attr_accessor :nodes
 
   def initialize(gamestate)
     buildLogicNodes(gamestate)
@@ -20,9 +20,9 @@ class NodeHandler
   def buildLogicNodes(gamestate)
     # If there is no node status built, then we need to build it. This should never happen later
     # but for now I wrote the code so we have a syntax for parsing and working with nodes.        
-    if gamestate.nodestatus.nil? then gamestate.nodestatus = buildNodestatus(gamestate) end
+    if gamestate.nodestatus.nil? then gamestate.nodestatus = createNodestatusFromShip(gamestate) end
     
-    @logicNodes = Hash.new{ |h,k| h[k]=Hash.new(&h.default_proc) }
+    @nodes = Hash.new{ |h,k| h[k]=Hash.new(&h.default_proc) }
     
     #id; type; x, y; health$
     splitNodestatus = gamestate.nodestatus.split("$")
@@ -35,20 +35,19 @@ class NodeHandler
       pushNode = nil
       
       case nodeSplit[1]
-        when NodeTypeDef::N_AIRLOCK_ACTIVATOR then pushNode = N_Airlock_Activator.new(pos, nodeSplit[1], nodeSplit[3])
-        when NodeTypeDef::N_CONTROL_PANEL     then pushNode = N_Control_Panel.new(pos, nodeSplit[1], nodeSplit[3])
-        when NodeTypeDef::N_ENGINE            then pushNode = N_Engine.new(pos, nodeSplit[1], nodeSplit[3])
-        when NodeTypeDef::N_GENERATOR         then pushNode = N_Generator.new(pos, nodeSplit[1], nodeSplit[3])
-        when NodeTypeDef::N_WATER_CONTAINER   then pushNode = N_Water_Container.new(pos, nodeSplit[1], nodeSplit[3])
-        else                                       pushNode = N_Nil.new(pos, nodeSplit[1], nodeSplit[3])
+        when NodeTypeDef::N_AIRLOCK_ACTIVATOR then pushNode = N_Airlock_Activator.new(nodeSplit[0], pos, nodeSplit[1], nodeSplit[3])
+        when NodeTypeDef::N_CONTROL_PANEL     then pushNode = N_Control_Panel.new(nodeSplit[0], pos, nodeSplit[1], nodeSplit[3])
+        when NodeTypeDef::N_ENGINE            then pushNode = N_Engine.new(nodeSplit[0], pos, nodeSplit[1], nodeSplit[3])
+        when NodeTypeDef::N_GENERATOR         then pushNode = N_Generator.new(nodeSplit[0], pos, nodeSplit[1], nodeSplit[3])
+        when NodeTypeDef::N_WATER_CONTAINER   then pushNode = N_Water_Container.new(nodeSplit[0], pos, nodeSplit[1], nodeSplit[3])
+        else                                       pushNode = N_Nil.new(nodeSplit[0], pos, nodeSplit[1], nodeSplit[3])
       end
         
-      @logicNodes[pos.x][pos.y] = pushNode
+      @nodes[pos.x][pos.y] = pushNode
     end
-    
   end
   
-  def buildNodestatus(gamestate)
+  def createNodestatusFromShip(gamestate)
     gamestate.shipSetup
     
     id = 0
@@ -62,16 +61,34 @@ class NodeHandler
     
     return nodestatusString
   end
+  
+  def getNodeById(id)
+    @nodes.each do |h, k|
+      k.each do |_h,_k|
+        if _k.id == id
+          # Does this work?
+          return _k
+        end
+      end
+    end
+  end
 end
 
 class LogicNode
-  def initialize(pos, node_type, health)
+  attr_accessor :id, :position, :node_type, :health
+
+  def initialize(id, pos, node_type, health)
+    @id = id
     @position   = pos
     @node_type  = node_type
     @health = health
+  end  
+
+  def repair(amount)
   end
   
-  attr_accessor :position, :node_type, :health
+  def sabotage(amount)
+  end
 end
 
 class N_Airlock_Activator < LogicNode 
