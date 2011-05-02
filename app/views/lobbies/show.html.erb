@@ -16,7 +16,7 @@
 </table>
 
 <br>
-<%= link_to 'leave this lobby', lobbies_path %> <br>
+<%= link_to 'leave this lobby', { :action => "index", :leave => @lobby.id },
+  :confirm => "Are you sure" %> <br>
 <%= link_to 'back to lobbies', lobbies_path %> <br>
 <%= link_to 'debug_start_game', mygames_path %> <br>
-

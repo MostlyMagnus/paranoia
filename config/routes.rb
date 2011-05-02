@@ -27,7 +27,8 @@ Paranoia::Application.routes.draw do
   match '/signout', :to => 'sessions#destroy'
 
   match '/lobbies', :to => 'lobbies#index'
-  #match '/lobbies/:id' => 'lobbies#show'
+  match '/lobbies/:id', :to => 'lobbies#show'
+  #match '/lobbies/leave/:id', :to => 'lobbies#leave'
       
   match '/joingame', :to => 'pawns#new'
   match '/mygames', :to => 'gamestates#mygames'
