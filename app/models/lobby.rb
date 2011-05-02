@@ -53,7 +53,6 @@ class Lobby < ActiveRecord::Base
     lobbies = self.all
     lobbies.each do |lobby|
       lobby.has_current_user = lobby.lobby_users.exists?(:user_id => current_user.id)
-      logger.debug ">> setting has_current_player #{lobby.has_current_user}"
     end
   end
   
@@ -67,4 +66,12 @@ class Lobby < ActiveRecord::Base
     
   end
   
+  def self.leave(lobby_id, current_user_id)
+    lobby = Lobby.find(lobby_id)
+    if lobby.lobby_users.exists?(:user_id => current_user_id)
+      logger.debug ">>>> current user is here!!!"
+      # need to destroy record here.
+    end
+
+  end
 end
