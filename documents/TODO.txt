@@ -1,0 +1,2 @@
+Remove role column from lobby table
+Start a lobby

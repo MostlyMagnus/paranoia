@@ -1,10 +1,15 @@
 Paranoia::Application.routes.draw do  
   resources :users
   resources :pawns
-  resources :lobbies 
-  resources :lobby_users
   resources :sessions, :only => [:new, :create, :destroy]
   resources :updaters
+  resources :lobbies, :path_names => { :edit => 'leave' }
+
+  resources :lobbies do
+    member do
+      get :leave
+    end
+  end
   
   resources :gamestates do
     member do
@@ -28,7 +33,7 @@ Paranoia::Application.routes.draw do
   match '/signout', :to => 'sessions#destroy'
 
   match '/lobbies', :to => 'lobbies#index'
-  match '/lobbies/:id', :to => 'lobbies#show'
+  #match '/lobbies/:id', :to => 'lobbies#show'
   #match '/lobbies/leave/:id', :to => 'lobbies#leave'
   
   match '/joingame', :to => 'pawns#new'

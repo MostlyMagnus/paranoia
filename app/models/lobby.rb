@@ -1,3 +1,4 @@
+
 # == Schema Information
 # Schema version: 20110427204910
 #
@@ -35,20 +36,6 @@ class Lobby < ActiveRecord::Base
     logger.debug "Lobby:join"
   end
   
-  def self.find_user_lobbies
-    #self.joins(:lobby_users).where(:lobby_users => {:lobby_id = id})
-    s = 'select lobbies.id, lobbies.name, lobbies.description, lobbies.max_slots, lobby_users.user_id'
-    s << ' from lobbies'
-    s << ' inner join lobby_users on lobby_users.lobby_id = lobbies.id'
-    s << ' where lobby_users.user_id = 2'
-    
-    q = self.find_by_sql(s)
-    q.each do |row|
-        RAILS_DEFAULT_LOGGER.debug row.inspect()
-    end
-    q
-  end
-  
   def self.find_available_lobbies(current_user)
     lobbies = self.all
     lobbies.each do |lobby|
@@ -62,16 +49,24 @@ class Lobby < ActiveRecord::Base
   
   def self.create_new
     #l = Lobby.new(:id => 1, :name => 'Lobby x', :description => 'desc', :max_slots => 12)
-    self.create(:name => 'Lobby x', :description => 'desc', :max_slots => 12)
+    self.create(:name => 'Lobby x', :description => 'desc', :max_slots => 12, speed => 1)
     
   end
   
   def self.leave(lobby_id, current_user_id)
-    lobby = Lobby.find(lobby_id)
+    lobby = self.find(lobby_id) # should probably make sure the lobby is still there.
     if lobby.lobby_users.exists?(:user_id => current_user_id)
-      logger.debug ">>>> current user is here!!!"
-      # need to destroy record here.
+      lu = lobby.lobby_users.where(:user_id => current_user_id).first
+      lu.destroy
     end
-
+  end
+  
+  # Will try to join the current user unless the user is already in the game.
+  def self.join(lobby_id, current_user_id)
+    lobby = self.find(lobby_id)
+    # Needs an extra check to really make sure the lobby is not full a this time
+    if not lobby.lobby_users.exists?(:user_id => current_user_id)
+      LobbyUser.create(:user_id => current_user_id, :lobby_id => lobby.id)
+    end
   end
 end
