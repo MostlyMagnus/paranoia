@@ -33,12 +33,15 @@ class LobbiesController < ApplicationController
     # Needs an extra check to really make sure the lobby is not full a this time
     # ...and lets move this code to the model asap...
     if not @lobby.lobby_users.exists?(:user_id => current_user.id)
-      LobbyUser.create(:user_id => current_user.id, :lobby_id => params[:id])
+      @mylobbyuser = LobbyUser.create(:user_id => current_user.id, :lobby_id => params[:id])
       @lobby_text = 'Welcome to this lobby'
+    else
+      @mylobbyuser = @lobby.lobby_users.first
     end
   end
   
   def leave
+    return render :text => "lobby"
     @lobby = Lobby.find(params[:id])
     b = @lobby.lobby_users.exists?(:user_id => current_user.id)
     return render :text => b
