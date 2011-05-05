@@ -16,25 +16,17 @@
 require 'ActionQueue'
 require 'ActionTypeDef'
 require 'GamestatePawn'
-require 'NodeHandler'
+require 'Gameship'
 require 'StructDef'
 
 class Gamestate < ActiveRecord::Base
-  attr_accessor :gamestatePawns, :ship, :nodeHandler
+  attr_accessor :gamestatePawns, :game_ship
     
   def initialize
     #@actionQueue = ActionQueue.new(self)
     super    
   end
-  
-  def shipSetup
-    # Always call this function in code that needs to use this gamestates ship
-    if @ship.nil? then 
-      @ship = Ship.find_by_id(ship_id)
-      @ship.buildRooms
-    end
-  end
-  
+   
   def pawnSetup(current_user)
     # Always call this function in code that needs to use the pawn of the user viewing
     # the gamestate
@@ -44,8 +36,8 @@ class Gamestate < ActiveRecord::Base
     end
   end
   
-  def nodeSetup
-    @nodeHandler = NodeHandler.new(self)
+  def setup_game_ship
+    @game_ship = GameShip.new(self)
   end
   
   def crunch
@@ -54,7 +46,7 @@ class Gamestate < ActiveRecord::Base
     # do this outside of the turn loop, and then clear the user queues.
     
     # Set up the handler to deal with all the nodes on the ship
-    nodeSetup
+    setup_game_ship
     
     @actionQueue = ActionQueue.new(self)
     @actionQueue.buildExecuteAndClearActions!
@@ -128,8 +120,9 @@ class Gamestate < ActiveRecord::Base
   end
   
   def AJAX_ship
-    shipSetup
-    return @ship.AJAX_formatForResponse
+    setup_game_ship
+    
+    return @game_ship.AJAX_formatForResponse
   end
   
   def AJAX_possibilities(current_user)
