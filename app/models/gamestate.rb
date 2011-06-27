@@ -23,7 +23,7 @@ class Gamestate < ActiveRecord::Base
   attr_accessor :gamestatePawns, :game_ship
     
   def initialize
-    #@actionQueue = ActionQueue.new(self)
+    #@actionQueue = ActionQueue.new(self)    
     super    
   end
    
