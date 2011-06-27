@@ -7,6 +7,8 @@ module GamestatesHelper
     else
       flash[:success] = "We are up to date."
     end
+    
+    if gamestate.changed? then gamestate.save end
   end
     
   def nextUpdate 

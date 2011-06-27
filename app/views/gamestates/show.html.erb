@@ -9,23 +9,30 @@
 
 
 <table><tr><td>
-
   <div>
     Room render (* denotes current player position)
   <table border="1">
-    <% for y in 0..10 %>
+    
+    
+    <% for y in 0..16 %>
       <tr>
-      <% for x in 0..10 %>
-        <td style="width:32px; height: 32px">
+      <% for x in 0..17 %>
+        <td style="width:48px; height: 48px">
+          
+          
           <%= if (@gamestate.getPosition(@user_pawn).x == x && @gamestate.getPosition(@user_pawn).y == y) then "*" end %>
           <%= if (@gamestate.getVirtualPosition(@user_pawn).x == x && @gamestate.getVirtualPosition(@user_pawn).y == y) then "v" end %>
           
           <%= if @gamestate.game_ship.logic_nodes[x][y].kind_of? LogicNode then
             @gamestate.game_ship.logic_nodes[x][y].node_type
           end %>
-          
+
+
           <%= if @gamestate.game_ship.rooms[x][y].kind_of? Room  then
             @gamestate.game_ship.rooms[x][y].room_type
+            
+          else
+            "..." 
           end %>
           
 
