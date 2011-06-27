@@ -14,7 +14,7 @@
   <tr>
     <td><%= lobby.name %></td>
     <td><%= lobby.description %></td>
-    <td> N/A </td>
+    <td><%= lobby.game_speed %></td>
     <td><%= "#{lobby.lobby_users.length}/#{lobby.max_slots}" %></td>
     <td><%= link_to (lobby.has_current_user ? 'view' : 'join'), lobby %></td>
   </tr>
