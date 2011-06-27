@@ -123,3 +123,9 @@ __NODES__
 [a] Airlock activator
 [c] Control panel (view status of the ship)
 [e] Engine
+
+  N_AIRLOCK_ACTIVATOR = "n_air1"
+  N_CONTROL_PANEL     = "n_con1"
+  N_ENGINE            = "n_eng1"
+  N_GENERATOR         = "n_gen1"  
+  N_WATER_CONTAINER   = "n_wat1"
