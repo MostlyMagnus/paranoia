@@ -3,11 +3,11 @@ require 'StructDef'
 class NodeTypeDef
   N_NIL               = nil
 
-  N_AIRLOCK_ACTIVATOR = "a"
-  N_CONTROL_PANEL     = "c"
-  N_ENGINE            = "e"
-  N_GENERATOR         = "g"  
-  N_WATER_CONTAINER   = "w"
+  N_AIRLOCK_ACTIVATOR = "n_air1"
+  N_CONTROL_PANEL     = "n_con1"
+  N_ENGINE            = "n_eng1"
+  N_GENERATOR         = "n_gen1"  
+  N_WATER_CONTAINER   = "n_wat1"
 end
 
 class GameShip
@@ -20,11 +20,18 @@ class GameShip
     build_logic_nodes
   end
   
+  def getTempShip
+    return "11,0;xx0x;g1;n_gen1$16,0;xx0x;g1;n_gen1$11,1;0x0x;c1$16,1;0x0x;c1$11,2;0x0x;c1$16,2;0x0x;c1$8,3;x00x;c1$9,3;x0x0;c1$10,3;x0x0;c1$11,3;0000;r1$12,3;x0x0;c1$13,3;x0x0;c1$14,3;x0x0;c1$15,3;x0x0;c1$16,3;0xr0;cr1$8,4;0x0x;c1$11,4;0x0x;c1$16,4;rx0x;cr1$4,5;xx0x;g1$6,5;xx0x;g1$8,5;0x0x;c1$11,5;0x0x;c1$16,5;0x0x;c1$4,6;0x0x;c1$6,6;0x0x;c1$10,6;xrrx;b1$11,6;0xrr;b1$16,6;0x0x;c1$2,7;x00x;c1$3,7;x0x0;c1$4,7;00x0;c1$5,7;x0x0;c1$6,7;00x0;c1$7,7;x0x0;c1$8,7;00x0;c1$9,7;x0x0;c1$10,7;rrr0;b1$11,7;r0rr;b1$12,7;x0x0;c1$13,7;x0x0;c1$14,7;x0x0;c1$15,7;x0x0;c1$16,7;0x00;r2$2,8;0x0x;c1$10,8;rrxx;b1$11,8;rx0r;b1$16,8;0x0x;c1$2,9;0x0x;c1$11,9;0x0x;c1$16,9;0x0x;c1$0,10;x0xx;e1;n_eng1$1,10;x0x0;c1$2,10;0x00;c1$11,10;0x0x;c1$16,10;0x0x;r_air; n_air1$2,11;0x0x;c1$11,11;0x0x;c1$16,11;0x0x;c1$2,12;000x;c1$3,12;x0x0;c1$4,12;x0x0;c1$5,12;x0x0;c1$6,12;x0x0;c1$7,12;x0x0;c1$8,12;x000;c1$9,12;x0x0;c1$10,12;x0x0;c1$11,12;00x0;r3$12,12;x0x0;c1$13,12;x000;c1$14,12;x0x0;c1$15,12;x0x0;c1$16,12;0x00;c1$2,13;0x0x;c1$8,13;0x0x;c1$13,13;0x0x;c1$16,13;0x0x;c1$2,14;0x0x;c1$8,14;0x0x;c1$13,14;0x0x;c1$16,14;0x0x;c1$2,15;00xx;c1$3,15;x0x0;c1$4,15;x0x0;w1;n_wat1$5,15;x0x0;c1$6,15;x0x0;w1;n_wat1$7,15;x0x0;c1$8,15;0xx0;w1;n_wat1$13,15;00xx;w1;n_wat1$14,15;x0x0;c1$15,15;x0x0;w1;n_wat1$16,15;0xx0;c1"
+  end
+  
   def setup_ship
     # Always call this function in code that needs to use this gamestates ship
-    if @ship.nil? then 
-      @ship = Ship.find_by_id(@gamestate.ship_id)
+    @gamestate.logger.debug "setup_ship"
+    if @ship.nil? then
+      @gamestate.logger.debug "ship was nil"
       
+      @ship = Ship.find_by_id(@gamestate.ship_id)    
+    
       parse_game_ship_from_ship
       parse_nodes_from_ship
     end
@@ -32,14 +39,24 @@ class GameShip
   
   def build_logic_nodes
     # If there is no node status built, then we need to build it. This should never happen later
-    # but for now I wrote the code so we have a syntax for parsing and working with nodes.        
-    if @gamestate.nodestatus.nil? then @gamestate.nodestatus = create_node_status_from_ship end
+    # but for now I wrote the code so we have a syntax for parsing and working with nodes.
+ 
+    @gamestate.logger.debug "build_logic_nodes"
+    if @gamestate.nodestatus == ""
+      @gamestate.logger.debug "nodestatus nil!"
+    else
+      @gamestate.logger.debug "nodestatus not nil!"
+    end
     
+    if @gamestate.nodestatus == "" then @gamestate.nodestatus = create_node_status_from_ship end
+    
+    @gamestate.logger.debug @gamestate.nodestatus
+
     @logic_nodes = Hash.new{ |h,k| h[k]=Hash.new(&h.default_proc) }
     
     #id; type; x, y; health$
     splitNodestatus = @gamestate.nodestatus.split("$")
-    
+        
     splitNodestatus.each do |nodeStatus|
       nodeSplit = nodeStatus.split(";")
             
@@ -55,12 +72,15 @@ class GameShip
         when NodeTypeDef::N_WATER_CONTAINER   then pushNode = N_Water_Container.new(nodeSplit[0], pos, nodeSplit[1], nodeSplit[3])
         else                                       pushNode = N_Nil.new(nodeSplit[0], pos, nodeSplit[1], nodeSplit[3])
       end
+      
+      @gamestate.logger.debug pushNode
         
       @logic_nodes[pos.x][pos.y] = pushNode
     end
   end
   
   def create_node_status_from_ship
+    @gamestate.logger.debug "create_node_status_from_ship"
     setup_ship
     
     id = 0
@@ -91,10 +111,10 @@ class GameShip
     
     @rooms  = Hash.new{ |h,k| h[k]=Hash.new(&h.default_proc) }
         
-    # 0,0;x00x;g1;n1$1,0;x0x0;c1;$2,0;x0x0;c1;$3,0;xx00;c1$0,1;0x0x;c1;$
-    # 3,1;0x0x;c1;$0,2;0xrx;e;n0,n2$3,2;1xrx;b;n3$0,3;r0xx;e;n0,n2$
-    # 1,3;x0x0;c1;$2,3;x0x0;c1;$3,3;rxx0;b;n3$
-    splitShip = @ship.layout.split("$")
+    tempShip = getTempShip
+    splitShip = tempShip.split("$")
+    
+    #splitShip = @ship.layout.split("$")
     
     splitShip.each do |room|
       splitRoom = room.split(";")
@@ -111,10 +131,15 @@ class GameShip
   end
   
   def parse_nodes_from_ship
+    @gamestate.logger.debug "parse_nodes_from_ship"
     @nodes  = Array.new
+
+    tempShip = getTempShip
+    splitShip = tempShip.split("$")
     
-    splitShip = @ship.layout.split("$")
+    #splitShip = @ship.layout.split("$")
     
+    @gamestate.logger.debug "splitShip.each do |room|"
     splitShip.each do |room|
       splitRoom = room.split(";")
       
@@ -122,7 +147,8 @@ class GameShip
        
       # Parse the nodes into an array.    
       if !splitRoom[3].nil? then
-        @nodes.push(Ship_Node.new(pos, splitRoom[3]))    
+        @gamestate.logger.debug splitRoom[3]
+        @nodes.push(Ship_Node.new(pos, splitRoom[3]))
       end
     end        
   end
