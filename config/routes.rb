@@ -4,7 +4,8 @@ Paranoia::Application.routes.draw do
   resources :sessions, :only => [:new, :create, :destroy]
   resources :updaters
   resources :lobbies, :path_names => { :edit => 'leave' }
-
+  resources :gamestates, :only => [:create]
+  
   resources :lobbies do
     member do
       get :leave

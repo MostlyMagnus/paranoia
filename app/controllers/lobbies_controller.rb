@@ -9,6 +9,8 @@ class LobbiesController < ApplicationController
   
   def show
     @lobby = Lobby.find(params[:id])
+    
+    # currently always tries to join lobby and lets the Lobby check if we are already in it or not.
     l = Lobby.join(@lobby, current_user.id)
   end
   
@@ -26,4 +28,16 @@ class LobbiesController < ApplicationController
     return render :text => 'LobbiesController:create'
   end
 
+  def destroy
+    @lobby = Lobby.find(params[:id])
+    @lobby.destroy
+    
+    
+    respond_to do |format|
+      format.html { redirect_to (lobbies_url) }
+      #format.xml  { head :ok }
+    end
+    
+  end
+  
 end

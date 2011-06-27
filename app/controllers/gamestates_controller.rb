@@ -21,6 +21,11 @@ class GamestatesController < ApplicationController
   end
   
   def index
+    return render :text => 'GamestateController:index'
+  end
+  
+  def create
+    return render :text => 'GamestateController:create'
   end
   
   def mygames

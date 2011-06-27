@@ -18,6 +18,7 @@ class User < ActiveRecord::Base
   
   # has_many since we might want a single user to be able to play several games - maybe?
   has_many :pawns, :dependent => :destroy
+  has_many :lobby_users, :dependent => :destroy 
   has_many :lobbies, :through => :lobby_users
   
   
