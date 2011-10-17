@@ -1,7 +1,7 @@
 class ChangeShipLayoutVarcharToBlob < ActiveRecord::Migration
   def self.up
     change_table :ships do |t|
-      t.change :layout, :blob
+      t.change :layout, :text
     end
   end
 
