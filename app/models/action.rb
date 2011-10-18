@@ -12,7 +12,7 @@
 #  updated_at   :datetime
 #
 
-require 'ActionTypeDef'
+require 'actiontypedef'
 
 class Action < ActiveRecord::Base
   belongs_to :pawn
