@@ -14,7 +14,7 @@
 #
 
 require 'ActionQueue'
-require 'ActionTypeDef'
+require 'actiontypedef'
 require 'GamestatePawn'
 require 'Gameship'
 require 'StructDef'
