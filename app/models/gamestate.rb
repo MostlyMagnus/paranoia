@@ -24,7 +24,8 @@ class Gamestate < ActiveRecord::Base
   attr_accessor :gamestatePawns, :game_ship
     
   def initialize
-    #@actionQueue = ActionQueue.new(self)    
+    #@actionQueue = ActionQueue.new(self)
+    
     super    
   end
 
@@ -116,14 +117,16 @@ class Gamestate < ActiveRecord::Base
   end
     
   def getVirtualPosition(pawn)
+    self.logger.debug "getVirtualPosition"
+    self.logger.debug pawn.id
+    
     virtualPawn = getVirtualPawn(pawn)
     
     S_Position.new(Integer(virtualPawn.x), Integer(virtualPawn.y))
   end
   
   def getPosition(pawn)
-    actionQueue = ActionQueue.new(self)
-    
+    actionQueue = ActionQueue.new(self)    
     virtualPawn = actionQueue.gamestatePawns[pawn.id]
     
     S_Position.new(virtualPawn.x, virtualPawn.y)

@@ -15,7 +15,7 @@ class ActionQueue
   end
 
   def buildExecuteAndClearActions!  
-    buildGamestatePawns
+    #buildGamestatePawns
     
     # Starting with tick #1, build it's action queue, sort it, execute it,
     # and then clear it. Repeat for the remaining ticks.    
@@ -48,17 +48,19 @@ class ActionQueue
   end
   
   def executeActionQueueOnPawn(pawn, actionFilter = ActionTypeDef::A_NIL)
-    @gamestatePawns = Hash.new
-   
-    buildGamestatePawns    
+    #@gamestatePawns = Hash.new
+    #buildGamestatePawns
     
     gamestatePawn = @gamestatePawns[pawn.id]
-    
+  
+    @gamestate.logger.debug pawn.id
+    @gamestate.logger.debug gamestatePawn
+  
     if(actionFilter == ActionTypeDef::A_NIL)
       #executeAction(action, gamestatePawn)
       print "No filter"
     else
-      Action.find_all_by_pawn_id(gamestatePawn.pawn_id).each do |action|
+      Action.find_all_by_pawn_id(gamestatePawn.id).each do |action|
         if(action.action_type == actionFilter)
           executeAction!(actionToSpecificActionType(action), gamestatePawn) 
         end 
@@ -155,6 +157,8 @@ class ActionQueue
     # Make sure we don't, for some reason, have no playerstatus string. If we
     # don't, buildPlayerstatus will build a default one for us, with all the pawns
     # at 0,0.
+    @gamestate.logger.debug "buildGamestatePawns"
+    
     if @gamestate.playerstatus.nil? then @gamestate.playerstatus = buildPlayerstatus(@gamestate) end
     
     @gamestatePawns.clear
@@ -174,9 +178,14 @@ class ActionQueue
       # Get the status (alive, dead, etc)
       status = Integer(splitPawn[2])
       
-      # Lets put it in our array        
+      @gamestate.logger.debug "Lets put it in our array       "
+      @gamestate.logger.debug pawn_id
+      
       @gamestatePawns[pawn_id] = GamestatePawn.new(pawn_id, pos.x, pos.y, status )      
     end
+ 
+    
+    @gamestate.logger.debug @gamestatePawns
   end
   
   def buildPlayerstatus(gamestate)    

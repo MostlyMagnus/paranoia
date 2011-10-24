@@ -6,14 +6,14 @@ class GamestatesController < ApplicationController
   def show    
     @gamestate = Gamestate.find_by_id(params[:id])    
     @gamestate.setup_game_ship
-    
+  
     @pawns = Pawn.find_all_by_gamestate_id(@gamestate.id)
     @user_pawn = Pawn.find_by_gamestate_id_and_user_id(params[:id], current_user.id)
        
     #@ship = Ship.find_by_id(@gamestate.ship_id)
     
     #@ship.buildRooms
-
+    @pos = @gamestate.getPosition(@user_pawn)
     @vPos = @gamestate.getVirtualPosition(@user_pawn)
     @vRoom = @gamestate.game_ship.rooms[@vPos.x][@vPos.y]
   

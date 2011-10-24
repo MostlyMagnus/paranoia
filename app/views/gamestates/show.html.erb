@@ -20,8 +20,8 @@
         <td style="width:48px; height: 48px">
           
           
-          <%= if (@gamestate.getPosition(@user_pawn).x == x && @gamestate.getPosition(@user_pawn).y == y) then "*" end %>
-          <%= if (@gamestate.getVirtualPosition(@user_pawn).x == x && @gamestate.getVirtualPosition(@user_pawn).y == y) then "v" end %>
+          <%= if (@pos.x == x && @pos.y == y) then "*" end %>
+          <%= if (@vPos.x == x && @vPos.y == y) then "v" end %>
           
           <%= if @gamestate.game_ship.logic_nodes[x][y].kind_of? LogicNode then
             @gamestate.game_ship.logic_nodes[x][y].node_type
