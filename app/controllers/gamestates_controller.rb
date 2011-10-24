@@ -25,7 +25,9 @@ class GamestatesController < ApplicationController
   end
   
   def create
-    return render :text => 'GamestateController:create'
+    # create a new game here. lots o logic
+	#game_id = Gamestate.create_new
+	redirect_to mygames_path
   end
   
   def mygames

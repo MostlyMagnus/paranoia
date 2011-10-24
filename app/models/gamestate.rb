@@ -11,13 +11,14 @@
 #  created_at   :datetime
 #  updated_at   :datetime
 #  update_when  :datetime
-#
+
 
 require 'ActionQueue'
 require 'ActionTypeDef'
 require 'GamestatePawn'
 require 'Gameship'
 require 'StructDef'
+#require 'date'
 
 class Gamestate < ActiveRecord::Base
   attr_accessor :gamestatePawns, :game_ship
@@ -26,7 +27,16 @@ class Gamestate < ActiveRecord::Base
     #@actionQueue = ActionQueue.new(self)    
     super    
   end
-   
+
+  def self.create_new
+	# creates a new game
+	#self.create(:ship_id => 1, 
+	upd_when = DateTime.now.advance(:minutes => 10)
+	gs = self.create(:ship_id => 1, :nodestatus => 'NA', :playerstatus => 'NA', :timescale => 1.0, :created_at => DateTime.now, :updated_at => DateTime.now, :update_when => upd_when)
+	
+	
+  end
+  
   def pawnSetup(current_user)
     # Always call this function in code that needs to use the pawn of the user viewing
     # the gamestate
