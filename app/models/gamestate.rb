@@ -27,16 +27,19 @@ class Gamestate < ActiveRecord::Base
   def self.create_new(lobby_id)
 	# creates a new game
 	
+	logger.debug "-----\n"
+	logger.debug lobby_id
+	logger.debug "-----\n"
 	#TODO:
 	# create list of users and assign them stuff
 	# get this from unwritten method in Lobby
-	
+	# should add const file with timescale meaning for instance.
 	upd_when = DateTime.now.advance(:minutes => 10)
 		
-	gs = self.create(:ship_id => 1, :nodestatus => 'NA', :playerstatus => '', :timescale => 1.0, :created_at => DateTime.now, :updated_at => DateTime.now, :update_when => upd_when)
+	gs = self.create(:ship_id => 1, :timescale => 1.0, :created_at => DateTime.now, :updated_at => DateTime.now, :update_when => upd_when)
 	
 	# probably check that everything was created ok before lobby is deleted
-	# Lobby.delete(lobby_id)
+	Lobby.delete(lobby_id)
 	
   end
   
