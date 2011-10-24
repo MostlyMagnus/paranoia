@@ -25,10 +25,6 @@ class Gamestate < ActiveRecord::Base
   def initialize
     #@actionQueue = ActionQueue.new(self)
     
-    actionQueue = ActionQueue.new(self)
-     
-    @virtualPawn = actionQueue.executeActionQueueOnPawn(pawn, ActionTypeDef::A_MOVE)
-    @currentPawn 
     super    
   end
    
