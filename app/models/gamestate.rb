@@ -18,23 +18,25 @@ require 'ActionTypeDef'
 require 'GamestatePawn'
 require 'Gameship'
 require 'StructDef'
-#require 'date'
+require 'Lobby'
 
 class Gamestate < ActiveRecord::Base
   attr_accessor :gamestatePawns, :game_ship
     
-  def initialize
-    #@actionQueue = ActionQueue.new(self)
-    
-    super    
-  end
-
-  def self.create_new
+  
+  def self.create_new(lobby_id)
 	# creates a new game
-	#self.create(:ship_id => 1, 
-	upd_when = DateTime.now.advance(:minutes => 10)
-	gs = self.create(:ship_id => 1, :nodestatus => 'NA', :playerstatus => 'NA', :timescale => 1.0, :created_at => DateTime.now, :updated_at => DateTime.now, :update_when => upd_when)
 	
+	#TODO:
+	# create list of users and assign them stuff
+	# get this from unwritten method in Lobby
+	
+	upd_when = DateTime.now.advance(:minutes => 10)
+		
+	gs = self.create(:ship_id => 1, :nodestatus => 'NA', :playerstatus => '', :timescale => 1.0, :created_at => DateTime.now, :updated_at => DateTime.now, :update_when => upd_when)
+	
+	# probably check that everything was created ok before lobby is deleted
+	# Lobby.delete(lobby_id)
 	
   end
   

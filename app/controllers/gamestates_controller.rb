@@ -25,8 +25,7 @@ class GamestatesController < ApplicationController
   end
   
   def create
-    # create a new game here. lots o logic
-	#game_id = Gamestate.create_new
+   	game_id = Gamestate.create_new(5)
 	redirect_to mygames_path
   end
   

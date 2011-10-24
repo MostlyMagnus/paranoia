@@ -69,9 +69,6 @@ class Lobby < ActiveRecord::Base
       LobbyUser.create(:user_id => current_user_id, :lobby_id => lobby.id)
     end
   end
-  
-  def self.delete(lobby_id)
-    self.find(lobby_id)
-  end
+
   
 end
