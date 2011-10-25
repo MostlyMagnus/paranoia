@@ -27,6 +27,7 @@ class GameShip
   def setup_ship
     # Always call this function in code that needs to use this gamestates ship
     @gamestate.logger.debug "setup_ship"
+    
     if @ship.nil? then
       @gamestate.logger.debug "ship was nil"
       
@@ -107,7 +108,7 @@ class GameShip
   end
   
   def parse_game_ship_from_ship
-    setup_ship
+    @gamestate.logger.debug "parse_game_ship_from_ship"
     
     @rooms  = Hash.new{ |h,k| h[k]=Hash.new(&h.default_proc) }
         
@@ -127,7 +128,9 @@ class GameShip
                   
       # Lets put it in our hash (-That's what SHE said!)        
       @rooms[pos.x][pos.y] = Room.new(pos, access, splitRoom[2])      
-    end    
+    end
+    
+    @gamestate.logger.debug @rooms
   end
   
   def parse_nodes_from_ship
@@ -153,10 +156,12 @@ class GameShip
     end        
   end
   
-  def where_can_i_move_from_here?(pawn)
+  def whereCanIMoveFromHere?(pawn)
     # Future code here should take into account access levels
     # @rooms[pawn.x][pawn.y].access[:north]
-
+    @gamestate.logger.debug "whereCanIMoveFromHere?"
+    @gamestate.logger.debug @rooms
+    
     #allowedMoves = S_Access.new(0, 0, 0, 0)
     allowedMoves = Hash[:north => 0, :south => 0, :east => 0, :west => 0]   
     if @rooms[pawn.x][pawn.y-1].kind_of? Room then
