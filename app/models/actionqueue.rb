@@ -148,9 +148,10 @@ class ActionQueue
   def executeA_Kill!(action, gamestatePawn)
   end
   
-  def executeA_Move!(action, gamestatePawn)    
-    gamestatePawn.x = action.toX
-    gamestatePawn.y = action.toY
+  def executeA_Move!(action, gamestatePawn)
+    # Where do I get the .toX stuff from?
+    gamestatePawn.x = gamestatePawn.x + Integer(action.toX)
+    gamestatePawn.y = gamestatePawn.y + Integer(action.toY)
   end
   
   def buildGamestatePawns

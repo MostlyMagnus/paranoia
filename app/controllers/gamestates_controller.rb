@@ -14,10 +14,26 @@ class GamestatesController < ApplicationController
     
     #@ship.buildRooms
     @pos = @gamestate.getPosition(@user_pawn)
+    @virtualPawn = @gamestate.getVirtualPawn(@user_pawn)
+    
     @vPos = @gamestate.getVirtualPosition(@user_pawn)
     @vRoom = @gamestate.game_ship.rooms[@vPos.x][@vPos.y]
+     
+    #@gamestate.game_ship.whereCanIMoveFromHere?(@virtualPawn) 
+    @access = @gamestate.game_ship.whereCanIMoveFromHere?(@virtualPawn)
+  end
   
-   # @allowedMoves = @gamestate.game_ship.whereCanIMoveFromHere?(@user_pawn, @vPos)    
+  def add_action
+    @gamestate = Gamestate.find_by_id(params[:id])
+    @pawns = Pawn.find_all_by_gamestate_id(@gamestate.id)
+    
+    @user_pawn = Pawn.find_by_gamestate_id_and_user_id(params[:id], current_user.id) 
+    #@queuenumber = @user_pawn.actions.last.queue_number + 1
+    
+    @user_pawn.actions.create(:queue_number => 0, :action_type => params[:type], :params => params[:details])
+    
+    redirect_to gamestate_path
+    
   end
   
   def index

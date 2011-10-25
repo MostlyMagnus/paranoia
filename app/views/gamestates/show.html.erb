@@ -46,7 +46,10 @@
 </td><td>
   
   <div>  
-    <div>V_Pos: <%= @vPos %>  </div>  
+    <div>V_Pos: <%= @vPos %>  </div>
+    <div>Access: <%= @access %>  </div>
+    <div><%= link_to 'add_action', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_MOVE, :details => "-1,0"  %></div>
+    
   </div>
 
 </td></tr></table>

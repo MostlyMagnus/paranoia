@@ -18,7 +18,8 @@ Paranoia::Application.routes.draw do
       get :ajax_gamestate
       get :ajax_ship
       get :ajax_possibleactions
-      get :bogusdata
+      
+      get :add_action
     end
   end
   
