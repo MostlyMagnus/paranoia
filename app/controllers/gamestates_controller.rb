@@ -40,7 +40,7 @@ class GamestatesController < ApplicationController
     return render :text => 'GamestateController:index'
   end
   
-  def create 
+  def create        
    	game_id = Gamestate.create_new(params[:lobby_id])
 	redirect_to mygames_path
   end
