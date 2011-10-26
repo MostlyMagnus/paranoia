@@ -119,11 +119,11 @@ class Gamestate < ActiveRecord::Base
     actionQueue = ActionQueue.new(self)
      
     virtualPawn = actionQueue.executeActionQueueOnPawn(pawn, ActionTypeDef::A_MOVE)
+    
   end
     
   def getVirtualPosition(pawn)
     self.logger.debug "getVirtualPosition"
-    self.logger.debug pawn.id
     
     virtualPawn = getVirtualPawn(pawn)
     

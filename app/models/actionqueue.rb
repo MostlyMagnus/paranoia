@@ -49,19 +49,31 @@ class ActionQueue
   
   def executeActionQueueOnPawn(pawn, actionFilter = ActionTypeDef::A_NIL)
     #@gamestatePawns = Hash.new
-    #buildGamestatePawns
+    buildGamestatePawns
+    
+    @gamestate.logger.debug "executeActionQueueOnPawn"
     
     gamestatePawn = @gamestatePawns[pawn.id]
   
     @gamestate.logger.debug pawn.id
-    @gamestate.logger.debug gamestatePawn
+    
+    @gamestate.logger.debug "gamestatePawn.x"
+    @gamestate.logger.debug gamestatePawn.x
   
     if(actionFilter == ActionTypeDef::A_NIL)
       #executeAction(action, gamestatePawn)
-      print "No filter"
+      @gamestate.logger.debug "No filter"
     else
-      Action.find_all_by_pawn_id(gamestatePawn.id).each do |action|
+      @gamestate.logger.debug "gamestatePawn.id"
+      @gamestate.logger.debug gamestatePawn.id
+      
+      @gamestate.logger.debug "action.action_type"
+      
+      Action.find_all_by_pawn_id(pawn.id).each do |action|
+        @gamestate.logger.debug action.action_type
         if(action.action_type == actionFilter)
+          @gamestate.logger.debug "Execute action!"
+
           executeAction!(actionToSpecificActionType(action), gamestatePawn) 
         end 
       end
@@ -149,7 +161,6 @@ class ActionQueue
   end
   
   def executeA_Move!(action, gamestatePawn)
-    # Where do I get the .toX stuff from?
     gamestatePawn.x = gamestatePawn.x + Integer(action.toX)
     gamestatePawn.y = gamestatePawn.y + Integer(action.toY)
   end

@@ -28,12 +28,17 @@ class GamestatesController < ApplicationController
     @pawns = Pawn.find_all_by_gamestate_id(@gamestate.id)
     
     @user_pawn = Pawn.find_by_gamestate_id_and_user_id(params[:id], current_user.id) 
-    #@queuenumber = @user_pawn.actions.last.queue_number + 1
+    @user_pawn_actions = @user_pawn.actions
     
-    @user_pawn.actions.create(:queue_number => 0, :action_type => params[:type], :params => params[:details])
+    if !@user_pawn_actions.last.nil? then
+      @queue_number = Integer(@user_pawn_actions.last.queue_number)+1
+    else
+      @queue_number = 0
+    end
+    
+    @user_pawn.actions.create(:queue_number => @queue_number, :action_type => params[:type], :params => params[:details])
     
     redirect_to gamestate_path
-    
   end
   
   def index

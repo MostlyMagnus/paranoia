@@ -48,6 +48,44 @@
   <div>  
     <div>V_Pos: <%= @vPos %>  </div>
     <div>Access: <%= @access %>  </div>
+    
+    <div>
+      <table>
+      <tr><td></td>
+      
+      <td>
+      <%= if @access[:north] == 1 then link_to 'north', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_MOVE, :details => "0,-1"  end %>
+      </td>
+      
+      </tr>
+      
+      <tr>        
+        <td>
+        <%= if @access[:west] == 1 then link_to 'west', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_MOVE, :details => "-1,0"  end %>
+        </td>
+        
+        <td></td>
+        
+        <td>
+        <%= if @access[:east] == 1 then link_to 'east', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_MOVE, :details => "1,0"  end %>
+        </td>      
+        
+      </tr>
+
+      <tr>
+        <td>
+        </td>
+        <td>  
+          <%= if @access[:south] == 1 then link_to 'south', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_MOVE, :details => "0,1"  end %>
+        </td>
+        <td>
+        </td>
+      </tr>
+      
+      </table>
+      
+    </div>
+    
     <div><%= link_to 'add_action', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_MOVE, :details => "-1,0"  %></div>
     
   </div>
