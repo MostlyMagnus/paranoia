@@ -9,18 +9,14 @@ class GamestatesController < ApplicationController
   
     @pawns = Pawn.find_all_by_gamestate_id(@gamestate.id)
     @user_pawn = Pawn.find_by_gamestate_id_and_user_id(params[:id], current_user.id)
-       
-    #@ship = Ship.find_by_id(@gamestate.ship_id)
-    
-    #@ship.buildRooms
-    @pos = @gamestate.getPosition(@user_pawn)
+
+#    @pos = @gamestate.getPosition(@user_pawn)
     @virtualPawn = @gamestate.getVirtualPawn(@user_pawn)
-    
+    @possibleActions = @gamestate.possibleActions(@virtualPawn)
     @vPos = @gamestate.getVirtualPosition(@user_pawn)
-    @vRoom = @gamestate.game_ship.rooms[@vPos.x][@vPos.y]
-     
-    #@gamestate.game_ship.whereCanIMoveFromHere?(@virtualPawn) 
+         
     @access = @gamestate.game_ship.whereCanIMoveFromHere?(@virtualPawn)
+    @gamestatePawns = @gamestate.getGamestatePawns
   end
   
   def add_action
@@ -36,7 +32,20 @@ class GamestatesController < ApplicationController
       @queue_number = 0
     end
     
-    @user_pawn.actions.create(:queue_number => @queue_number, :action_type => params[:type], :params => params[:details])
+    
+    unless @queue_number > 4 then @user_pawn.actions.create(:queue_number => @queue_number, :action_type => params[:type], :params => params[:details]) end
+    
+    redirect_to gamestate_path
+  end
+  
+  def remove_action
+    @gamestate = Gamestate.find_by_id(params[:id])
+    @pawns = Pawn.find_all_by_gamestate_id(@gamestate.id)
+    
+    @user_pawn = Pawn.find_by_gamestate_id_and_user_id(params[:id], current_user.id) 
+    @user_pawn_actions = @user_pawn.actions
+    
+    @user_pawn_actions.last.delete
     
     redirect_to gamestate_path
   end

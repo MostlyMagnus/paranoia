@@ -1,37 +1,35 @@
-<div>Current turn <%= currentTurn %></div>
-<div>Next update <%= nextUpdate %></div>
-
-<div>Action Queue
-  <% actionQueue.each do |a| %>
-  <li><%= a.typeToString %></li>
-  <% end %>
-</div>
-
 
 <table><tr><td>
   <div>
-    Room render (* denotes current player position)
-    
-    
+    Room render (* denotes current player position)    
     
   <div>
      <% for y in 0..16 %>
      
      <div style="clear: both">
         <% for x in 0..17 %>
-          <div style="width: 48px; height: 48px; position: relative; float: left; margin: 2px; background: gray;">
+          <div class="<%= if @gamestate.game_ship.rooms[x][y].kind_of? Room  then @gamestate.game_ship.rooms[x][y].room_type end %>" style="width: 32px; height: 32px; position: relative; float: left; margin: 1px;">
+            
+          <!-- <%= if @gamestate.game_ship.rooms[x][y].kind_of? Room  then @gamestate.game_ship.rooms[x][y].room_type end %>-->
 
-          <%= if (@pos.x == x && @pos.y == y) then "*" end %>
-          <%= if (@vPos.x == x && @vPos.y == y) then "v" end %>
+          <% @gamestatePawns.each do |gamestatePawn| %>
+            
+            <% if gamestatePawn[1].x == x && gamestatePawn[1].y == y then %>
+              
+              <%= if gamestatePawn[1].pawn_id == @user_pawn.id then
+              "*"
+              else
+              "x"
+              end %>
+              
+            <% end %>
+            
+          <% end %>
+          
+          <%= if @vPos.x == x && @vPos.y == y then "v" end %>
           
           <%= if @gamestate.game_ship.logic_nodes[x][y].kind_of? LogicNode then
             @gamestate.game_ship.logic_nodes[x][y].node_type
-          end %>
-
-
-          <%= if @gamestate.game_ship.rooms[x][y].kind_of? Room  then
-            @gamestate.game_ship.rooms[x][y].room_type
-          
           end %>
             
           </div>  
@@ -47,9 +45,17 @@
 
 </td><td>
   
-  <div>  
-    <div>V_Pos: <%= @vPos %>  </div>
-    <div>Access: <%= @access %>  </div>
+  <div>
+    
+    <div><%= image_tag "rooms/"+@gamestate.game_ship.rooms[@vPos.x][@vPos.y].room_type+"_large.jpg"%></div>
+    
+    <div>Current turn <%= currentTurn %></div>
+    <div>Next update <%= nextUpdate %></div>
+      
+    
+    
+    <!-- V_Pos <%= @vPos %>-->
+    <!-- Access <%= @access %>  -->
     
     <div>
       <table>
@@ -87,6 +93,24 @@
       </table>
       
     </div>
+    
+    <div>
+      <div><%= @possibleActions %></div>
+    <%= if @possibleActions[:a_use] then link_to 'Use', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_USE, :details => "" end %>  -
+    <%= if @possibleActions[:a_kill] then link_to 'Kill', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_KILL, :details => "" end %> - 
+    <%= if @possibleActions[:a_repair] then link_to 'Tinker(Repair/Sabotage)', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_REPAIR, :details => "" end %>
+    </div>
+       
+    <div>Action Queue</div>
+    <div><%= link_to 'Backspace', :controller => "gamestates", :action => "remove_action" %></div>
+    <div>
+      <% actionQueue.each do |a| %>
+      <li><%= a.typeToString %></li>
+      <% end %>
+    </div>
+    
+    
+
     
   </div>
 

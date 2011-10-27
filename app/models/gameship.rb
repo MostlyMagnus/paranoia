@@ -196,6 +196,13 @@ class GameShip
     return allowedMoves
   end
   
+  def somethingInteractiveHere?(virtualPawn)
+    @gamestate.logger.debug "somethingInteractiveHere?"
+    @gamestate.logger.debug @logic_nodes[virtualPawn.x][virtualPawn.y]
+    
+    unless @logic_nodes[virtualPawn.x][virtualPawn.y].kind_of? LogicNode then return false else return true end
+  end
+  
   def AJAX_formatForResponse
     setup_ship
     

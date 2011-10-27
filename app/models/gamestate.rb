@@ -113,7 +113,13 @@ class Gamestate < ActiveRecord::Base
     
     self
   end
-
+  
+  def getGamestatePawns
+    actionQueue = ActionQueue.new(self)
+    
+    actionQueue.gamestatePawns
+  end
+  
   def getVirtualPawn(pawn)
     # The virtual pawn is the current user pawn + any moves that are queued up.
     actionQueue = ActionQueue.new(self)
@@ -160,14 +166,16 @@ class Gamestate < ActiveRecord::Base
   def possibleActions(virtualPawn)
     possibleActionIndex = Hash.new
     
-    possibleActionIndex[:a_use]     = somethingInteractiveHere?(virtualPawn)
+    possibleActionIndex[:a_use]     = @game_ship.somethingInteractiveHere?(virtualPawn)        
     possibleActionIndex[:a_kill]    = true  # You can always queue up a kill action.
-    possibleActionIndex[:a_repair]  = somethingInteractiveHere?(virtualPawn)
+    possibleActionIndex[:a_repair]  = @game_ship.somethingInteractiveHere?(virtualPawn)
+    possibleActionIndex[:a_sabotage]     = @game_ship.somethingInteractiveHere?(virtualPawn)
      
     return possibleActionIndex
   end
   
   def somethingInteractiveHere?(virtualPawn)
+    #@game_ship
     return false
   end
   
