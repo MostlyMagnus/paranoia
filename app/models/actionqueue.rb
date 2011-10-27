@@ -63,10 +63,7 @@ class ActionQueue
     if(actionFilter == ActionTypeDef::A_NIL)
       #executeAction(action, gamestatePawn)
       @gamestate.logger.debug "No filter"
-    else
-      @gamestate.logger.debug "gamestatePawn.id"
-      @gamestate.logger.debug gamestatePawn.id
-      
+    else      
       @gamestate.logger.debug "action.action_type"
       
       Action.find_all_by_pawn_id(pawn.id).each do |action|
