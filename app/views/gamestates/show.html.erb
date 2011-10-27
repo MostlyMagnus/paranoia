@@ -11,15 +11,16 @@
 <table><tr><td>
   <div>
     Room render (* denotes current player position)
-  <table border="1">
     
     
-    <% for y in 0..16 %>
-      <tr>
-      <% for x in 0..17 %>
-        <td style="width:48px; height: 48px">
-          
-          
+    
+  <div>
+     <% for y in 0..16 %>
+     
+     <div style="clear: both">
+        <% for x in 0..17 %>
+          <div style="width: 48px; height: 48px; position: relative; float: left; margin: 2px; background: gray;">
+
           <%= if (@pos.x == x && @pos.y == y) then "*" end %>
           <%= if (@vPos.x == x && @vPos.y == y) then "v" end %>
           
@@ -30,17 +31,18 @@
 
           <%= if @gamestate.game_ship.rooms[x][y].kind_of? Room  then
             @gamestate.game_ship.rooms[x][y].room_type
-            
-          else
-            "..." 
-          end %>
           
+          end %>
+            
+          </div>  
+        <% end %>
+        
+     </div>
+    <% end %>       
 
-        </td>
-      <% end %>
-      </tr>
-    <% end %>
-  </table>
+  </div>
+  
+ 
   </div>
 
 </td><td>
