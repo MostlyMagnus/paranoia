@@ -10,6 +10,8 @@ class GamestatesController < ApplicationController
     @pawns = Pawn.find_all_by_gamestate_id(@gamestate.id)
     @user_pawn = Pawn.find_by_gamestate_id_and_user_id(params[:id], current_user.id)
 
+    @visiblePawns = @gamestate.getVisibleGamestatePawns(@user_pawn)
+    
 #    @pos = @gamestate.getPosition(@user_pawn)
     @virtualPawn = @gamestate.getVirtualPawn(@user_pawn)
     @possibleActions = @gamestate.possibleActions(@virtualPawn)

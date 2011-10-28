@@ -1,7 +1,10 @@
 <table><tr><td>
   <div>
     Room render (* denotes current player position)    
-    
+  <div>
+  <%= @visiblePawns %>
+  </div>
+  
   <div>
      <% for y in 0..16 %>
      
@@ -11,11 +14,11 @@
             
           <!-- <%= if @gamestate.game_ship.rooms[x][y].kind_of? Room  then @gamestate.game_ship.rooms[x][y].room_type end %>-->
 
-          <% @gamestatePawns.each do |gamestatePawn| %>
+          <% @visiblePawns.each do |gamestatePawn| %>
             
-            <% if gamestatePawn[1].x == x && gamestatePawn[1].y == y then %>
+            <% if gamestatePawn.x == x && gamestatePawn.y == y then %>
               
-              <%= if gamestatePawn[1].pawn_id == @user_pawn.id then
+              <%= if gamestatePawn.pawn_id == @user_pawn.id then
               "*"
               else
               "x"

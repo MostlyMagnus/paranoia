@@ -20,6 +20,8 @@ require 'Gameship'
 require 'StructDef'
 require 'Lobby'
 
+include Math
+
 class Gamestate < ActiveRecord::Base
   attr_accessor :gamestatePawns, :game_ship
     
@@ -104,16 +106,68 @@ class Gamestate < ActiveRecord::Base
     self.playerstatus = tempPlayerStatus
   end
 
-  def makeGamestateSubjective!(current_user_id)
+  def getVisibleGamestatePawns(user_pawn)
     # This code needs to be written so that it returns a gamestate where only the visible pawns are
     # in the playerstatus. For now, return the entire thing.
     actionQueue = ActionQueue.new(self)
-        
-    self.playerstatus = actionQueue.gamestatePawns
     
-    self
+    visiblePawns = Array.new
+    
+    pawn_position = getPosition(user_pawn)
+  
+    
+    checked_grid = Hash.new(false)
+    
+    scanDirection(user_pawn, actionQueue, pawn_position, checked_grid, visiblePawns, 1, 1)
+    scanDirection(user_pawn, actionQueue, pawn_position, checked_grid, visiblePawns, 1, -1)
+    scanDirection(user_pawn, actionQueue, pawn_position, checked_grid, visiblePawns, -1, -1)
+    scanDirection(user_pawn, actionQueue, pawn_position, checked_grid, visiblePawns, -1, 1)
+    
+    return visiblePawns
   end
   
+  def scanDirection(user_pawn, actionQueue, pawn_position, checked_grid, visiblePawns, multiplier_x, multiplier_y)
+
+    ray_angle = 0.0
+    view_distance = 5;
+    
+    for angle in 0..90 do
+      ray_angle = (angle*3.14)/180
+      
+      delta_x = cos(ray_angle)
+      delta_y = sin(ray_angle)
+      
+      traversed_x = 0;
+      traversed_y = 0;
+      
+      while traversed_x < delta_x*view_distance && traversed_y < delta_y*view_distance do
+        grid_x = pawn_position.x + traversed_x.floor
+        grid_y = pawn_position.y + traversed_y.floor
+        
+        unless checked_grid[[traversed_x.floor, traversed_y.floor]] then
+        
+        if @game_ship.isThisARoom?(grid_x, grid_y)
+          actionQueue.getGamestatePawns(grid_x, grid_y).each do |gamestatePawn|
+            #if user_pawn.id != gamestatePawn.pawn_id then
+              visiblePawns.push(gamestatePawn)
+              #end  
+          end
+          
+          checked_grid[[traversed_x.floor, traversed_y.floor]] = true          
+        else
+          break
+        end
+ 
+        end
+        #we should skip to ceil since we only check the cell once
+        #too tired right now
+        traversed_x = traversed_x + multiplier_x*delta_x
+        traversed_y = traversed_y + multiplier_y*delta_y
+      end
+      
+    end    
+  end
+    
   def getGamestatePawns
     actionQueue = ActionQueue.new(self)
     

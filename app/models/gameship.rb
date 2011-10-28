@@ -218,7 +218,11 @@ class GameShip
     toAjaxResponse[:nodes]  = @logic_nodes
     
     return toAjaxResponse
-  end  
+  end
+  
+  def isThisARoom?(x, y)
+    return @rooms[x][y].kind_of? Room
+  end
 end
 
 class Room

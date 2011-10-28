@@ -78,6 +78,20 @@ class ActionQueue
     
     return gamestatePawn
   end
+
+  def getGamestatePawns(x, y)
+    list_of_pawns = Array.new
+    
+    @gamestatePawns.each do |gamestatePawn|
+      if gamestatePawn[1].x == x && gamestatePawn[1].y == y then
+        list_of_pawns.push(gamestatePawn[1])
+      end
+      
+    end
+    return list_of_pawns
+
+  end
+  
   
   private
   
