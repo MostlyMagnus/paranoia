@@ -17,6 +17,8 @@ class GamestatesController < ApplicationController
          
     @access = @gamestate.game_ship.whereCanIMoveFromHere?(@virtualPawn)
     @gamestatePawns = @gamestate.getGamestatePawns
+    
+    @pb = @gamestate.possibleActions2(@virtualPawn)
   end
   
   def add_action

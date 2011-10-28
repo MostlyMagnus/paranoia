@@ -174,6 +174,20 @@ class Gamestate < ActiveRecord::Base
     return possibleActionIndex
   end
   
+  def possibleActions2(virtualPawn)
+    self.logger.debug "possibleActions2"
+    possibleActionIndex = Array.new
+    
+    possibleActionIndex.push(Hash.new(:action_type => 0, :params => "0,0"))
+    
+    #possibleActionIndex[:a_use]     = @game_ship.somethingInteractiveHere?(virtualPawn)        
+    #possibleActionIndex[:a_kill]    = true  # You can always queue up a kill action.
+    #possibleActionIndex[:a_repair]  = @game_ship.somethingInteractiveHere?(virtualPawn)
+    #possibleActionIndex[:a_sabotage]     = @game_ship.somethingInteractiveHere?(virtualPawn)
+     
+    return possibleActionIndex    
+  end
+  
   def somethingInteractiveHere?(virtualPawn)
     #@game_ship
     return false
