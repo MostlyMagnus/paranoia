@@ -162,6 +162,8 @@ class GameShip
     @gamestate.logger.debug "whereCanIMoveFromHere?"
     @gamestate.logger.debug @rooms
     
+    @gamestate.logger.debug @rooms[pawn.x][pawn.y].access
+    
     #allowedMoves = S_Access.new(0, 0, 0, 0)
     allowedMoves = Hash[:north => 0, :south => 0, :east => 0, :west => 0]   
     if @rooms[pawn.x][pawn.y-1].kind_of? Room then
