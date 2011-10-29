@@ -220,8 +220,8 @@ class GameShip
     return toAjaxResponse
   end
   
-  def isThisARoom?(x, y)
-    return @rooms[x][y].kind_of? Room
+  def isThisARoom?(grid)
+    return @rooms[grid.x][grid.y].kind_of? Room
   end
 end
 

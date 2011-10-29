@@ -107,71 +107,48 @@ class Gamestate < ActiveRecord::Base
   end
 
   def getVisibleGamestatePawns(user_pawn)
-    # This code needs to be written so that it returns a gamestate where only the visible pawns are
-    # in the playerstatus. For now, return the entire thing.
     actionQueue = ActionQueue.new(self)
     
-    visiblePawns = Array.new
-    
+    visiblePawns  = Array.new   
     pawn_position = getPosition(user_pawn)
   
-    
     @checked_grid = Hash.new(false)
     
-    scanDirection(user_pawn, actionQueue, pawn_position, visiblePawns, 1, 1)
-    scanDirection(user_pawn, actionQueue, pawn_position, visiblePawns, 1, -1)
-    scanDirection(user_pawn, actionQueue, pawn_position, visiblePawns, -1, -1)
-    scanDirection(user_pawn, actionQueue, pawn_position, visiblePawns, -1, 1)
+    scanDirection(user_pawn, actionQueue, pawn_position, visiblePawns,  1,   1)
+    scanDirection(user_pawn, actionQueue, pawn_position, visiblePawns,  1,  -1)
+    scanDirection(user_pawn, actionQueue, pawn_position, visiblePawns, -1,  -1)
+    scanDirection(user_pawn, actionQueue, pawn_position, visiblePawns, -1,   1)
     
     return visiblePawns
   end
   
   def scanDirection(user_pawn, actionQueue, pawn_position, visiblePawns, multiplier_x, multiplier_y)
-
-    ray_angle = 0.0
     @view_distance = 5;
     
     for angle in 0..90 do
-      ray_angle = (angle*3.14)/180
-      
-      delta_x = cos(ray_angle)
-      delta_y = sin(ray_angle)
-      
-      traversed_x = 0;
-      traversed_y = 0;
-      
-      while traversed_x < delta_x*@view_distance  && traversed_y < delta_y*@view_distance  do
-        if multiplier_x > 0 then
-          grid_x = pawn_position.x + traversed_x.round
-        else
-          grid_x = pawn_position.x - traversed_x.round
-        end
-          
-        if multiplier_y > 0 then
-          grid_y = pawn_position.y + traversed_y.round
-        else
-          grid_y = pawn_position.y - traversed_y.round
-        end
+      ray_angle     = (angle*3.14)/180
+      ray_delta     = S_Position.new(cos(ray_angle), sin(ray_angle))
+      ray_traversed = S_Position.new(0,0)
+              
+      while ray_traversed.x < ray_delta.x*@view_distance  && ray_traversed.y < ray_delta.y*@view_distance  do
+        ray_grid = S_Position.new(pawn_position.x + multiplier_x*ray_traversed.x.round,
+                                  pawn_position.y + multiplier_y*ray_traversed.y.round)
                
-        unless @checked_grid[[grid_x, grid_y]] then
-        
-        if @game_ship.isThisARoom?(grid_x, grid_y) 
-          actionQueue.getGamestatePawns(grid_x, grid_y).each do |gamestatePawn|
-              visiblePawns.push(gamestatePawn)
+        unless @checked_grid[[ray_grid.x, ray_grid.y]] then
+          if @game_ship.isThisARoom?(ray_grid)
+            actionQueue.getGamestatePawns(ray_grid).each do |gamestatePawn|
+                visiblePawns.push(gamestatePawn)
+            end
+          else
+            break 
           end
-        else
-          # if we want it to stop at walls.
-          break
+ 
+          @checked_grid[[ray_grid.x, ray_grid.y]] = true
         end
  
-        @checked_grid[[grid_x, grid_y]] = true
-        
-        end
- 
-        traversed_x = traversed_x + delta_x
-        traversed_y = traversed_y + delta_y
+        ray_traversed.x = ray_traversed.x + ray_delta.x
+        ray_traversed.y = ray_traversed.y + ray_delta.y
       end
-      
     end    
   end
     
