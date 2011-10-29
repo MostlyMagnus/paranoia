@@ -1,10 +1,8 @@
 <table><tr><td>
   <div>
     Room render (* denotes current player position)    
-  <div>
-  <%= @visiblePawns %>
-  </div>
-  
+  <!-- <%= @visiblePawns %> -->
+  <!-- <%= @gamestate.checked_grid %> -->
   <div>
      <% for y in 0..16 %>
      
@@ -23,10 +21,12 @@
               else
               "x"
               end %>
-              
+            
             <% end %>
             
           <% end %>
+          
+          <%= if @gamestate.checked_grid[[x, y]] then "#" end %>
           
           <%= if @vPos.x == x && @vPos.y == y then "v" end %>
           
