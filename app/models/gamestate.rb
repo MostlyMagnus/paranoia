@@ -129,7 +129,7 @@ class Gamestate < ActiveRecord::Base
   def scanDirection(user_pawn, actionQueue, pawn_position, visiblePawns, multiplier_x, multiplier_y)
 
     ray_angle = 0.0
-    view_distance = 5;
+    @view_distance = 5;
     
     for angle in 0..90 do
       ray_angle = (angle*3.14)/180
@@ -140,26 +140,27 @@ class Gamestate < ActiveRecord::Base
       traversed_x = 0;
       traversed_y = 0;
       
-      while traversed_x < delta_x*view_distance && traversed_y < delta_y*view_distance do
+      while traversed_x < delta_x*@view_distance  && traversed_y < delta_y*@view_distance  do
         if multiplier_x > 0 then
-          grid_x = pawn_position.x + traversed_x.floor
+          grid_x = pawn_position.x + traversed_x.round
         else
-          grid_x = pawn_position.x - traversed_x.floor
+          grid_x = pawn_position.x - traversed_x.round
         end
           
         if multiplier_y > 0 then
-          grid_y = pawn_position.y + traversed_y.floor
+          grid_y = pawn_position.y + traversed_y.round
         else
-          grid_y = pawn_position.y - traversed_y.floor
+          grid_y = pawn_position.y - traversed_y.round
         end
                
         unless @checked_grid[[grid_x, grid_y]] then
         
-        if @game_ship.isThisARoom?(grid_x, grid_y)
+        if @game_ship.isThisARoom?(grid_x, grid_y) 
           actionQueue.getGamestatePawns(grid_x, grid_y).each do |gamestatePawn|
               visiblePawns.push(gamestatePawn)
           end
         else
+          # if we want it to stop at walls.
           break
         end
  
