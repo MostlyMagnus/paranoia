@@ -102,12 +102,10 @@
     </div>
     
     <div>
-      <div><%= @possibleActions %></div>
-      <div><%= @pb %></div>
-      
-    <%= if @possibleActions[:a_use] then link_to 'Use', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_USE, :details => "" end %>  -
-    <%= if @possibleActions[:a_kill] then link_to 'Kill', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_KILL, :details => "" end %> - 
-    <%= if @possibleActions[:a_repair] then link_to 'Tinker(Repair/Sabotage)', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_REPAIR, :details => "" end %>
+      <div> Possible Actions </div>
+      <% @possibleActions.each do |possibleAction| %>
+        <%= link_to possibleAction[:verbose], :controller => "gamestates", :action => "add_action", :type => possibleAction[:action_type], :details => possibleAction[:params] %><br>
+      <% end %>
     </div>
        
     <div>Action Queue</div>

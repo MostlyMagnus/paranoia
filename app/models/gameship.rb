@@ -202,7 +202,7 @@ class GameShip
     @gamestate.logger.debug "somethingInteractiveHere?"
     @gamestate.logger.debug @logic_nodes[virtualPawn.x][virtualPawn.y]
     
-    unless @logic_nodes[virtualPawn.x][virtualPawn.y].kind_of? LogicNode then return false else return true end
+    unless @logic_nodes[virtualPawn.x][virtualPawn.y].kind_of? LogicNode then return nil else return @logic_nodes[virtualPawn.x][virtualPawn.y] end
   end
   
   def AJAX_formatForResponse

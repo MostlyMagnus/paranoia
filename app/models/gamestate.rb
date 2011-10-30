@@ -122,18 +122,18 @@ class Gamestate < ActiveRecord::Base
     return visiblePawns
   end
   
-  def scanDirection(user_pawn, actionQueue, pawn_position, visiblePawns, multiplier_x, multiplier_y)
+  def scanDirection(user_pawn, actionQueue, pawn_position, visiblePawns, multiplier_x, multiplier_y )
     @view_distance = 5;
     
     for angle in 0..90 do
       ray_angle     = (angle*3.14)/180
       ray_delta     = S_Position.new(cos(ray_angle), sin(ray_angle))
       ray_traversed = S_Position.new(0,0)
-              
+         
       while ray_traversed.x < ray_delta.x*@view_distance  && ray_traversed.y < ray_delta.y*@view_distance  do
         ray_grid = S_Position.new(pawn_position.x + multiplier_x*ray_traversed.x.round,
                                   pawn_position.y + multiplier_y*ray_traversed.y.round)
-               
+                       
         unless @checked_grid[[ray_grid.x, ray_grid.y]] then
           if @game_ship.isThisARoom?(ray_grid)
             actionQueue.getGamestatePawns(ray_grid).each do |gamestatePawn|
@@ -146,10 +146,10 @@ class Gamestate < ActiveRecord::Base
           @checked_grid[[ray_grid.x, ray_grid.y]] = true
         end
  
-        ray_traversed.x = ray_traversed.x + ray_delta.x
-        ray_traversed.y = ray_traversed.y + ray_delta.y
+        ray_traversed.x += ray_delta.x
+        ray_traversed.y += ray_delta.y
       end
-    end    
+    end
   end
     
   def getGamestatePawns
@@ -188,41 +188,36 @@ class Gamestate < ActiveRecord::Base
   end
   
   def AJAX_possibilities(current_user)
-    shipSetup
+    setup_game_ship
     pawnSetup(current_user)
     
     virtualPawn = getVirtualPawn(@pawn)
     
     possibilities = Hash.new
     
-    possibilities[:access] = @ship.whereCanIMoveFromHere?(virtualPawn)
+    possibilities[:access] = @game_ship.whereCanIMoveFromHere?(virtualPawn)
     possibilities[:possibleActions] = possibleActions(virtualPawn)
        
     return possibilities 
   end
-  
+    
   def possibleActions(virtualPawn)
-    possibleActionIndex = Hash.new
-    
-    possibleActionIndex[:a_use]     = @game_ship.somethingInteractiveHere?(virtualPawn)        
-    possibleActionIndex[:a_kill]    = true  # You can always queue up a kill action.
-    possibleActionIndex[:a_repair]  = @game_ship.somethingInteractiveHere?(virtualPawn)
-    possibleActionIndex[:a_sabotage]     = @game_ship.somethingInteractiveHere?(virtualPawn)
-     
-    return possibleActionIndex
-  end
-  
-  def possibleActions2(virtualPawn)
-    self.logger.debug "possibleActions2"
+    # Push the actions into this array. Front end will deal with the rest.
     possibleActionIndex = Array.new
+
+    # Things left to do here:
+    #  Need code to do kill actions for specific targets, as well as the first person to enter. Unluckyyyy.
+    #   Maybe this should be tied to a list of players in the game rather than th eplayers IN the room?
+    #   The GUI would then display what players are actually in your room at the moment. Yes.
+    #
+    #  Convert node_type to something better.
     
-    possibleActionIndex.push(Hash.new(:action_type => 0, :params => "0,0"))
+    if !@game_ship.somethingInteractiveHere?(virtualPawn).nil? then
+      possibleActionIndex.push({:verbose => "Use "+@game_ship.somethingInteractiveHere?(virtualPawn).node_type, :action_type => ActionTypeDef::A_USE, :params => "0,0"})
+      possibleActionIndex.push({:verbose => "Repair "+@game_ship.somethingInteractiveHere?(virtualPawn).node_type, :action_type => ActionTypeDef::A_REPAIR, :params => "1"})
+      possibleActionIndex.push({:verbose => "Sabotage "+@game_ship.somethingInteractiveHere?(virtualPawn).node_type, :action_type => ActionTypeDef::A_REPAIR, :params => "-1"})
+    end
     
-    #possibleActionIndex[:a_use]     = @game_ship.somethingInteractiveHere?(virtualPawn)        
-    #possibleActionIndex[:a_kill]    = true  # You can always queue up a kill action.
-    #possibleActionIndex[:a_repair]  = @game_ship.somethingInteractiveHere?(virtualPawn)
-    #possibleActionIndex[:a_sabotage]     = @game_ship.somethingInteractiveHere?(virtualPawn)
-     
     return possibleActionIndex    
   end
   
