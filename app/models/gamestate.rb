@@ -158,6 +158,12 @@ class Gamestate < ActiveRecord::Base
     actionQueue.gamestatePawns
   end
   
+  def getGamestatePawnsNoPositions
+    actionQueue = ActionQueue.new(self)
+    
+    actionQueue.gamestatePawns
+  end
+  
   def getVirtualPawn(pawn)
     # The virtual pawn is the current user pawn + any moves that are queued up.
     actionQueue = ActionQueue.new(self)
@@ -200,6 +206,19 @@ class Gamestate < ActiveRecord::Base
        
     return possibilities 
   end
+  
+  def AJAX_GamestatePawns
+    gamestatePawns = getGamestatePawns
+    pawnsList = Array.new
+    
+    gamestatePawns.each do |gamestatePawn|
+      #@gamestatePawn[1].x, @gamestatePawn[1].y = -1,-1
+      
+      #pawnsList.push(@gamestatePawn[1])
+    end
+    
+    return gamestatePawns
+  end
     
   def possibleActions(virtualPawn)
     # Push the actions into this array. Front end will deal with the rest.
@@ -211,19 +230,16 @@ class Gamestate < ActiveRecord::Base
     #   The GUI would then display what players are actually in your room at the moment. Yes.
     #
     #  Convert node_type to something better.
+
+    possibleActionIndex.push({:verbose => "Ambush (kill)", :action_type => ActionTypeDef::A_KILL, :params => "-1"})
     
     if !@game_ship.somethingInteractiveHere?(virtualPawn).nil? then
-      possibleActionIndex.push({:verbose => "Use "+@game_ship.somethingInteractiveHere?(virtualPawn).node_type, :action_type => ActionTypeDef::A_USE, :params => "0,0"})
-      possibleActionIndex.push({:verbose => "Repair "+@game_ship.somethingInteractiveHere?(virtualPawn).node_type, :action_type => ActionTypeDef::A_REPAIR, :params => "1"})
-      possibleActionIndex.push({:verbose => "Sabotage "+@game_ship.somethingInteractiveHere?(virtualPawn).node_type, :action_type => ActionTypeDef::A_REPAIR, :params => "-1"})
+      possibleActionIndex.push({:verbose => "Use "      +@game_ship.somethingInteractiveHere?(virtualPawn).node_type, :action_type => ActionTypeDef::A_USE, :params => @game_ship.somethingInteractiveHere?(virtualPawn).id})
+      possibleActionIndex.push({:verbose => "Repair "   +@game_ship.somethingInteractiveHere?(virtualPawn).node_type, :action_type => ActionTypeDef::A_REPAIR, :params => @game_ship.somethingInteractiveHere?(virtualPawn).id+", 1"})
+      possibleActionIndex.push({:verbose => "Sabotage " +@game_ship.somethingInteractiveHere?(virtualPawn).node_type, :action_type => ActionTypeDef::A_REPAIR, :params => @game_ship.somethingInteractiveHere?(virtualPawn).id + ", -1"})
     end
     
     return possibleActionIndex    
   end
-  
-  def somethingInteractiveHere?(virtualPawn)
-    #@game_ship
-    return false
-  end
-  
+
 end

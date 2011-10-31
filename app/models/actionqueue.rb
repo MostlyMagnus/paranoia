@@ -89,7 +89,6 @@ class ActionQueue
       
     end
     return list_of_pawns
-
   end
   
   
@@ -200,16 +199,12 @@ class ActionQueue
       
       # Get the status (alive, dead, etc)
       status = Integer(splitPawn[2])
-      
-      @gamestate.logger.debug "Lets put it in our array       "
-      @gamestate.logger.debug pawn_id
-      
+            
       @gamestatePawns[pawn_id] = GamestatePawn.new(pawn_id, pos.x, pos.y, status )      
     end
- 
-    
-    @gamestate.logger.debug @gamestatePawns
   end
+  
+  
   
   def buildPlayerstatus(gamestate)    
     playerstatusString = ""

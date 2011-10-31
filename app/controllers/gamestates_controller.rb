@@ -7,20 +7,19 @@ class GamestatesController < ApplicationController
     @gamestate = Gamestate.find_by_id(params[:id])    
     @gamestate.setup_game_ship
   
-    @pawns = Pawn.find_all_by_gamestate_id(@gamestate.id)
-    @user_pawn = Pawn.find_by_gamestate_id_and_user_id(params[:id], current_user.id)
+    @pawns            = Pawn.find_all_by_gamestate_id(@gamestate.id)
+    @user_pawn        = Pawn.find_by_gamestate_id_and_user_id(params[:id], current_user.id)
 
-    @visiblePawns = @gamestate.getVisibleGamestatePawns(@user_pawn)
+    @visiblePawns     = @gamestate.getVisibleGamestatePawns(@user_pawn)
+
+    @virtualPawn      = @gamestate.getVirtualPawn(@user_pawn)
     
-#    @pos = @gamestate.getPosition(@user_pawn)
-    @virtualPawn = @gamestate.getVirtualPawn(@user_pawn)
+    @possibleActions  = @gamestate.possibleActions(@virtualPawn)
     
-    @possibleActions = @gamestate.possibleActions(@virtualPawn)
-    
-    @vPos = @gamestate.getVirtualPosition(@user_pawn)
+    @vPos             = @gamestate.getVirtualPosition(@user_pawn)
          
-    @access = @gamestate.game_ship.whereCanIMoveFromHere?(@virtualPawn)
-    @gamestatePawns = @gamestate.getGamestatePawns
+    @access           = @gamestate.game_ship.whereCanIMoveFromHere?(@virtualPawn)
+    @gamestatePawns   = @gamestate.getGamestatePawns
     
   end
   
@@ -36,8 +35,7 @@ class GamestatesController < ApplicationController
     else
       @queue_number = 0
     end
-    
-    
+
     unless @queue_number > 4 then @user_pawn.actions.create(:queue_number => @queue_number, :action_type => params[:type], :params => params[:details]) end
     
     redirect_to gamestate_path
@@ -70,7 +68,7 @@ class GamestatesController < ApplicationController
   
   def ajax_gamestate
     @gamestate = Gamestate.find_by_id(params[:id])    
-    render :text => @gamestate.makeGamestateSubjective!(current_user.id).to_json
+    render :text => @gamestate.to_json
   end
   
   def ajax_ship    
@@ -79,21 +77,13 @@ class GamestatesController < ApplicationController
   end
   
   def ajax_possibleactions
-    @gamestate = Gamestate.find_by_id(params[:id])    
+    @gamestate = Gamestate.find_by_id(params[:id])
+    @gamestate.setup_game_ship
     render :text => @gamestate.AJAX_possibilities(current_user).to_json
   end
 
-  def bogusdata
+  def ajax_gamestatepawns
     @gamestate = Gamestate.find_by_id(params[:id])
-    @pawns = Pawn.find_all_by_gamestate_id(@gamestate.id)
-
-    @pawns.each do |p|
-      for i in 1..5
-        p.actions.create!(:queue_number => i, :action_type => ActionTypeDef::A_KILL)
-      end
-      
-    end
-   
-    redirect_to root_path
-  end  
+    render :text => @gamestate.AJAX_GamestatePawns
+  end
 end
