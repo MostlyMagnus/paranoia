@@ -9,14 +9,10 @@ class ActionQueue
     
     @pawns = Pawn.find_all_by_gamestate_id(@gamestate.id) 
     @action_queue = Array.new
-    @gamestatePawns = Hash.new
-    
-    buildGamestatePawns
+    @gamestatePawns = @gamestate.gamestatePawns
   end
 
-  def buildExecuteAndClearActions!  
-    #buildGamestatePawns
-    
+  def buildExecuteAndClearActions!(gamestatePawns)  
     # Starting with tick #1, build it's action queue, sort it, execute it,
     # and then clear it. Repeat for the remaining ticks.    
     for tick in 0..4
@@ -47,30 +43,16 @@ class ActionQueue
     end
   end
   
-  def executeActionQueueOnPawn(pawn, actionFilter = ActionTypeDef::A_NIL)
-    #@gamestatePawns = Hash.new
-    buildGamestatePawns
-    
-    @gamestate.logger.debug "executeActionQueueOnPawn"
-    
+  def executeActionQueueOnPawn(pawn, actionFilter = ActionTypeDef::A_NIL)    
     gamestatePawn = @gamestatePawns[pawn.id]
-  
-    @gamestate.logger.debug pawn.id
     
-    @gamestate.logger.debug "gamestatePawn.x"
-    @gamestate.logger.debug gamestatePawn.x
-  
     if(actionFilter == ActionTypeDef::A_NIL)
       #executeAction(action, gamestatePawn)
       @gamestate.logger.debug "No filter"
     else      
-      @gamestate.logger.debug "action.action_type"
       
       Action.find_all_by_pawn_id(pawn.id).each do |action|
-        @gamestate.logger.debug action.action_type
         if(action.action_type == actionFilter)
-          @gamestate.logger.debug "Execute action!"
-
           executeAction!(actionToSpecificActionType(action), gamestatePawn) 
         end 
       end
@@ -78,20 +60,7 @@ class ActionQueue
     
     return gamestatePawn
   end
-
-  def getGamestatePawns(grid)
-    list_of_pawns = Array.new
     
-    @gamestatePawns.each do |gamestatePawn|
-      if gamestatePawn[1].x == grid.x && gamestatePawn[1].y == grid.y then
-        list_of_pawns.push(gamestatePawn[1])
-      end
-      
-    end
-    return list_of_pawns
-  end
-  
-  
   private
   
   def clearActions
@@ -173,48 +142,5 @@ class ActionQueue
   def executeA_Move!(action, gamestatePawn)
     gamestatePawn.x = gamestatePawn.x + Integer(action.toX)
     gamestatePawn.y = gamestatePawn.y + Integer(action.toY)
-  end
-  
-  def buildGamestatePawns
-    # Make sure we don't, for some reason, have no playerstatus string. If we
-    # don't, buildPlayerstatus will build a default one for us, with all the pawns
-    # at 0,0.
-    @gamestate.logger.debug "buildGamestatePawns"
-    
-    if @gamestate.playerstatus.nil? then @gamestate.playerstatus = buildPlayerstatus(@gamestate) end
-    
-    @gamestatePawns.clear
-    
-    splitGamestatePawns = @gamestate.playerstatus.split("$")
-    
-    splitGamestatePawns.each do |gamestate_pawn|    
-      #id; x,y; status$
-      splitPawn = gamestate_pawn.split(";")
-      
-      # Get the id
-      pawn_id = Integer(splitPawn[0])
-  
-      # Get the position
-      pos = S_Position.new(Integer(splitPawn[1].split(",")[0]), Integer(splitPawn[1].split(",")[1]))
-      
-      # Get the status (alive, dead, etc)
-      status = Integer(splitPawn[2])
-            
-      @gamestatePawns[pawn_id] = GamestatePawn.new(pawn_id, pos.x, pos.y, status )      
-    end
-  end
-  
-  
-  
-  def buildPlayerstatus(gamestate)    
-    playerstatusString = ""
-    
-    Pawn.find_all_by_gamestate_id(gamestate.id).each do |pawn|      
-      #id; x,y; status$
-      playerstatusString += String(pawn.id)+";0,0;1"
-    end
-    
-    return playerstatusString
-  end
-  
+  end  
 end

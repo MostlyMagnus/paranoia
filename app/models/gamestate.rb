@@ -23,8 +23,7 @@ require 'Lobby'
 include Math
 
 class Gamestate < ActiveRecord::Base
-  attr_accessor :gamestatePawns, :game_ship, :checked_grid
-    
+  attr_accessor :game_ship, :checked_grid, :gamestatePawns
   
   def self.create_new(lobby_id)
 	# creates a new game
@@ -45,6 +44,17 @@ class Gamestate < ActiveRecord::Base
 	
   end
   
+# == Setup
+# This function needs to be called to build all the needed runtime data. This is in it's own function
+# instead of the constructor since the constructor doesn't seem to get called when .find_by_id is used.
+  
+  def setup
+    @game_ship = GameShip.new(self)
+    
+    @gamestatePawns = Hash.new
+    buildGamestatePawns
+  end
+
   def pawnSetup(current_user)
     # Always call this function in code that needs to use the pawn of the user viewing
     # the gamestate
@@ -54,20 +64,22 @@ class Gamestate < ActiveRecord::Base
     end
   end
   
-  def setup_game_ship
-    @game_ship = GameShip.new(self)
-  end
-  
+
+# == Crunch   
+# Crunch runs all the necessary updates when that time comes.
+
   def crunch
     # Since users won't be able to queue up more than one turn worth of actions, and several
     # turns will only happen when NO ONE has activated the gamestate for a given time, we can
     # do this outside of the turn loop, and then clear the user queues.
     
     # Set up the handler to deal with all the nodes on the ship
+    setup
     setup_game_ship
+    buildGamestatePawns
     
     @actionQueue = ActionQueue.new(self)
-    @actionQueue.buildExecuteAndClearActions!
+    @actionQueue.buildExecuteAndClearActions!(@gamestatePawns)
 
     # Now let's do some idle logic for the correct amount of turns
     @updatesRequired = ((Time.now - self.update_when)/(3600 * self.timescale)).floor
@@ -91,14 +103,30 @@ class Gamestate < ActiveRecord::Base
     
   end
 
+
+# == Playerstatus Functions
+
+  def buildPlayerstatus
+    playerstatusString = ""
+    
+    Pawn.find_all_by_gamestate_id(self.id).each do |pawn|      
+      #id; x,y; status$
+      playerstatusString += String(pawn.id)+";0,0;1$"
+    end
+    
+    return playerstatusString
+  end
+
   def updatePlayerStatus
+    buildGamestatePawns
+    
     # Make sure the string is clean.
     tempPlayerStatus = ""
     
     # Add the right characters to tempPlayerStatus for each_value in the hash.
     # Each value is of the class GamestatePawn. We also convert all the values
     # to string values so we can combine it.
-    @actionQueue.gamestatePawns.each_value do |gamestatePawn|
+    @gamestatePawns.each_value do |gamestatePawn|
       tempPlayerStatus += String(gamestatePawn.pawn_id) + ";" + String(gamestatePawn.x) + "," + String(gamestatePawn.y) + ";" + String(gamestatePawn.status) + "$"
     end
 
@@ -106,23 +134,71 @@ class Gamestate < ActiveRecord::Base
     self.playerstatus = tempPlayerStatus
   end
 
-  def getVisibleGamestatePawns(user_pawn)
-    actionQueue = ActionQueue.new(self)
+      
+  # == GamestatePawns Functions
+  # All the code regarding gamestate pawns
+
+  def buildGamestatePawns
+    # Make sure we don't, for some reason, have no playerstatus string. If we
+    # don't, buildPlayerstatus will build a default one for us, with all the pawns
+    # at 0,0.
+    #if self.playerstatus.nil? then self.playerstatus = buildPlayerstatus end
+
+    @gamestatePawns.clear
+            
+    splitGamestatePawns = playerstatus.split("$")
     
-    visiblePawns  = Array.new   
+    splitGamestatePawns.each do |gamestate_pawn|    
+      #id; x,y; status$
+      splitPawn = gamestate_pawn.split(";")
+      
+      # Get the id
+      pawn_id = Integer(splitPawn[0])
+  
+      # Get the position
+      pos = S_Position.new(Integer(splitPawn[1].split(",")[0]), Integer(splitPawn[1].split(",")[1]))
+      
+      # Get the status (alive, dead, etc)
+      status = Integer(splitPawn[2])
+            
+      @gamestatePawns[pawn_id] = GamestatePawn.new(pawn_id, pos.x, pos.y, status )      
+    end
+  end
+
+  def getGamestatePawns(grid)
+    list_of_pawns = Array.new
+    
+    @gamestatePawns.each do |gamestatePawn|
+      if gamestatePawn[1].x == grid.x && gamestatePawn[1].y == grid.y then
+        list_of_pawns.push(gamestatePawn[1])
+      end
+      
+    end
+    return list_of_pawns
+  end
+    
+  def getGamestatePawnsNoPositions
+  end
+
+  def getVisibleGamestatePawns(user_pawn)
+    visiblePawns  = Array.new
+    
     pawn_position = getPosition(user_pawn)
   
     @checked_grid = Hash.new(false)
     
-    scanDirection(user_pawn, actionQueue, pawn_position, visiblePawns,  1,   1)
-    scanDirection(user_pawn, actionQueue, pawn_position, visiblePawns,  1,  -1)
-    scanDirection(user_pawn, actionQueue, pawn_position, visiblePawns, -1,  -1)
-    scanDirection(user_pawn, actionQueue, pawn_position, visiblePawns, -1,   1)
+    scanDirection(user_pawn, pawn_position, visiblePawns,  1,   1)
+    scanDirection(user_pawn, pawn_position, visiblePawns,  1,  -1)
+    scanDirection(user_pawn, pawn_position, visiblePawns, -1,  -1)
+    scanDirection(user_pawn, pawn_position, visiblePawns, -1,   1)
     
     return visiblePawns
   end
   
-  def scanDirection(user_pawn, actionQueue, pawn_position, visiblePawns, multiplier_x, multiplier_y )
+  # Scan direction is used to figure out what we can see. Related to the gamestatepawns since it spits out
+  # a list of visible gamestatepawns.
+  
+  def scanDirection(user_pawn, pawn_position, visiblePawns, multiplier_x, multiplier_y )
     @view_distance = 5;
     
     for angle in 0..90 do
@@ -136,7 +212,7 @@ class Gamestate < ActiveRecord::Base
                        
         unless @checked_grid[[ray_grid.x, ray_grid.y]] then
           if @game_ship.isThisARoom?(ray_grid)
-            actionQueue.getGamestatePawns(ray_grid).each do |gamestatePawn|
+            getGamestatePawns(ray_grid).each do |gamestatePawn|
                 visiblePawns.push(gamestatePawn)
             end
           else
@@ -151,50 +227,18 @@ class Gamestate < ActiveRecord::Base
       end
     end
   end
-    
-  def getGamestatePawns
-    actionQueue = ActionQueue.new(self)
-    
-    actionQueue.gamestatePawns
-  end
-  
-  def getGamestatePawnsNoPositions
-    actionQueue = ActionQueue.new(self)
-    
-    actionQueue.gamestatePawns
-  end
-  
-  def getVirtualPawn(pawn)
-    # The virtual pawn is the current user pawn + any moves that are queued up.
-    actionQueue = ActionQueue.new(self)
-     
-    virtualPawn = actionQueue.executeActionQueueOnPawn(pawn, ActionTypeDef::A_MOVE)
-    
-  end
-    
-  def getVirtualPosition(pawn)
-    self.logger.debug "getVirtualPosition"
-    
-    virtualPawn = getVirtualPawn(pawn)
-    
-    S_Position.new(Integer(virtualPawn.x), Integer(virtualPawn.y))
-  end
-  
-  def getPosition(pawn)
-    actionQueue = ActionQueue.new(self)    
-    virtualPawn = actionQueue.gamestatePawns[pawn.id]
-    
-    S_Position.new(virtualPawn.x, virtualPawn.y)
-  end
-  
+      
+  # == AJAX calls
+  # The front end uses these to get the relevant information
+
   def AJAX_ship
-    setup_game_ship
+    setup
     
     return @game_ship.AJAX_formatForResponse
   end
   
   def AJAX_possibilities(current_user)
-    setup_game_ship
+    setup
     pawnSetup(current_user)
     
     virtualPawn = getVirtualPawn(@pawn)
@@ -219,7 +263,10 @@ class Gamestate < ActiveRecord::Base
     
     return gamestatePawns
   end
-    
+
+  # == Possible Actions
+  # Returns a list of what can be done at the currently vpos
+  
   def possibleActions(virtualPawn)
     # Push the actions into this array. Front end will deal with the rest.
     possibleActionIndex = Array.new
@@ -240,6 +287,34 @@ class Gamestate < ActiveRecord::Base
     end
     
     return possibleActionIndex    
+  end
+
+
+  # == Position related code
+
+  def getVirtualPawn(pawn)
+    # The virtual pawn is the current user pawn + any moves that are queued up.
+    actionQueue = ActionQueue.new(self)
+     
+    virtualPawn = actionQueue.executeActionQueueOnPawn(pawn, ActionTypeDef::A_MOVE)    
+  end
+
+  def getVirtualPosition(pawn)
+    virtualPawn = getVirtualPawn(pawn)
+    
+    S_Position.new(Integer(virtualPawn.x), Integer(virtualPawn.y))
+  end
+  
+  def getPosition(pawn)
+    virtualPawn = GamestatePawn.new
+        
+    @gamestatePawns.each do |gamestatePawn|
+      if gamestatePawn[1].pawn_id == pawn.id
+        virtualPawn = gamestatePawn[1]
+      end
+    end
+    
+    S_Position.new(virtualPawn.x, virtualPawn.y)
   end
 
 end

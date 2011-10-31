@@ -4,22 +4,19 @@ class GamestatesController < ApplicationController
   before_filter :updateGamestate, :only => :show
 
   def show    
-    @gamestate = Gamestate.find_by_id(params[:id])    
-    @gamestate.setup_game_ship
-  
-    @pawns            = Pawn.find_all_by_gamestate_id(@gamestate.id)
+    @gamestate = Gamestate.find_by_id(params[:id])
+    @gamestate.setup
+    
     @user_pawn        = Pawn.find_by_gamestate_id_and_user_id(params[:id], current_user.id)
 
     @visiblePawns     = @gamestate.getVisibleGamestatePawns(@user_pawn)
 
-    @virtualPawn      = @gamestate.getVirtualPawn(@user_pawn)
-    
-    @possibleActions  = @gamestate.possibleActions(@virtualPawn)
-    
+    @virtualPawn      = @gamestate.getVirtualPawn(@user_pawn)    
+    @possibleActions  = @gamestate.possibleActions(@virtualPawn)    
     @vPos             = @gamestate.getVirtualPosition(@user_pawn)
          
     @access           = @gamestate.game_ship.whereCanIMoveFromHere?(@virtualPawn)
-    @gamestatePawns   = @gamestate.getGamestatePawns
+    @gamestatePawns   = @gamestate.gamestatePawns
     
   end
   
