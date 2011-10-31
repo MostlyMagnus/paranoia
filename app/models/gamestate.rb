@@ -75,11 +75,11 @@ class Gamestate < ActiveRecord::Base
     
     # Set up the handler to deal with all the nodes on the ship
     setup
-    setup_game_ship
+    
     buildGamestatePawns
     
     @actionQueue = ActionQueue.new(self)
-    @actionQueue.buildExecuteAndClearActions!(@gamestatePawns)
+    @actionQueue.buildExecuteAndClearActions!
 
     # Now let's do some idle logic for the correct amount of turns
     @updatesRequired = ((Time.now - self.update_when)/(3600 * self.timescale)).floor

@@ -49,7 +49,9 @@
   
   <div>
     
-    <div><%= image_tag "rooms/"+@gamestate.game_ship.rooms[@vPos.x][@vPos.y].room_type+"_large.jpg"%></div>
+    <div>
+      <%= image_tag "rooms/"+@gamestate.game_ship.rooms[@vPos.x][@vPos.y].room_type+"_large.jpg"%>
+    </div>
     
     <div>Current turn <%= currentTurn %></div>
     <div>Next update <%= nextUpdate %></div>

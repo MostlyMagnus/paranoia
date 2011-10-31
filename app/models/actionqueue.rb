@@ -9,10 +9,9 @@ class ActionQueue
     
     @pawns = Pawn.find_all_by_gamestate_id(@gamestate.id) 
     @action_queue = Array.new
-    @gamestatePawns = @gamestate.gamestatePawns
   end
 
-  def buildExecuteAndClearActions!(gamestatePawns)  
+  def buildExecuteAndClearActions!  
     # Starting with tick #1, build it's action queue, sort it, execute it,
     # and then clear it. Repeat for the remaining ticks.    
     for tick in 0..4
@@ -31,8 +30,6 @@ class ActionQueue
     end
     
     clearActions
-    
-    return @gamestatePawns
   end
   
   def getPawnsActionQueue(pawn_id)
@@ -44,7 +41,10 @@ class ActionQueue
   end
   
   def executeActionQueueOnPawn(pawn, actionFilter = ActionTypeDef::A_NIL)    
-    gamestatePawn = @gamestatePawns[pawn.id]
+    gamestatePawn =     GamestatePawn.new(@gamestate.gamestatePawns[pawn.id].pawn_id,
+                                          @gamestate.gamestatePawns[pawn.id].x,
+                                          @gamestate.gamestatePawns[pawn.id].y,
+                                          @gamestate.gamestatePawns[pawn.id].status)
     
     if(actionFilter == ActionTypeDef::A_NIL)
       #executeAction(action, gamestatePawn)
@@ -114,7 +114,7 @@ class ActionQueue
     
   def executeActionQueue!    
     for i in 0..@action_queue.size-1
-      executeAction!(@action_queue[i], @gamestatePawns[@action_queue[i].pawn_id])
+      executeAction!(@action_queue[i],     @gamestate.gamestatePawns[@action_queue[i].pawn_id])
     end
   end
   
