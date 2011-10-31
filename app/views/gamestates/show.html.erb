@@ -125,7 +125,7 @@
 
 <% @gamestatePawns.each do |gamestatePawn| %>
 
-  <div> Player <%= gamestatePawn[1].pawn_id %> @ <%= 100*gamestatePawn[1].status %>% <%= link_to 'Ambush', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_KILL, :details => gamestatePawn[1].pawn_id %></div>
+  <div> Player <%= gamestatePawn[1].pawn_id %> @ <%= 100*gamestatePawn[1].status %>% <%= link_to 'Kill', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_KILL, :details => gamestatePawn[1].pawn_id %></div>
 
 <% end %>
 

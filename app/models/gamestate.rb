@@ -176,6 +176,7 @@ class Gamestate < ActiveRecord::Base
   end
     
   def getGamestatePawnsNoPositions
+    # clean out positions yo
   end
 
   def getVisibleGamestatePawns(user_pawn)
@@ -277,7 +278,7 @@ class Gamestate < ActiveRecord::Base
     #
     #  Convert node_type to something better.
 
-    possibleActionIndex.push({:verbose => "Ambush (kill)", :action_type => ActionTypeDef::A_KILL, :params => "-1"})
+    possibleActionIndex.push({:verbose => "Kill", :action_type => ActionTypeDef::A_KILL, :params => "-1"})
     
     if !@game_ship.somethingInteractiveHere?(virtualPawn).nil? then
       possibleActionIndex.push({:verbose => "Use "      +@game_ship.somethingInteractiveHere?(virtualPawn).node_type, :action_type => ActionTypeDef::A_USE, :params => @game_ship.somethingInteractiveHere?(virtualPawn).id})
