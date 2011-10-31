@@ -8,9 +8,19 @@
      
      <div style="clear: both">
         <% for x in 0..17 %>
-          <div class="<%= if @gamestate.game_ship.rooms[x][y].kind_of? Room  then @gamestate.game_ship.rooms[x][y].room_type end %>" style="width: 32px; height: 32px; position: relative; float: left; margin: 1px;">
+          <div class="<%= if @gamestate.game_ship.rooms[x][y].kind_of? Room  then @gamestate.game_ship.rooms[x][y].room_type end %>" style="width: 32px; height: 32px; position: relative; float: left; margin: 1px; text-align: center">
             
           <!-- <%= if @gamestate.game_ship.rooms[x][y].kind_of? Room  then @gamestate.game_ship.rooms[x][y].room_type end %>-->
+
+          <% if @gamestate.game_ship.logic_nodes[x][y].kind_of? LogicNode then %>
+            <%  if @pos.x == x && @pos.y == y then %>
+              
+              <%=  link_to @gamestate.game_ship.logic_nodes[x][y].node_type , :controller => "gamestates", :action => "node_use", :popup => "_new", :node => @gamestate.game_ship.logic_nodes[x][y].id %>
+              
+            <% else %>
+              <%= @gamestate.game_ship.logic_nodes[x][y].node_type %>            
+            <% end %>  
+          <% end %>
 
           <% @visiblePawns.each do |gamestatePawn| %>
             
@@ -19,20 +29,17 @@
               <%= if gamestatePawn.pawn_id == @user_pawn.id then
               "*"
               else
-              "x"
+                gamestatePawn.pawn_id 
               end %>
             
             <% end %>
             
           <% end %>
-          
-          <%= if @gamestate.checked_grid[[x, y]] then "#" end %>
-          
+                    
           <%= if @vPos.x == x && @vPos.y == y then "v" end %>
           
-          <%= if @gamestate.game_ship.logic_nodes[x][y].kind_of? LogicNode then
-            @gamestate.game_ship.logic_nodes[x][y].node_type
-          end %>
+
+          <%= if !@gamestate.checked_grid[[x, y]] then "..." end %>
             
           </div>  
         <% end %>

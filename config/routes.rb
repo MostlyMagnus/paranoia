@@ -22,6 +22,7 @@ Paranoia::Application.routes.draw do
       get :add_action
       get :remove_action
       
+      get :node_use  
     end
   end
   

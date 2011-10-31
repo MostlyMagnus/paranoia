@@ -14,6 +14,7 @@ class GamestatesController < ApplicationController
     @virtualPawn      = @gamestate.getVirtualPawn(@user_pawn)    
     @possibleActions  = @gamestate.possibleActions(@virtualPawn)    
     @vPos             = @gamestate.getVirtualPosition(@user_pawn)
+    @pos              = @gamestate.getPosition(@user_pawn)
          
     @access           = @gamestate.game_ship.whereCanIMoveFromHere?(@virtualPawn)
     @gamestatePawns   = @gamestate.gamestatePawns
@@ -48,6 +49,10 @@ class GamestatesController < ApplicationController
     @user_pawn_actions.last.delete
     
     redirect_to gamestate_path
+  end
+  
+  def node_use
+    render :text => "This should be displayed in a floating div.".to_json
   end
   
   def index
