@@ -117,9 +117,7 @@ class Gamestate < ActiveRecord::Base
     return playerstatusString
   end
 
-  def updatePlayerStatus
-    buildGamestatePawns
-    
+  def updatePlayerStatus    
     # Make sure the string is clean.
     tempPlayerStatus = ""
     
@@ -199,7 +197,8 @@ class Gamestate < ActiveRecord::Base
   # a list of visible gamestatepawns.
   
   def scanDirection(user_pawn, pawn_position, visiblePawns, multiplier_x, multiplier_y )
-    @view_distance = 5;
+    # You see a long way down hallways.
+    @view_distance = 35;
     
     for angle in 0..90 do
       ray_angle     = (angle*3.14)/180
