@@ -13,13 +13,7 @@
           <!-- <%= if @gamestate.game_ship.rooms[x][y].kind_of? Room  then @gamestate.game_ship.rooms[x][y].room_type end %>-->
 
           <% if @gamestate.game_ship.logic_nodes[x][y].kind_of? LogicNode then %>
-            <%  if @pos.x == x && @pos.y == y then %>
-              
-              <%=  link_to @gamestate.game_ship.logic_nodes[x][y].node_type , :controller => "gamestates", :action => "node_use", :popup => "_new", :node => @gamestate.game_ship.logic_nodes[x][y].id %>
-              
-            <% else %>
-              <%= @gamestate.game_ship.logic_nodes[x][y].node_type %>            
-            <% end %>  
+            <%= @gamestate.game_ship.logic_nodes[x][y].node_type %>            
           <% end %>
 
           <% @visiblePawns.each do |gamestatePawn| %>

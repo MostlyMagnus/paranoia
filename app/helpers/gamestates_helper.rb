@@ -18,7 +18,7 @@ module GamestatesHelper
   def currentTurn
     gamestate = Gamestate.find_by_id(params[:id])
     
-    ((gamestate.updated_at - gamestate.created_at)/(3600 * gamestate.timescale)).floor
+    ((gamestate.updated_at - gamestate.created_at)/(60 * gamestate.timescale)).floor
   end
 
   def actionQueue

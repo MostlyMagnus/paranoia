@@ -82,14 +82,14 @@ class Gamestate < ActiveRecord::Base
     @actionQueue.buildExecuteAndClearActions!
 
     # Now let's do some idle logic for the correct amount of turns
-    @updatesRequired = ((Time.now - self.update_when)/(3600 * self.timescale)).floor
+    @updatesRequired = ((Time.now - self.update_when)/(60 * self.timescale)).floor
 
     for i in 1..@updatesRequired
-      # Idle logic goes here (detoriation, random events, etc)  
+      # Idle logic goes here (detoriation, random events, etc)
     end
 
     # When we're done, we update the update_when of our gamestate.
-    self.update_when = self.update_when.advance(:hours => self.timescale * (@updatesRequired+1))
+    self.update_when = self.update_when.advance(:minutes => self.timescale * (@updatesRequired+1))
     
     # Update self.playerstatus to reflect any updates done
     updatePlayerStatus
