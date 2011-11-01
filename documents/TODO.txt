@@ -1,2 +1,10 @@
 Remove role column from lobby table
 Start a lobby
+
+
+
+
+Magnuds
+
+PDA implementation
+Persona implementation
