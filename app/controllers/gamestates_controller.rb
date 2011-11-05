@@ -7,6 +7,8 @@ class GamestatesController < ApplicationController
     @gamestate = Gamestate.find_by_id(params[:id])
     @gamestate.setup
     
+    @events = @gamestate.getEvents
+    
     @user_pawn        = Pawn.find_by_gamestate_id_and_user_id(params[:id], current_user.id)
 
     @visiblePawns     = @gamestate.getVisibleGamestatePawns(@user_pawn)

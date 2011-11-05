@@ -103,6 +103,9 @@ class ActionQueue
       when ActionTypeDef::A_MOVE
         returnAction = A_Move.new(action.attributes)
 
+      when ActionTypeDef::A_INITVOTE
+        returnAction = A_InitVote.new(action.attributes)
+
       when ActionTypeDef::A_VOTE
         returnAction = A_Vote.new(action.attributes)
 
@@ -125,13 +128,14 @@ class ActionQueue
   end
   
   def executeAction!(action, gamestatePawn)
-    if      (action.kind_of? A_Nil)     then  executeA_Nil!(action, gamestatePawn)
-    elsif   (action.kind_of? A_Use)     then  executeA_Use!(action, gamestatePawn)
-    elsif   (action.kind_of? A_Repair)  then  executeA_Repair!(action, gamestatePawn)
-    elsif   (action.kind_of? A_Kill)    then  executeA_Kill!(action, gamestatePawn)
-    elsif   (action.kind_of? A_Move)    then  executeA_Move!(action, gamestatePawn)
-    elsif   (action.kind_of? A_Vote)    then  executeA_Vote!(action, gamestatePawn)      
-    elsif   (action.kind_of? A_Status)  then  executeA_Status!(action, gamestatePawn)      
+    if      (action.kind_of? A_Nil)         then  executeA_Nil!(action, gamestatePawn)
+    elsif   (action.kind_of? A_Use)         then  executeA_Use!(action, gamestatePawn)
+    elsif   (action.kind_of? A_Repair)      then  executeA_Repair!(action, gamestatePawn)
+    elsif   (action.kind_of? A_Kill)        then  executeA_Kill!(action, gamestatePawn)
+    elsif   (action.kind_of? A_Move)        then  executeA_Move!(action, gamestatePawn)
+    elsif   (action.kind_of? A_Vote)        then  executeA_Vote!(action, gamestatePawn)
+    elsif   (action.kind_of? A_InitVote)    then  executeA_InitVote!(action, gamestatePawn)      
+    elsif   (action.kind_of? A_Status)      then  executeA_Status!(action, gamestatePawn)      
 
     end
   end
@@ -169,6 +173,10 @@ class ActionQueue
   end
   
   def executeA_Vote!(action, gamestatePawn)
+  end
+
+  def executeA_InitVote!(action, gamestatePawn)
+    @gamestate.user_events.create!(:action_type => ActionTypeDef::A_VOTE, :lifespan => 1, :params => String(gamestatePawn.pawn_id)+", "+String(action.target))
   end
   
   def executeA_Status!(action, gamestatePawn)

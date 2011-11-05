@@ -1,10 +1,20 @@
-  <div>
-  <%= @user_pawn.notifications %>
-  </div>
+<div>
+<%= @user_pawn.notifications %>
+</div>
+
+<div>
+<% @events[:votes].each do |vote| %>
+  Airlock Vote
+  <%=
+  #@gamestatePawns.find_index{|pawn|pawn[1].pawn_id==Integer(vote.params.split(",")[1])}
+  %>
+<% end %>
+</div>
+
 
 <table><tr><td>
   <div>
-    Room render (* denotes current player position)    
+  Room render (* denotes current player position)    
   <!-- <%= @visiblePawns %> -->
   <!-- <%= @gamestate.checked_grid %> -->
   
@@ -131,7 +141,13 @@
 
 <% @gamestatePawns.each do |gamestatePawn| %>
 
-  <div> <%= gamestatePawn[1].persona.name %> @ <%= 100*gamestatePawn[1].status %>% <%= link_to 'Kill', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_KILL, :details => gamestatePawn[1].pawn_id %></div>
+  <div>
+    <div><%= gamestatePawn[1].persona.name %> @ <%= 100*gamestatePawn[1].status %>% </div>
+    <div>
+      <%= link_to 'Kill', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_KILL, :details => gamestatePawn[1].pawn_id %>
+      <%= link_to 'Airlock', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_INITVOTE, :details => gamestatePawn[1].pawn_id %>
+    </div>
+  </div>
 
 <% end %>
 

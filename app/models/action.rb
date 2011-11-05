@@ -52,6 +52,8 @@ class Action < ActiveRecord::Base
         "A_Move"
       when ActionTypeDef::A_VOTE
         "A_Vote"
+      when ActionTypeDef::A_INITVOTE
+        "A_InitVote"
       when ActionTypeDef::A_STATUS
         "A_Status"        
     end
@@ -133,10 +135,28 @@ class A_Move < Action
   
 end
 
+class A_InitVote < Action
+  attr_accessor :target
+  
+  def initialize(parameters = Hash.new)
+    @action_type = ActionTypeDef::A_INITVOTE
+    
+    @target = parameters["params"]
+    
+    if !parameters[:node].nil? then @node = parameters[:node] end
+    default_priority(80)
+    super
+  end
+  
+end
+
 class A_Vote < Action
+  attr_accessor :target
   
   def initialize(parameters = Hash.new)
     @action_type = ActionTypeDef::A_VOTE
+    
+    @target = parameters["params"]
     
     if !parameters[:node].nil? then @node = parameters[:node] end
     default_priority(80)

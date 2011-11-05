@@ -25,6 +25,9 @@ include Math
 class Gamestate < ActiveRecord::Base
   attr_accessor :game_ship, :checked_grid, :gamestatePawns
   
+  has_many :pawns
+  has_many :user_events
+  
   def self.create_new(lobby_id)
 	# creates a new game
 	
@@ -52,7 +55,7 @@ class Gamestate < ActiveRecord::Base
     @game_ship = GameShip.new(self)
     
     @gamestatePawns = Hash.new
-    buildGamestatePawns
+    buildGamestatePawns    
   end
 
   def pawnSetup(current_user)
@@ -192,6 +195,20 @@ class Gamestate < ActiveRecord::Base
     return visiblePawns
   end
   
+  def getEvents
+    events = Hash.new
+    
+    events[:votes] = Array.new
+    
+    self.user_events.each do |event|
+      if event.action_type == ActionTypeDef::A_VOTE then
+        events[:votes].push(event)
+      end
+    end
+    
+    events
+  end
+  
   # Scan direction is used to figure out what we can see. Related to the gamestatepawns since it spits out
   # a list of visible gamestatepawns.
   
@@ -277,7 +294,7 @@ class Gamestate < ActiveRecord::Base
     #  Convert node_type to something better.
 
     possibleActionIndex.push({:verbose => "Kill", :action_type => ActionTypeDef::A_KILL, :params => "-1"})
-    possibleActionIndex.push({:verbose => "Initiate vote", :action_type => ActionTypeDef::A_VOTE, :params => "-1"})
+    #possibleActionIndex.push({:verbose => "Initiate vote", :action_type => ActionTypeDef::A_VOTE, :params => "-1"})
     possibleActionIndex.push({:verbose => "Check Shipstatus", :action_type => ActionTypeDef::A_STATUS, :params => "-1"})
     
     if !@game_ship.somethingInteractiveHere?(virtualPawn).nil? then
