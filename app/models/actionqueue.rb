@@ -103,6 +103,12 @@ class ActionQueue
       when ActionTypeDef::A_MOVE
         returnAction = A_Move.new(action.attributes)
 
+      when ActionTypeDef::A_VOTE
+        returnAction = A_Vote.new(action.attributes)
+
+      when ActionTypeDef::A_STATUS
+        returnAction = A_Status.new(action.attributes)
+
     end
     
     returnAction
@@ -124,6 +130,9 @@ class ActionQueue
     elsif   (action.kind_of? A_Repair)  then  executeA_Repair!(action, gamestatePawn)
     elsif   (action.kind_of? A_Kill)    then  executeA_Kill!(action, gamestatePawn)
     elsif   (action.kind_of? A_Move)    then  executeA_Move!(action, gamestatePawn)
+    elsif   (action.kind_of? A_Vote)    then  executeA_Vote!(action, gamestatePawn)      
+    elsif   (action.kind_of? A_Status)  then  executeA_Status!(action, gamestatePawn)      
+
     end
   end
    
@@ -137,10 +146,34 @@ class ActionQueue
   end
   
   def executeA_Kill!(action, gamestatePawn)
+    if Integer(action.target_pawn_id) >= 0 then 
+      # target_pawn_id is >= 0 thus the kill action is targeted
+      @gamestate.gamestatePawns.each do |target_gamestatePawn|    
+        if Integer(target_gamestatePawn[1].pawn_id) == Integer(action.target_pawn_id)
+          if Integer(target_gamestatePawn[1].x) == Integer(gamestatePawn.x) &&
+             Integer(target_gamestatePawn[1].y) == Integer(gamestatePawn.y) then
+            
+            target_gamestatePawn[1].status = 0 
+            
+          end
+        end
+      end
+    else
+      # target_pawn_id < 0 thus not specified. Kill the first unlucky bastard.
+    end
   end
   
   def executeA_Move!(action, gamestatePawn)
     gamestatePawn.x = gamestatePawn.x + Integer(action.toX)
     gamestatePawn.y = gamestatePawn.y + Integer(action.toY)
-  end  
+  end
+  
+  def executeA_Vote!(action, gamestatePawn)
+  end
+  
+  def executeA_Status!(action, gamestatePawn)
+    pawn = Pawn.find_by_id (gamestatePawn.pawn_id)
+    
+    pawn.notifications.create!(:action_type => action.action_type)
+  end
 end

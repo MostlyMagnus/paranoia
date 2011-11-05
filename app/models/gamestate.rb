@@ -76,8 +76,6 @@ class Gamestate < ActiveRecord::Base
     # Set up the handler to deal with all the nodes on the ship
     setup
     
-    buildGamestatePawns
-    
     @actionQueue = ActionQueue.new(self)
     @actionQueue.buildExecuteAndClearActions!
 
@@ -159,7 +157,7 @@ class Gamestate < ActiveRecord::Base
       # Get the status (alive, dead, etc)
       status = Integer(splitPawn[2])
             
-      @gamestatePawns[pawn_id] = GamestatePawn.new(pawn_id, pos.x, pos.y, status )      
+      @gamestatePawns[pawn_id] = GamestatePawn.new(pawn_id, pos.x, pos.y, status, Persona.find_by_id(Pawn.find_by_id(pawn_id).persona_id))      
     end
   end
 
@@ -279,6 +277,8 @@ class Gamestate < ActiveRecord::Base
     #  Convert node_type to something better.
 
     possibleActionIndex.push({:verbose => "Kill", :action_type => ActionTypeDef::A_KILL, :params => "-1"})
+    possibleActionIndex.push({:verbose => "Initiate vote", :action_type => ActionTypeDef::A_VOTE, :params => "-1"})
+    possibleActionIndex.push({:verbose => "Check Shipstatus", :action_type => ActionTypeDef::A_STATUS, :params => "-1"})
     
     if !@game_ship.somethingInteractiveHere?(virtualPawn).nil? then
       possibleActionIndex.push({:verbose => "Use "      +@game_ship.somethingInteractiveHere?(virtualPawn).node_type, :action_type => ActionTypeDef::A_USE, :params => @game_ship.somethingInteractiveHere?(virtualPawn).id})

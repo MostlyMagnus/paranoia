@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111101194528) do
+ActiveRecord::Schema.define(:version => 20111105140700) do
 
   create_table "actions", :force => true do |t|
     t.integer  "pawn_id"
@@ -48,6 +48,14 @@ ActiveRecord::Schema.define(:version => 20111101194528) do
   create_table "lobby_users", :force => true do |t|
     t.integer  "user_id"
     t.integer  "lobby_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "notifications", :force => true do |t|
+    t.integer  "pawn_id"
+    t.integer  "action_type"
+    t.string   "params"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

@@ -1,8 +1,13 @@
+  <div>
+  <%= @user_pawn.notifications %>
+  </div>
+
 <table><tr><td>
   <div>
     Room render (* denotes current player position)    
   <!-- <%= @visiblePawns %> -->
   <!-- <%= @gamestate.checked_grid %> -->
+  
   <div>
      <% for y in 0..16 %>
      
@@ -126,7 +131,7 @@
 
 <% @gamestatePawns.each do |gamestatePawn| %>
 
-  <div> Player <%= gamestatePawn[1].pawn_id %> @ <%= 100*gamestatePawn[1].status %>% <%= link_to 'Kill', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_KILL, :details => gamestatePawn[1].pawn_id %></div>
+  <div> <%= gamestatePawn[1].persona.name %> @ <%= 100*gamestatePawn[1].status %>% <%= link_to 'Kill', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_KILL, :details => gamestatePawn[1].pawn_id %></div>
 
 <% end %>
 

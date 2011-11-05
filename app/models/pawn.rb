@@ -18,6 +18,7 @@ class Pawn < ActiveRecord::Base
   
   belongs_to :user
   has_many :actions
+  has_many :notifications
   
   validates :user_id,       :presence => true
   validates :gamestate_id,  :presence => true

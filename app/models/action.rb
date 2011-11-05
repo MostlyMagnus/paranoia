@@ -50,7 +50,10 @@ class Action < ActiveRecord::Base
         "A_Repair"
       when ActionTypeDef::A_MOVE
         "A_Move"
-        
+      when ActionTypeDef::A_VOTE
+        "A_Vote"
+      when ActionTypeDef::A_STATUS
+        "A_Status"        
     end
   end
 end
@@ -88,9 +91,12 @@ class A_Use < Action
 end
 
 class A_Kill < Action
+  attr_accessor :target_pawn_id
   
   def initialize(parameters = Hash.new)
     @action_type = ActionTypeDef::A_KILL
+
+    @target_pawn_id = parameters["params"].split(",")[0]
     
     if !parameters[:pawn].nil? then @pawn = parameters[:pawn] end    
     default_priority(-100)    
@@ -120,6 +126,30 @@ class A_Move < Action
     @toX = parameters["params"].split(",")[0]
     @toY = parameters["params"].split(",")[1]
         
+    if !parameters[:node].nil? then @node = parameters[:node] end
+    default_priority(80)
+    super
+  end
+  
+end
+
+class A_Vote < Action
+  
+  def initialize(parameters = Hash.new)
+    @action_type = ActionTypeDef::A_VOTE
+    
+    if !parameters[:node].nil? then @node = parameters[:node] end
+    default_priority(80)
+    super
+  end
+  
+end
+
+class A_Status < Action
+  
+  def initialize(parameters = Hash.new)
+    @action_type = ActionTypeDef::A_STATUS
+    
     if !parameters[:node].nil? then @node = parameters[:node] end
     default_priority(80)
     super
