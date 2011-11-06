@@ -173,6 +173,7 @@ class ActionQueue
   end
   
   def executeA_Vote!(action, gamestatePawn)
+    @gamestate.user_events.find_by_id(action.event_id).event_inputs.create!(:pawn_id => gamestatePawn.pawn_id, :params => action.input)
   end
 
   def executeA_InitVote!(action, gamestatePawn)

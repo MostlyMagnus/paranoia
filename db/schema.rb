@@ -10,12 +10,20 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111105180257) do
+ActiveRecord::Schema.define(:version => 20111106095215) do
 
   create_table "actions", :force => true do |t|
     t.integer  "pawn_id"
     t.integer  "queue_number"
     t.integer  "action_type"
+    t.string   "params"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "event_inputs", :force => true do |t|
+    t.integer  "user_event_id"
+    t.integer  "pawn_id"
     t.string   "params"
     t.datetime "created_at"
     t.datetime "updated_at"

@@ -151,12 +151,13 @@ class A_InitVote < Action
 end
 
 class A_Vote < Action
-  attr_accessor :target
+  attr_accessor :event_id, :input
   
   def initialize(parameters = Hash.new)
     @action_type = ActionTypeDef::A_VOTE
     
-    @target = parameters["params"]
+    @event_id    = parameters["params"].split(",")[0]
+    @input       = parameters["params"].split(",")[1]
     
     if !parameters[:node].nil? then @node = parameters[:node] end
     default_priority(80)

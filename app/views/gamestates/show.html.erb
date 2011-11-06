@@ -3,12 +3,19 @@
 </div>
 
 <div>
-<% @events[:votes].each do |vote| %>
-  Airlock Vote
-  <%=
-  #@gamestatePawns.find_index{|pawn|pawn[1].pawn_id==Integer(vote.params.split(",")[1])}
-  %>
-<% end %>
+  <% @events[:votes].each do |vote| %>
+    <div>
+      <%= vote %> <%= @gamestatePawns.find{|pawn|pawn[1].pawn_id==vote.params.split(",").first.to_i}[1].persona.name %> wants to airlock
+      <%= @gamestatePawns.find{|pawn|pawn[1].pawn_id==vote.params.split(",").last.to_i}[1].persona.name %>. Vote expires in <%= pluralize(vote.lifespan, "turn") %>.
+      
+      <% if !vote.event_inputs.find_by_pawn_id(@user_pawn.id) then%>
+        <%= link_to "In favour", :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_VOTE, :details => String(vote.id) + ", 1" %>
+        <%= link_to "Oppose",    :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_VOTE, :details => String(vote.id) + ", -1" %>
+      <% else %>
+        (You cast your vote.)
+      <% end %>
+    </div>
+  <% end %>
 </div>
 
 

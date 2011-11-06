@@ -25,8 +25,8 @@ include Math
 class Gamestate < ActiveRecord::Base
   attr_accessor :game_ship, :checked_grid, :gamestatePawns
   
-  has_many :pawns
-  has_many :user_events
+  has_many :pawns, :dependent => :destroy
+  has_many :user_events, :dependent => :destroy
   
   def self.create_new(lobby_id)
 	# creates a new game
@@ -79,9 +79,15 @@ class Gamestate < ActiveRecord::Base
     # Set up the handler to deal with all the nodes on the ship
     setup
     
+    # Notifications shouldn't linger. Let's clean it up.
+    crunch_notifications
+    
     @actionQueue = ActionQueue.new(self)
     @actionQueue.buildExecuteAndClearActions!
-
+    
+    # Actions have been crunched, let's loop through events.
+    crunch_events
+    
     # Now let's do some idle logic for the correct amount of turns
     @updatesRequired = ((Time.now - self.update_when)/(60 * self.timescale)).floor
 
@@ -90,7 +96,7 @@ class Gamestate < ActiveRecord::Base
     end
 
     # When we're done, we update the update_when of our gamestate.
-    self.update_when = self.update_when.advance(:minutes => self.timescale * (@updatesRequired+1))
+    self.update_when = self.update_when.advance(:minutes => self.timescale * (@updatesRequired.to_i+1))
     
     # Update self.playerstatus to reflect any updates done
     updatePlayerStatus
@@ -104,6 +110,35 @@ class Gamestate < ActiveRecord::Base
     
   end
 
+  def crunch_notifications
+    self.pawns.each do |pawn|
+      pawn.notifications.clear
+    end
+  end
+  
+  def crunch_events
+    self.user_events.each do |event|
+      event.lifespan-=1
+      
+      if(event.lifespan < 0) then
+        tally = 0
+        
+        event.event_inputs.each do |input|
+          tally += input.params.to_i
+        end
+        
+        if tally > 0
+          if event.action_type == ActionTypeDef::A_VOTE then
+            @gamestatePawns.find{|pawn|pawn[1].pawn_id==event.params.split(",").last.to_i}[1].status = 0
+          end
+        end
+        
+        event.destroy
+      else
+        event.save
+      end
+    end    
+  end
 
 # == Playerstatus Functions
 
@@ -283,6 +318,17 @@ class Gamestate < ActiveRecord::Base
   # Returns a list of what can be done at the currently vpos
   
   def possibleActions(virtualPawn)
+    # This should probably be changed so that actions are sorted based on where in the UI they
+    # will appear. One way could be like this:
+    
+    # possibleActions = Hash.new
+    
+    # possibleActions[:PDA] = Array.new
+    # PossibleActions[:PDA].push
+    
+    # possibleActions[:pawn#7] = Array.new
+    # etc...
+    
     # Push the actions into this array. Front end will deal with the rest.
     possibleActionIndex = Array.new
 
@@ -293,7 +339,7 @@ class Gamestate < ActiveRecord::Base
     #
     #  Convert node_type to something better.
 
-    possibleActionIndex.push({:verbose => "Kill", :action_type => ActionTypeDef::A_KILL, :params => "-1"})
+    #possibleActionIndex.push({:verbose => "Kill", :action_type => ActionTypeDef::A_KILL, :params => "-1"})
     #possibleActionIndex.push({:verbose => "Initiate vote", :action_type => ActionTypeDef::A_VOTE, :params => "-1"})
     possibleActionIndex.push({:verbose => "Check Shipstatus", :action_type => ActionTypeDef::A_STATUS, :params => "-1"})
     
