@@ -144,6 +144,11 @@ class ActionQueue
   end
   
   def executeA_Use!(action, gamestatePawn)
+    pawn = Pawn.find_by_id (gamestatePawn.pawn_id)
+    
+    #@gamestate.game_ship.get_node_by_id(action.target_node).node_type.to_s
+    
+    pawn.notifications.create!(:action_type => action.action_type, :params => "-")
   end
   
   def executeA_Repair!(action, gamestatePawn)
@@ -159,6 +164,7 @@ class ActionQueue
             
             target_gamestatePawn[1].status = 0 
             
+            pawn.notifications.create!(:action_type => action.action_type, :params => "Kill action successful.")
           end
         end
       end
@@ -183,6 +189,6 @@ class ActionQueue
   def executeA_Status!(action, gamestatePawn)
     pawn = Pawn.find_by_id (gamestatePawn.pawn_id)
     
-    pawn.notifications.create!(:action_type => action.action_type)
+    pawn.notifications.create!(:action_type => action.action_type, :params => "Replace this with updates about the ship status.")
   end
 end

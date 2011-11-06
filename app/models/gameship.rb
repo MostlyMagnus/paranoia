@@ -82,7 +82,7 @@ class GameShip
   end
   
   def get_node_by_id(id)
-    @nodes.each do |h, k|
+    @logic_nodes.each do |h, k|
       k.each do |_h,_k|
         if _k.id == id
           # Does this work?

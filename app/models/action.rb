@@ -81,9 +81,11 @@ class A_Nil < Action
 end
 
 class A_Use < Action
+  attr_accessor :target_node
   
   def initialize(parameters = Hash.new)
     @action_type = ActionTypeDef::A_USE
+    @target_node = parameters["params"].split(",").first.to_i
     
     if !parameters[:node].nil? then @node = parameters[:node] end
     default_priority(50)
