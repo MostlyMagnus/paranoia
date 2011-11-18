@@ -161,6 +161,8 @@ class ActionQueue
   end
   
   def executeA_Kill!(action, gamestatePawn)
+    pawn = Pawn.find_by_id(gamestatePawn.pawn_id)
+
     if Integer(action.target_pawn_id) >= 0 then 
       # target_pawn_id is >= 0 thus the kill action is targeted
       @gamestate.gamestatePawns.each do |target_gamestatePawn|    
