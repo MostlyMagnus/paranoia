@@ -153,9 +153,10 @@ class ActionQueue
   def executeA_Repair!(action, gamestatePawn)
     pawn = Pawn.find_by_id(gamestatePawn.pawn_id)
 
-    @gamestate.game_ship.get_node_by_id(action.target_node).status = @gamestate.game_ship.get_node_by_id(action.target_node).status.to_i - 0.2*action.multiplier.to_i
+    @gamestate.game_ship.get_node_by_id(action.target_node).status = @gamestate.game_ship.get_node_by_id(action.target_node).status.to_f + (0.2*action.multiplier.to_i)
     
     @gamestate.logger.debug " ------------------------------------------------------------ "
+    @gamestate.logger.debug action.multiplier
     @gamestate.logger.debug @gamestate.game_ship.get_node_by_id(action.target_node).status
     @gamestate.logger.debug " ------------------------------------------------------------ "
     

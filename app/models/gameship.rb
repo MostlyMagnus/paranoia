@@ -88,6 +88,19 @@ class GameShip
     return nodestatusString
   end
   
+  def build_nodestatus_string
+    # :id, :position, :node_type, :health, :status
+
+    tempString = ""
+    
+    #id; type; x,y; health; status$
+    @logic_nodes.each do |node|
+      tempString += node.id.to_s + ";" + node.node_type.to_s + ";" + node.position.x.to_s + "," + node.position.y.to_s + ";" + node.health.to_s + ";" + node.status.to_s + "$"
+    end
+    
+    return tempString
+  end
+  
   def get_node_by_id(id)
     return @logic_nodes[id]
   end

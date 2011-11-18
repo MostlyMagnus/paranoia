@@ -98,6 +98,9 @@ class Gamestate < ActiveRecord::Base
     # When we're done, we update the update_when of our gamestate.
     self.update_when = self.update_when.advance(:minutes => self.timescale * (@updatesRequired.to_i+1))
     
+    # Update self.nodestatus to reflect updates done
+    self.nodestatus = @game_ship.build_nodestatus_string
+    
     # Update self.playerstatus to reflect any updates done
     updatePlayerStatus
     
