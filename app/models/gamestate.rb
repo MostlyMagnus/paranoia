@@ -29,17 +29,19 @@ class Gamestate < ActiveRecord::Base
 
 	lobby = Lobby.find(lobby_id)
 	
-	logger.debug "\n----- #{lobby.lobby_users[0].user_id} ---------\n"
-	
-	
-	#lobby.lobby_ids
-	#TODO:
-	# create list of users and assign them stuff
 	# get this from unwritten method in Lobby
 	# should add const file with timescale meaning for instance.
+
+	# player status
+	pl_status = ''
+	for pl_users in lobby.lobby_users
+		pl_status = pl_status + pl_users.user_id.to_s() + ';11,7:1.0$'
+	end
+	
+		
 	upd_when = DateTime.now.advance(:minutes => 10)
 		
-	#gs = self.create(:ship_id => 1, :timescale => 1.0, :created_at => DateTime.now, :updated_at => DateTime.now, :update_when => upd_when)
+	gs = self.create(:ship_id => 1, :playerstatus => pl_status, :timescale => 10.0, :created_at => DateTime.now, :updated_at => DateTime.now, :update_when => upd_when)
 	
 	# probably check that everything was created ok before lobby is deleted
 	Lobby.delete(lobby_id)

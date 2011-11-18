@@ -49,7 +49,7 @@ class Lobby < ActiveRecord::Base
   
   def self.create_new
     #l = Lobby.new(:id => 1, :name => 'Lobby x', :description => 'desc', :max_slots => 12)
-    self.create(:name => 'Lobby x', :description => 'desc', :max_slots => 12, :game_speed => 1)
+    self.create(:name => 'Lobby x', :description => 'desc', :max_slots => 12, :game_speed => 5)
     
   end
   

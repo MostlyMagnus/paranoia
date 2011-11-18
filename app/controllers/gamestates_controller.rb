@@ -25,7 +25,7 @@ class GamestatesController < ApplicationController
   end
   
   def create 
-   	game_id = Gamestate.create_new(params[:lobby_id])
+	game_id = Gamestate.create_new(params[:lobby_id])
 	redirect_to mygames_path
   end
   
