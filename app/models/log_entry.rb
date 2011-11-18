@@ -1,26 +1,16 @@
 class LogEntry < ActiveRecord::Base
   belongs_to :gamestate
+  attr_accessor :entry
   #@gamestate.turn, action.action_type, gamestatePawn.pawn_id, action.target
   
   def initialize(turn, action_type, subject_id, object_id)
-    case action_type
-      when ActionTypeDef::A_NIL
-        "A_Nil"
-      when ActionTypeDef::A_USE
-        "A_Use"
-      when ActionTypeDef::A_KILL
-        "A_Kill"
-      when ActionTypeDef::A_REPAIR
-        "A_Repair"
-      when ActionTypeDef::A_MOVE
-        "A_Move"
-      when ActionTypeDef::A_VOTE
-        "A_Vote"
-      when ActionTypeDef::A_INITVOTE
-        "A_InitVote"
-    end  
+    @turn = turn
+    
+    @subject_id = subject_id
+    @object_id = object_id
+    
+    @entry = "Apa"
   end
-  
 end
 
 

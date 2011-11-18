@@ -191,7 +191,18 @@ class ActionQueue
   end
 
   def executeA_InitVote!(action, gamestatePawn)
-    #@gamestate.log_entries.create!(Log_entry.new(@gamestate.turn, action.action_type, gamestatePawn.pawn_id, action.target))    
+    
+    # Must figure out a way to add data to @gamestate.log_entries AND run the constructor on the obkect.
+    # This doesnt work, for now. But it shouldn't break anything either.
+    
+    entry = LogEntry.new(@gamestate.turn, action.action_type, gamestatePawn.pawn_id, action.target)
+
+    @gamestate.logger.debug "-----------------"
+    @gamestate.logger.debug entry.entry
+    @gamestate.logger.debug "-----------------"
+    
+    #@gamestate.log_entries.new(@gamestate.turn, action.action_type, gamestatePawn.pawn_id, action.target).save
+        
     @gamestate.user_events.create!(:action_type => ActionTypeDef::A_VOTE, :lifespan => 1, :params => String(gamestatePawn.pawn_id)+", "+String(action.target))
   end
   
