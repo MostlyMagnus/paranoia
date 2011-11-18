@@ -24,6 +24,10 @@ class GamestatesController < ApplicationController
     
   end
   
+  def wip_show
+    render :layout => 'wip_layout'
+  end
+  
   def add_action
     @gamestate = Gamestate.find_by_id(params[:id])
     @pawns = Pawn.find_all_by_gamestate_id(@gamestate.id)

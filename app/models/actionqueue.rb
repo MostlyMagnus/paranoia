@@ -151,8 +151,17 @@ class ActionQueue
   end
   
   def executeA_Repair!(action, gamestatePawn)
-    pawn = Pawn.find_by_id(gamestatePawn.pawn_id)    
-    @gamestate.game_ship.get_node_by_id(action.target_node).node_type.to_s
+    pawn = Pawn.find_by_id(gamestatePawn.pawn_id)
+
+    @gamestate.game_ship.get_node_by_id(action.target_node).status = @gamestate.game_ship.get_node_by_id(action.target_node).status.to_i - 0.2*action.multiplier.to_i
+    
+    @gamestate.logger.debug " ------------------------------------------------------------ "
+    @gamestate.logger.debug @gamestate.game_ship.get_node_by_id(action.target_node).status
+    @gamestate.logger.debug " ------------------------------------------------------------ "
+    
+    notif_text = @gamestate.game_ship.get_node_by_id(action.target_node).node_type + " is now at " + (@gamestate.game_ship.get_node_by_id(action.target_node).status.to_f*100).to_s + "%"
+    
+    pawn.notifications.create!(:action_type => action.action_type, :params => notif_text)
   end
   
   def executeA_Kill!(action, gamestatePawn)

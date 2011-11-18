@@ -64,6 +64,12 @@ class GameShip
       end
               
       @logic_nodes[pushNode.id.to_i] = pushNode
+      
+      @gamestate.logger.debug " ---------------------- "
+      @gamestate.logger.debug pushNode
+      @gamestate.logger.debug pushNode.status
+      @gamestate.logger.debug pushNode.health
+      @gamestate.logger.debug " ---------------------- "
     end
   end
   
