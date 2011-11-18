@@ -10,12 +10,20 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110427204910) do
+ActiveRecord::Schema.define(:version => 20111106095215) do
 
   create_table "actions", :force => true do |t|
     t.integer  "pawn_id"
     t.integer  "queue_number"
     t.integer  "action_type"
+    t.string   "params"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "event_inputs", :force => true do |t|
+    t.integer  "user_event_id"
+    t.integer  "pawn_id"
     t.string   "params"
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -52,6 +60,14 @@ ActiveRecord::Schema.define(:version => 20110427204910) do
     t.datetime "updated_at"
   end
 
+  create_table "notifications", :force => true do |t|
+    t.integer  "pawn_id"
+    t.integer  "action_type"
+    t.string   "params"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "pawns", :force => true do |t|
     t.integer  "user_id"
     t.integer  "gamestate_id"
@@ -61,11 +77,28 @@ ActiveRecord::Schema.define(:version => 20110427204910) do
     t.datetime "updated_at"
   end
 
+  create_table "personas", :force => true do |t|
+    t.string   "name"
+    t.integer  "profession"
+    t.string   "bio"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "ships", :force => true do |t|
     t.string   "name"
     t.string   "description"
     t.string   "image"
     t.string   "layout",      :limit => nil
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "user_events", :force => true do |t|
+    t.integer  "action_type"
+    t.integer  "gamestate_id"
+    t.integer  "lifespan"
+    t.string   "params"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

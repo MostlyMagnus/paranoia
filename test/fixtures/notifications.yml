@@ -1,0 +1,11 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  pawn_id: 1
+  action_type: 1
+  params: MyString
+
+two:
+  pawn_id: 1
+  action_type: 1
+  params: MyString

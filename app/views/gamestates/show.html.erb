@@ -1,52 +1,163 @@
-<div>Current turn <%= currentTurn %></div>
-<div>Next update <%= nextUpdate %></div>
+<div>
+<%= @user_pawn.notifications %>
+</div>
 
-<div>Action Queue
-  <% actionQueue.each do |a| %>
-  <li><%= a.typeToString %></li>
+<div>
+  <% @events[:votes].each do |vote| %>
+    <div>
+      <%= vote %> <%= @gamestatePawns.find{|pawn|pawn[1].pawn_id==vote.params.split(",").first.to_i}[1].persona.name %> wants to airlock
+      <%= @gamestatePawns.find{|pawn|pawn[1].pawn_id==vote.params.split(",").last.to_i}[1].persona.name %>. Vote expires in <%= pluralize(vote.lifespan, "turn") %>.
+      
+      <% if !vote.event_inputs.find_by_pawn_id(@user_pawn.id) then%>
+        <%= link_to "In favour", :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_VOTE, :details => String(vote.id) + ", 1" %>
+        <%= link_to "Oppose",    :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_VOTE, :details => String(vote.id) + ", -1" %>
+      <% else %>
+        (You cast your vote.)
+      <% end %>
+    </div>
   <% end %>
 </div>
 
 
 <table><tr><td>
   <div>
-    Room render (* denotes current player position)
-  <table border="1">
-    
-    
-    <% for y in 0..16 %>
-      <tr>
-      <% for x in 0..17 %>
-        <td style="width:48px; height: 48px">
-          
-          
-          <%= if (@pos.x == x && @pos.y == y) then "*" end %>
-          <%= if (@vPos.x == x && @vPos.y == y) then "v" end %>
-          
-          <%= if @gamestate.game_ship.logic_nodes[x][y].kind_of? LogicNode then
-            @gamestate.game_ship.logic_nodes[x][y].node_type
-          end %>
-
-
-          <%= if @gamestate.game_ship.rooms[x][y].kind_of? Room  then
-            @gamestate.game_ship.rooms[x][y].room_type
+  Room render (* denotes current player position)    
+  <!-- <%= @visiblePawns %> -->
+  <!-- <%= @gamestate.checked_grid %> -->
+  
+  <div>
+     <% for y in 0..16 %>
+     
+     <div style="clear: both">
+        <% for x in 0..17 %>
+          <div class="<%= if @gamestate.game_ship.rooms[x][y].kind_of? Room  then @gamestate.game_ship.rooms[x][y].room_type end %>" style="width: 32px; height: 32px; position: relative; float: left; margin: 1px; text-align: center">
             
-          else
-            "..." 
-          end %>
+          <!-- <%= if @gamestate.game_ship.rooms[x][y].kind_of? Room  then @gamestate.game_ship.rooms[x][y].room_type end %>-->
+
+          <% if @gamestate.game_ship.logic_nodes[x][y].kind_of? LogicNode then %>
+            <%= @gamestate.game_ship.logic_nodes[x][y].node_type %>            
+          <% end %>
+
+          <% @visiblePawns.each do |gamestatePawn| %>
+            
+            <% if gamestatePawn.x == x && gamestatePawn.y == y then %>
+              
+              <%= if gamestatePawn.pawn_id == @user_pawn.id then
+              "*"
+              else
+                gamestatePawn.pawn_id 
+              end %>
+            
+            <% end %>
+            
+          <% end %>
+                    
+          <%= if @vPos.x == x && @vPos.y == y then "v" end %>
           
 
-        </td>
-      <% end %>
-      </tr>
-    <% end %>
-  </table>
+          <%= if !@gamestate.checked_grid[[x, y]] then "..." end %>
+            
+          </div>  
+        <% end %>
+        
+     </div>
+    <% end %>       
+
+  </div>
+  
+ 
   </div>
 
 </td><td>
   
-  <div>  
-    <div>V_Pos: <%= @vPos %>  </div>  
+  <div>
+    
+    <div>
+      <%= image_tag "rooms/"+@gamestate.game_ship.rooms[@vPos.x][@vPos.y].room_type+"_large.jpg"%>
+    </div>
+    
+    <div>Current turn <%= currentTurn %></div>
+    <div>Next update <%= nextUpdate %></div>
+      
+    
+    
+    <!-- V_Pos <%= @vPos %>-->
+    <!-- Access <%= @access %>  -->
+    
+    <div>
+      <%= @access %>
+    </div>
+  
+    <div>
+      <table>
+      <tr><td></td>
+      
+      <td>
+      <%= if @access[:north] == 1 then link_to 'north', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_MOVE, :details => "0,-1"  end %>
+      </td>
+      
+      </tr>
+      
+      <tr>        
+        <td>
+        <%= if @access[:west] == 1 then link_to 'west', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_MOVE, :details => "-1,0"  end %>
+        </td>
+        
+        <td></td>
+        
+        <td>
+        <%= if @access[:east] == 1 then link_to 'east', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_MOVE, :details => "1,0"  end %>
+        </td>      
+        
+      </tr>
+
+      <tr>
+        <td>
+        </td>
+        <td>  
+          <%= if @access[:south] == 1 then link_to 'south', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_MOVE, :details => "0,1"  end %>
+        </td>
+        <td>
+        </td>
+      </tr>
+      
+      </table>
+      
+    </div>
+    
+    <div>
+      <div> Possible Actions </div>
+      <% @possibleActions.each do |possibleAction| %>
+        <%= link_to possibleAction[:verbose], :controller => "gamestates", :action => "add_action", :type => possibleAction[:action_type], :details => possibleAction[:params] %><br>
+      <% end %>
+    </div>
+       
+    <div>Action Queue</div>
+    <div><%= link_to 'Backspace', :controller => "gamestates", :action => "remove_action" %></div>
+    <div>
+      <% actionQueue.each do |a| %>
+      <li><%= a.typeToString %></li>
+      <% end %>
+    </div>
+    
   </div>
 
-</td></tr></table>
+</td>
+
+<td>
+
+<% @gamestatePawns.each do |gamestatePawn| %>
+
+  <div>
+    <div><%= gamestatePawn[1].persona.name %> @ <%= 100*gamestatePawn[1].status %>% </div>
+    <div>
+      <%= link_to 'Kill', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_KILL, :details => gamestatePawn[1].pawn_id %>
+      <%= link_to 'Airlock', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_INITVOTE, :details => gamestatePawn[1].pawn_id %>
+    </div>
+  </div>
+
+<% end %>
+
+</td>
+
+</tr></table>

@@ -25,10 +25,8 @@ class GameShip
   end
   
   def setup_ship
-    # Always call this function in code that needs to use this gamestates ship
-    @gamestate.logger.debug "setup_ship"
+    # Always call this function in code that needs to use this gamestates ship    
     if @ship.nil? then
-      @gamestate.logger.debug "ship was nil"
       
       @ship = Ship.find_by_id(@gamestate.ship_id)    
     
@@ -40,18 +38,9 @@ class GameShip
   def build_logic_nodes
     # If there is no node status built, then we need to build it. This should never happen later
     # but for now I wrote the code so we have a syntax for parsing and working with nodes.
- 
-    @gamestate.logger.debug "build_logic_nodes"
-    if @gamestate.nodestatus == ""
-      @gamestate.logger.debug "nodestatus nil!"
-    else
-      @gamestate.logger.debug "nodestatus not nil!"
-    end
-    
+     
     if @gamestate.nodestatus == "" then @gamestate.nodestatus = create_node_status_from_ship end
     
-    @gamestate.logger.debug @gamestate.nodestatus
-
     @logic_nodes = Hash.new{ |h,k| h[k]=Hash.new(&h.default_proc) }
     
     #id; type; x, y; health$
@@ -72,15 +61,12 @@ class GameShip
         when NodeTypeDef::N_WATER_CONTAINER   then pushNode = N_Water_Container.new(nodeSplit[0], pos, nodeSplit[1], nodeSplit[3])
         else                                       pushNode = N_Nil.new(nodeSplit[0], pos, nodeSplit[1], nodeSplit[3])
       end
-      
-      @gamestate.logger.debug pushNode
-        
+              
       @logic_nodes[pos.x][pos.y] = pushNode
     end
   end
   
   def create_node_status_from_ship
-    @gamestate.logger.debug "create_node_status_from_ship"
     setup_ship
     
     id = 0
@@ -96,7 +82,7 @@ class GameShip
   end
   
   def get_node_by_id(id)
-    @nodes.each do |h, k|
+    @logic_nodes.each do |h, k|
       k.each do |_h,_k|
         if _k.id == id
           # Does this work?
@@ -107,8 +93,6 @@ class GameShip
   end
   
   def parse_game_ship_from_ship
-    setup_ship
-    
     @rooms  = Hash.new{ |h,k| h[k]=Hash.new(&h.default_proc) }
         
     tempShip = getTempShip
@@ -127,11 +111,11 @@ class GameShip
                   
       # Lets put it in our hash (-That's what SHE said!)        
       @rooms[pos.x][pos.y] = Room.new(pos, access, splitRoom[2])      
-    end    
+    end
+    
   end
   
   def parse_nodes_from_ship
-    @gamestate.logger.debug "parse_nodes_from_ship"
     @nodes  = Array.new
 
     tempShip = getTempShip
@@ -139,7 +123,6 @@ class GameShip
     
     #splitShip = @ship.layout.split("$")
     
-    @gamestate.logger.debug "splitShip.each do |room|"
     splitShip.each do |room|
       splitRoom = room.split(";")
       
@@ -147,16 +130,15 @@ class GameShip
        
       # Parse the nodes into an array.    
       if !splitRoom[3].nil? then
-        @gamestate.logger.debug splitRoom[3]
         @nodes.push(Ship_Node.new(pos, splitRoom[3]))
       end
     end        
   end
   
-  def where_can_i_move_from_here?(pawn)
+  def whereCanIMoveFromHere?(pawn)
     # Future code here should take into account access levels
     # @rooms[pawn.x][pawn.y].access[:north]
-
+    
     #allowedMoves = S_Access.new(0, 0, 0, 0)
     allowedMoves = Hash[:north => 0, :south => 0, :east => 0, :west => 0]   
     if @rooms[pawn.x][pawn.y-1].kind_of? Room then
@@ -191,6 +173,10 @@ class GameShip
     return allowedMoves
   end
   
+  def somethingInteractiveHere?(virtualPawn)
+    unless @logic_nodes[virtualPawn.x][virtualPawn.y].kind_of? LogicNode then return nil else return @logic_nodes[virtualPawn.x][virtualPawn.y] end
+  end
+  
   def AJAX_formatForResponse
     setup_ship
     
@@ -204,7 +190,11 @@ class GameShip
     toAjaxResponse[:nodes]  = @logic_nodes
     
     return toAjaxResponse
-  end  
+  end
+  
+  def isThisARoom?(grid)
+    return @rooms[grid.x][grid.y].kind_of? Room
+  end
 end
 
 class Room

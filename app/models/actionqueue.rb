@@ -9,14 +9,9 @@ class ActionQueue
     
     @pawns = Pawn.find_all_by_gamestate_id(@gamestate.id) 
     @action_queue = Array.new
-    @gamestatePawns = Hash.new
-    
-    buildGamestatePawns
   end
 
   def buildExecuteAndClearActions!  
-    #buildGamestatePawns
-    
     # Starting with tick #1, build it's action queue, sort it, execute it,
     # and then clear it. Repeat for the remaining ticks.    
     for tick in 0..4
@@ -35,8 +30,6 @@ class ActionQueue
     end
     
     clearActions
-    
-    return @gamestatePawns
   end
   
   def getPawnsActionQueue(pawn_id)
@@ -47,20 +40,18 @@ class ActionQueue
     end
   end
   
-  def executeActionQueueOnPawn(pawn, actionFilter = ActionTypeDef::A_NIL)
-    #@gamestatePawns = Hash.new
-    #buildGamestatePawns
+  def executeActionQueueOnPawn(pawn, actionFilter = ActionTypeDef::A_NIL)    
+    gamestatePawn =     GamestatePawn.new(@gamestate.gamestatePawns[pawn.id].pawn_id,
+                                          @gamestate.gamestatePawns[pawn.id].x,
+                                          @gamestate.gamestatePawns[pawn.id].y,
+                                          @gamestate.gamestatePawns[pawn.id].status)
     
-    gamestatePawn = @gamestatePawns[pawn.id]
-  
-    @gamestate.logger.debug pawn.id
-    @gamestate.logger.debug gamestatePawn
-  
     if(actionFilter == ActionTypeDef::A_NIL)
       #executeAction(action, gamestatePawn)
-      print "No filter"
-    else
-      Action.find_all_by_pawn_id(gamestatePawn.id).each do |action|
+      @gamestate.logger.debug "No filter"
+    else      
+      
+      Action.find_all_by_pawn_id(pawn.id).each do |action|
         if(action.action_type == actionFilter)
           executeAction!(actionToSpecificActionType(action), gamestatePawn) 
         end 
@@ -69,7 +60,7 @@ class ActionQueue
     
     return gamestatePawn
   end
-  
+    
   private
   
   def clearActions
@@ -112,6 +103,15 @@ class ActionQueue
       when ActionTypeDef::A_MOVE
         returnAction = A_Move.new(action.attributes)
 
+      when ActionTypeDef::A_INITVOTE
+        returnAction = A_InitVote.new(action.attributes)
+
+      when ActionTypeDef::A_VOTE
+        returnAction = A_Vote.new(action.attributes)
+
+      when ActionTypeDef::A_STATUS
+        returnAction = A_Status.new(action.attributes)
+
     end
     
     returnAction
@@ -123,16 +123,20 @@ class ActionQueue
     
   def executeActionQueue!    
     for i in 0..@action_queue.size-1
-      executeAction!(@action_queue[i], @gamestatePawns[@action_queue[i].pawn_id])
+      executeAction!(@action_queue[i],     @gamestate.gamestatePawns[@action_queue[i].pawn_id])
     end
   end
   
   def executeAction!(action, gamestatePawn)
-    if      (action.kind_of? A_Nil)     then  executeA_Nil!(action, gamestatePawn)
-    elsif   (action.kind_of? A_Use)     then  executeA_Use!(action, gamestatePawn)
-    elsif   (action.kind_of? A_Repair)  then  executeA_Repair!(action, gamestatePawn)
-    elsif   (action.kind_of? A_Kill)    then  executeA_Kill!(action, gamestatePawn)
-    elsif   (action.kind_of? A_Move)    then  executeA_Move!(action, gamestatePawn)
+    if      (action.kind_of? A_Nil)         then  executeA_Nil!(action, gamestatePawn)
+    elsif   (action.kind_of? A_Use)         then  executeA_Use!(action, gamestatePawn)
+    elsif   (action.kind_of? A_Repair)      then  executeA_Repair!(action, gamestatePawn)
+    elsif   (action.kind_of? A_Kill)        then  executeA_Kill!(action, gamestatePawn)
+    elsif   (action.kind_of? A_Move)        then  executeA_Move!(action, gamestatePawn)
+    elsif   (action.kind_of? A_Vote)        then  executeA_Vote!(action, gamestatePawn)
+    elsif   (action.kind_of? A_InitVote)    then  executeA_InitVote!(action, gamestatePawn)      
+    elsif   (action.kind_of? A_Status)      then  executeA_Status!(action, gamestatePawn)      
+
     end
   end
    
@@ -140,63 +144,51 @@ class ActionQueue
   end
   
   def executeA_Use!(action, gamestatePawn)
+    pawn = Pawn.find_by_id (gamestatePawn.pawn_id)
+    
+    #@gamestate.game_ship.get_node_by_id(action.target_node).node_type.to_s
+    
+    pawn.notifications.create!(:action_type => action.action_type, :params => "-")
   end
   
   def executeA_Repair!(action, gamestatePawn)
   end
   
   def executeA_Kill!(action, gamestatePawn)
-  end
-  
-  def executeA_Move!(action, gamestatePawn)    
-    gamestatePawn.x = action.toX
-    gamestatePawn.y = action.toY
-  end
-  
-  def buildGamestatePawns
-    # Make sure we don't, for some reason, have no playerstatus string. If we
-    # don't, buildPlayerstatus will build a default one for us, with all the pawns
-    # at 0,0.
-    @gamestate.logger.debug "buildGamestatePawns"
-    
-    if @gamestate.playerstatus.nil? then @gamestate.playerstatus = buildPlayerstatus(@gamestate) end
-    
-    @gamestatePawns.clear
-    
-    splitGamestatePawns = @gamestate.playerstatus.split("$")
-    
-    splitGamestatePawns.each do |gamestate_pawn|    
-      #id; x,y; status$
-      splitPawn = gamestate_pawn.split(";")
-      
-      # Get the id
-      pawn_id = Integer(splitPawn[0])
-  
-      # Get the position
-      pos = S_Position.new(Integer(splitPawn[1].split(",")[0]), Integer(splitPawn[1].split(",")[1]))
-      
-      # Get the status (alive, dead, etc)
-      status = Integer(splitPawn[2])
-      
-      @gamestate.logger.debug "Lets put it in our array       "
-      @gamestate.logger.debug pawn_id
-      
-      @gamestatePawns[pawn_id] = GamestatePawn.new(pawn_id, pos.x, pos.y, status )      
+    if Integer(action.target_pawn_id) >= 0 then 
+      # target_pawn_id is >= 0 thus the kill action is targeted
+      @gamestate.gamestatePawns.each do |target_gamestatePawn|    
+        if Integer(target_gamestatePawn[1].pawn_id) == Integer(action.target_pawn_id)
+          if Integer(target_gamestatePawn[1].x) == Integer(gamestatePawn.x) &&
+             Integer(target_gamestatePawn[1].y) == Integer(gamestatePawn.y) then
+            
+            target_gamestatePawn[1].status = 0 
+            
+            pawn.notifications.create!(:action_type => action.action_type, :params => "Kill action successful.")
+          end
+        end
+      end
+    else
+      # target_pawn_id < 0 thus not specified. Kill the first unlucky bastard.
     end
- 
-    
-    @gamestate.logger.debug @gamestatePawns
   end
   
-  def buildPlayerstatus(gamestate)    
-    playerstatusString = ""
-    
-    Pawn.find_all_by_gamestate_id(gamestate.id).each do |pawn|      
-      #id; x,y; status$
-      playerstatusString += String(pawn.id)+";0,0;1"
-    end
-    
-    return playerstatusString
+  def executeA_Move!(action, gamestatePawn)
+    gamestatePawn.x = gamestatePawn.x + Integer(action.toX)
+    gamestatePawn.y = gamestatePawn.y + Integer(action.toY)
   end
   
+  def executeA_Vote!(action, gamestatePawn)
+    @gamestate.user_events.find_by_id(action.event_id).event_inputs.create!(:pawn_id => gamestatePawn.pawn_id, :params => action.input)
+  end
+
+  def executeA_InitVote!(action, gamestatePawn)
+    @gamestate.user_events.create!(:action_type => ActionTypeDef::A_VOTE, :lifespan => 1, :params => String(gamestatePawn.pawn_id)+", "+String(action.target))
+  end
+  
+  def executeA_Status!(action, gamestatePawn)
+    pawn = Pawn.find_by_id (gamestatePawn.pawn_id)
+    
+    pawn.notifications.create!(:action_type => action.action_type, :params => "Replace this with updates about the ship status.")
+  end
 end

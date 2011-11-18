@@ -1,2 +1,15 @@
 Remove role column from lobby table
 Start a lobby
+
+
+
+
+Magnuds
+
+PDA implementation
+  Check shipstatus (costs AP) -- only works if control panel / central computer is online
+  Bulletinboard (Public)
+
+Persona implementation
+  Contains portrait, profession, biography
+  
