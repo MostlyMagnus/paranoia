@@ -19,7 +19,7 @@
 #
 
 class Lobby < ActiveRecord::Base
-  has_many :lobby_users, :dependent => :destroy
+  has_many :lobby_users, :dependent => :destroy # lobbyusers are still not destroyed when deleting lobby
   has_many :users, :through => :lobby_users
   
   # add this later
