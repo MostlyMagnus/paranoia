@@ -27,6 +27,7 @@ class Gamestate < ActiveRecord::Base
   
   has_many :pawns, :dependent => :destroy
   has_many :user_events, :dependent => :destroy
+  has_many :log_entries, :dependent => :destroy
   
   def self.create_new(lobby_id)
 	# creates a new game
@@ -66,7 +67,9 @@ class Gamestate < ActiveRecord::Base
     @game_ship = GameShip.new(self.ship_id)
     
     @gamestatePawns = Hash.new
-    buildGamestatePawns    
+    buildGamestatePawns
+    
+    @turn = ((self.updated_at - self.created_at)/(60 * self.timescale)).floor
   end
 
   def pawnSetup(current_user)
@@ -109,6 +112,9 @@ class Gamestate < ActiveRecord::Base
     # When we're done, we update the update_when of our gamestate.
     self.update_when = self.update_when.advance(:minutes => self.timescale * (@updatesRequired.to_i+1))
     
+    # Update self.nodestatus to reflect updates done
+    self.nodestatus = @game_ship.build_nodestatus_string
+    
     # Update self.playerstatus to reflect any updates done
     updatePlayerStatus
     
@@ -140,6 +146,7 @@ class Gamestate < ActiveRecord::Base
         
         if tally > 0
           if event.action_type == ActionTypeDef::A_VOTE then
+            
             @gamestatePawns.find{|pawn|pawn[1].pawn_id==event.params.split(",").last.to_i}[1].status = 0
           end
         end
@@ -201,10 +208,10 @@ class Gamestate < ActiveRecord::Base
       pawn_id = Integer(splitPawn[0])
   
       # Get the position
-      pos = S_Position.new(Integer(splitPawn[1].split(",")[0]), Integer(splitPawn[1].split(",")[1]))
+      pos = S_Position.new(splitPawn[1].split(",").first.to_i, splitPawn[1].split(",").last.to_i)
       
       # Get the status (alive, dead, etc)
-      status = Integer(splitPawn[2])
+      status = splitPawn[2].to_f
             
       @gamestatePawns[pawn_id] = GamestatePawn.new(pawn_id, pos.x, pos.y, status, Persona.find_by_id(Pawn.find_by_id(pawn_id).persona_id))      
     end

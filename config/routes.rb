@@ -14,6 +14,8 @@ Paranoia::Application.routes.draw do
   resources :gamestates do
     member do      
       #get :create
+      get :wip_show
+      
       get :ajax_gamestate
       get :ajax_ship
       get :ajax_possibleactions

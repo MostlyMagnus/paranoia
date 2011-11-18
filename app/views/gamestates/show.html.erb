@@ -8,12 +8,8 @@
       <%= vote %> <%= @gamestatePawns.find{|pawn|pawn[1].pawn_id==vote.params.split(",").first.to_i}[1].persona.name %> wants to airlock
       <%= @gamestatePawns.find{|pawn|pawn[1].pawn_id==vote.params.split(",").last.to_i}[1].persona.name %>. Vote expires in <%= pluralize(vote.lifespan, "turn") %>.
       
-      <% if !vote.event_inputs.find_by_pawn_id(@user_pawn.id) then%>
-        <%= link_to "In favour", :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_VOTE, :details => String(vote.id) + ", 1" %>
-        <%= link_to "Oppose",    :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_VOTE, :details => String(vote.id) + ", -1" %>
-      <% else %>
-        (You cast your vote.)
-      <% end %>
+      <%= link_to "In favour", :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_VOTE, :details => String(vote.id) + ", 1" %>
+      <%= link_to "Oppose",    :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_VOTE, :details => String(vote.id) + ", -1" %>
     </div>
   <% end %>
 </div>
@@ -34,22 +30,26 @@
             
           <!-- <%= if @gamestate.game_ship.rooms[x][y].kind_of? Room  then @gamestate.game_ship.rooms[x][y].room_type end %>-->
 
-          <% if @gamestate.game_ship.logic_nodes[x][y].kind_of? LogicNode then %>
-            <%= @gamestate.game_ship.logic_nodes[x][y].node_type %>            
+          <% @gamestate.game_ship.logic_nodes.each do |node| %>
+              <% if node.position.x == x && node.position.y == y then %>
+                <%= node.node_type%>
+                <%=
+                  #node.status
+                %>
+                <%=
+                  #node.health
+                %>
+              <% end %>            
           <% end %>
-
+          
           <% @visiblePawns.each do |gamestatePawn| %>
-            
             <% if gamestatePawn.x == x && gamestatePawn.y == y then %>
-              
               <%= if gamestatePawn.pawn_id == @user_pawn.id then
               "*"
               else
                 gamestatePawn.pawn_id 
               end %>
-            
             <% end %>
-            
           <% end %>
                     
           <%= if @vPos.x == x && @vPos.y == y then "v" end %>
@@ -149,7 +149,7 @@
 <% @gamestatePawns.each do |gamestatePawn| %>
 
   <div>
-    <div><%= gamestatePawn[1].persona.name %> @ <%= 100*gamestatePawn[1].status %>% </div>
+    <div><%= gamestatePawn[1].persona.name %> @ <%= 100*gamestatePawn[1].status.to_i %>% </div>
     <div>
       <%= link_to 'Kill', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_KILL, :details => gamestatePawn[1].pawn_id %>
       <%= link_to 'Airlock', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_INITVOTE, :details => gamestatePawn[1].pawn_id %>

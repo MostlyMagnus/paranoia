@@ -47,10 +47,10 @@ class GameShip
 		nodestatus = create_node_status_from_ship 
 	end
     
-    @logic_nodes = Hash.new{ |h,k| h[k]=Hash.new(&h.default_proc) }
+    #@logic_nodes = Hash.new{ |h,k| h[k]=Hash.new(&h.default_proc) }
+    @logic_nodes = Array.new
     
-    #id; type; x, y; health$
-    #splitNodestatus = @gamestate.nodestatus.split("$")
+
 	splitNodestatus = nodestatus.split("$")
         
     splitNodestatus.each do |nodeStatus|
@@ -61,15 +61,21 @@ class GameShip
       pushNode = nil
       
       case nodeSplit[1]
-        when NodeTypeDef::N_AIRLOCK_ACTIVATOR then pushNode = N_Airlock_Activator.new(nodeSplit[0], pos, nodeSplit[1], nodeSplit[3])
-        when NodeTypeDef::N_CONTROL_PANEL     then pushNode = N_Control_Panel.new(nodeSplit[0], pos, nodeSplit[1], nodeSplit[3])
-        when NodeTypeDef::N_ENGINE            then pushNode = N_Engine.new(nodeSplit[0], pos, nodeSplit[1], nodeSplit[3])
-        when NodeTypeDef::N_GENERATOR         then pushNode = N_Generator.new(nodeSplit[0], pos, nodeSplit[1], nodeSplit[3])
-        when NodeTypeDef::N_WATER_CONTAINER   then pushNode = N_Water_Container.new(nodeSplit[0], pos, nodeSplit[1], nodeSplit[3])
-        else                                       pushNode = N_Nil.new(nodeSplit[0], pos, nodeSplit[1], nodeSplit[3])
+        when NodeTypeDef::N_AIRLOCK_ACTIVATOR then pushNode = N_Airlock_Activator.new(nodeSplit[0], pos, nodeSplit[1], nodeSplit[3], nodeSplit[4])
+        when NodeTypeDef::N_CONTROL_PANEL     then pushNode = N_Control_Panel.new(nodeSplit[0], pos, nodeSplit[1], nodeSplit[3], nodeSplit[4])
+        when NodeTypeDef::N_ENGINE            then pushNode = N_Engine.new(nodeSplit[0], pos, nodeSplit[1], nodeSplit[3], nodeSplit[4])
+        when NodeTypeDef::N_GENERATOR         then pushNode = N_Generator.new(nodeSplit[0], pos, nodeSplit[1], nodeSplit[3], nodeSplit[4])
+        when NodeTypeDef::N_WATER_CONTAINER   then pushNode = N_Water_Container.new(nodeSplit[0], pos, nodeSplit[1], nodeSplit[3], nodeSplit[4])
+        else                                       pushNode = N_Nil.new(nodeSplit[0], pos, nodeSplit[1], nodeSplit[3], nodeSplit[4])
       end
               
-      @logic_nodes[pos.x][pos.y] = pushNode
+      @logic_nodes[pushNode.id.to_i] = pushNode
+      
+      @gamestate.logger.debug " ---------------------- "
+      @gamestate.logger.debug pushNode
+      @gamestate.logger.debug pushNode.status
+      @gamestate.logger.debug pushNode.health
+      @gamestate.logger.debug " ---------------------- "
     end
   end
   
@@ -80,23 +86,29 @@ class GameShip
     nodestatusString = ""
     
     @nodes.each do |node|
-      #id; type; x, y; health$
-      nodestatusString += String(id)+";"+node.node_type+";"+String(node.position[:x])+","+String(node.position[:y])+";1$"
+      #id; x,y; health; status$
+      nodestatusString += String(id)+";"+node.node_type+";"+String(node.position[:x])+","+String(node.position[:y])+";1;1$"
       id+=1
     end
     
     return nodestatusString
   end
   
-  def get_node_by_id(id)
-    @logic_nodes.each do |h, k|
-      k.each do |_h,_k|
-        if _k.id == id
-          # Does this work?
-          return _k
-        end
-      end
+  def build_nodestatus_string
+    # :id, :position, :node_type, :health, :status
+
+    tempString = ""
+    
+    #id; type; x,y; health; status$
+    @logic_nodes.each do |node|
+      tempString += node.id.to_s + ";" + node.node_type.to_s + ";" + node.position.x.to_s + "," + node.position.y.to_s + ";" + node.health.to_s + ";" + node.status.to_s + "$"
     end
+    
+    return tempString
+  end
+  
+  def get_node_by_id(id)
+    return @logic_nodes[id]
   end
   
   def parse_game_ship_from_ship
@@ -181,7 +193,18 @@ class GameShip
   end
   
   def somethingInteractiveHere?(virtualPawn)
-    unless @logic_nodes[virtualPawn.x][virtualPawn.y].kind_of? LogicNode then return nil else return @logic_nodes[virtualPawn.x][virtualPawn.y] end
+    #unless @logic_nodes[virtualPawn.x][virtualPawn.y].kind_of? LogicNode then return nil else return @logic_nodes[virtualPawn.x][virtualPawn.y] end
+    
+    @logic_nodes.each do |node| 
+      if  virtualPawn.x == node.position.x &&
+          virtualPawn.y == node.position.y then
+          
+          return node
+      
+      end      
+    end
+    
+    return nil
   end
   
   def AJAX_formatForResponse
@@ -224,13 +247,14 @@ class Ship_Node
 end
 
 class LogicNode
-  attr_accessor :id, :position, :node_type, :health
+  attr_accessor :id, :position, :node_type, :health, :status
 
-  def initialize(id, pos, node_type, health)
+  def initialize(id, pos, node_type, health, status)
     @id = id
     @position   = pos
     @node_type  = node_type
     @health = health
+    @status = status
   end  
 
   def repair(amount)

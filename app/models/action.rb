@@ -110,9 +110,13 @@ class A_Kill < Action
 end
 
 class A_Repair < Action
+  attr_accessor :target_node, :multiplier
   
   def initialize(parameters = Hash.new)
     @action_type = ActionTypeDef::A_REPAIR
+    
+    @target_node = parameters["params"].split(",").first.to_i
+    @multiplier  = parameters["params"].split(",").last.to_i
     
     if !parameters[:node].nil? then @node = parameters[:node] end
     default_priority(80)
