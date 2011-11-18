@@ -204,11 +204,14 @@ class GameShip
     toAjaxResponse = Hash.new
     
     toAjaxResponse[:name] = @ship.name
-    toAjaxResponse[:width] = 17
-    toAjaxResponse[:height] = 16
     
-    toAjaxResponse[:map] = @rooms
-    toAjaxResponse[:nodes]  = @logic_nodes
+    ajax_rooms = @rooms
+    
+    @logic_nodes.each do |node|
+      ajax_rooms[node.position.x][node.position.y].node = node
+    end
+    
+    toAjaxResponse[:map] = ajax_rooms    
     
     return toAjaxResponse
   end
@@ -225,7 +228,7 @@ class Room
     @room_type  = room_type
   end
 
-  attr_accessor :position, :access, :room_type
+  attr_accessor :position, :access, :room_type, :node
 end
 
 class Ship_Node
