@@ -191,7 +191,7 @@ class ActionQueue
   end
 
   def executeA_InitVote!(action, gamestatePawn)
-    #@gamestate.log_entries.create!(Log_entry.new(@gamestate.turn, action.action_type, gamestatePawn.pawn_id, action.target))
+    @gamestate.log_entries.create!(Log_entry.new(@gamestate.turn, action.action_type, gamestatePawn.pawn_id, action.target))
     
     @gamestate.user_events.create!(:action_type => ActionTypeDef::A_VOTE, :lifespan => 1, :params => String(gamestatePawn.pawn_id)+", "+String(action.target))
   end

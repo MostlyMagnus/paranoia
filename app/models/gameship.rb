@@ -199,7 +199,7 @@ class GameShip
   end
   
   def AJAX_formatForResponse
-    setup_ship
+    setup_ship(@ship_id)
     
     toAjaxResponse = Hash.new
     
