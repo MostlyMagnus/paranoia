@@ -49,13 +49,13 @@ class Gamestate < ActiveRecord::Base
 	lobby_usr_ary = lobby.lobby_users
 	for lob_usr in lobby_usr_ary
 		p = gs.pawns.create(:user_id => lob_usr.user_id, :gamestate_id => gs.id, :persona_id => persona_id_ary.pop(), :role => 1)
-		pawn_status <<  p.user_id.to_s() << ';11,7;1.0$'
+		pawn_status <<  p.id.to_s() << ';11,7;1.0$'
 	end
 	
 	gs.playerstatus = pawn_status
 	gs.save
 	# probably check that everything was created ok before lobby is deleted
-	Lobby.delete(lobby_id)
+	Lobby.destroy(lobby_id)
 	
   end
   

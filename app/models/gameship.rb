@@ -13,9 +13,7 @@ end
 class GameShip
   attr_accessor :logic_nodes, :rooms
 
-  #def initialize(gamestate)
   def initialize(ship_id)	
-    #@gamestate = gamestate # we do not need gamestate as a member
     @ship_id = ship_id
 	
     setup_ship(@ship_id)
@@ -30,7 +28,6 @@ class GameShip
     # Always call this function in code that needs to use this gamestates ship    
     if @ship.nil? then
       
-      #@ship = Ship.find_by_id(@gamestate.ship_id)    
 	  @ship = Ship.find_by_id(ship_id)    
     
       parse_game_ship_from_ship
@@ -42,7 +39,6 @@ class GameShip
     # If there is no node status built, then we need to build it. This should never happen later
     # but for now I wrote the code so we have a syntax for parsing and working with nodes.
      	
-    #if @gamestate.nodestatus == "" then @gamestate.nodestatus = create_node_status_from_ship end
 	if nodestatus.empty?
 		nodestatus = create_node_status_from_ship 
 	end
@@ -71,11 +67,6 @@ class GameShip
               
       @logic_nodes[pushNode.id.to_i] = pushNode
       
-      @gamestate.logger.debug " ---------------------- "
-      @gamestate.logger.debug pushNode
-      @gamestate.logger.debug pushNode.status
-      @gamestate.logger.debug pushNode.health
-      @gamestate.logger.debug " ---------------------- "
     end
   end
   
