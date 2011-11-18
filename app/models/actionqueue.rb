@@ -162,7 +162,7 @@ class ActionQueue
   
   def executeA_Kill!(action, gamestatePawn)
     pawn = Pawn.find_by_id(gamestatePawn.pawn_id)
-
+  
     if Integer(action.target_pawn_id) >= 0 then 
       # target_pawn_id is >= 0 thus the kill action is targeted
       @gamestate.gamestatePawns.each do |target_gamestatePawn|    
@@ -191,6 +191,8 @@ class ActionQueue
   end
 
   def executeA_InitVote!(action, gamestatePawn)
+    #@gamestate.log_entries.create!(Log_entry.new(@gamestate.turn, action.action_type, gamestatePawn.pawn_id, action.target))
+    
     @gamestate.user_events.create!(:action_type => ActionTypeDef::A_VOTE, :lifespan => 1, :params => String(gamestatePawn.pawn_id)+", "+String(action.target))
   end
   

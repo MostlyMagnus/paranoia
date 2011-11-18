@@ -23,7 +23,7 @@ require 'Lobby'
 include Math
 
 class Gamestate < ActiveRecord::Base
-  attr_accessor :game_ship, :checked_grid, :gamestatePawns
+  attr_accessor :game_ship, :checked_grid, :gamestatePawns, :turn
   
   has_many :pawns, :dependent => :destroy
   has_many :user_events, :dependent => :destroy

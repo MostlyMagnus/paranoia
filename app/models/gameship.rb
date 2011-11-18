@@ -205,7 +205,7 @@ class GameShip
     
     toAjaxResponse[:name] = @ship.name
     toAjaxResponse[:width] = 16
-    toAjaxResponse[:height] = 8
+    toAjaxResponse[:height] = 16
     
     toAjaxResponse[:map] = @rooms
     toAjaxResponse[:nodes]  = @logic_nodes
