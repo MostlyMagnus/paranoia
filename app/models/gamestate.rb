@@ -193,10 +193,10 @@ class Gamestate < ActiveRecord::Base
       pawn_id = Integer(splitPawn[0])
   
       # Get the position
-      pos = S_Position.new(Integer(splitPawn[1].split(",")[0]), Integer(splitPawn[1].split(",")[1]))
+      pos = S_Position.new(splitPawn[1].split(",").first.to_i, splitPawn[1].split(",").last.to_i)
       
       # Get the status (alive, dead, etc)
-      status = Integer(splitPawn[3])
+      status = splitPawn[2].to_f
             
       @gamestatePawns[pawn_id] = GamestatePawn.new(pawn_id, pos.x, pos.y, status, Persona.find_by_id(Pawn.find_by_id(pawn_id).persona_id))      
     end
