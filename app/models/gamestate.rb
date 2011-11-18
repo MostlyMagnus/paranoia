@@ -27,6 +27,7 @@ class Gamestate < ActiveRecord::Base
   
   has_many :pawns, :dependent => :destroy
   has_many :user_events, :dependent => :destroy
+  has_many :log_entries, :dependent => :destroy
   
   def self.create_new(lobby_id)
 	# creates a new game
@@ -55,7 +56,9 @@ class Gamestate < ActiveRecord::Base
     @game_ship = GameShip.new(self)
     
     @gamestatePawns = Hash.new
-    buildGamestatePawns    
+    buildGamestatePawns
+    
+    @turn = ((self.updated_at - self.created_at)/(60 * self.timescale)).floor
   end
 
   def pawnSetup(current_user)
@@ -132,6 +135,7 @@ class Gamestate < ActiveRecord::Base
         
         if tally > 0
           if event.action_type == ActionTypeDef::A_VOTE then
+            
             @gamestatePawns.find{|pawn|pawn[1].pawn_id==event.params.split(",").last.to_i}[1].status = 0
           end
         end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111106095215) do
+ActiveRecord::Schema.define(:version => 20111118130803) do
 
   create_table "actions", :force => true do |t|
     t.integer  "pawn_id"
@@ -56,6 +56,14 @@ ActiveRecord::Schema.define(:version => 20111106095215) do
   create_table "lobby_users", :force => true do |t|
     t.integer  "user_id"
     t.integer  "lobby_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "log_entries", :force => true do |t|
+    t.integer  "gamestate_id"
+    t.integer  "turn"
+    t.string   "entry"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
