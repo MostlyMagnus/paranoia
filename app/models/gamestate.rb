@@ -31,7 +31,8 @@ class Gamestate < ActiveRecord::Base
   
   def self.create_new(lobby_id)
 	# creates a new game
-
+	# for a polished game, this is where we create (or call the creation) of an intricate scenario
+	
 	lobby = Lobby.find(lobby_id)
 	
 	# get this from unwritten method in Lobby
@@ -39,8 +40,8 @@ class Gamestate < ActiveRecord::Base
 	
 	ship = GameShip.new(1)
 	node_status = ship.create_node_status_from_ship
-	upd_when = DateTime.now.advance(:minutes => 10)
-	gs = self.create(:ship_id => 1, :nodestatus => node_status, :timescale => 10.0, \
+	upd_when = DateTime.now.advance(:minutes => 1) # read from lobby to get this value, also timescale below
+	gs = self.create(:ship_id => 1, :nodestatus => node_status, :timescale => 1.0, \
 		:created_at => DateTime.now, :updated_at => DateTime.now, :update_when => upd_when)
 	
 	# pawns
@@ -107,6 +108,13 @@ class Gamestate < ActiveRecord::Base
 
     for i in 1..@updatesRequired
       # Idle logic goes here (detoriation, random events, etc)
+	  
+	  # distance from home: fixed number
+	  # expected turns: distance_from_home(1/difficulty_rating)
+	  # starting water: #expected_turns x #players x (1/difficulty_rating)
+	  # 
+	  # prob("node breaks") = 0.
+	  # scenario: difficulty_rating, 
     end
 
     # When we're done, we update the update_when of our gamestate.
@@ -135,26 +143,25 @@ class Gamestate < ActiveRecord::Base
   
   def crunch_events
     self.user_events.each do |event|
-      event.lifespan-=1
+		event.lifespan-=1
       
-      if(event.lifespan < 0) then
-        tally = 0
+		if event.lifespan < 0
+			tally = 0
         
-        event.event_inputs.each do |input|
-          tally += input.params.to_i
+			event.event_inputs.each do |input|
+			tally += input.params.to_i
         end
         
         if tally > 0
-          if event.action_type == ActionTypeDef::A_VOTE then
-            
-            @gamestatePawns.find{|pawn|pawn[1].pawn_id==event.params.split(",").last.to_i}[1].status = 0
-          end
+			if event.action_type == ActionTypeDef::A_VOTE
+				@gamestatePawns.find{|pawn|pawn[1].pawn_id==event.params.split(",").last.to_i}[1].status = 0
+			end
         end
         
         event.destroy
-      else
-        event.save
-      end
+		else
+			event.save
+		end
     end    
   end
 
@@ -165,7 +172,7 @@ class Gamestate < ActiveRecord::Base
     
     Pawn.find_all_by_gamestate_id(self.id).each do |pawn|      
       #id; x,y; status$
-      playerstatusString += String(pawn.id)+";0,0;1$"
+      playerstatusString << String(pawn.id)+";0,0;1$"
     end
     
     return playerstatusString
@@ -179,7 +186,7 @@ class Gamestate < ActiveRecord::Base
     # Each value is of the class GamestatePawn. We also convert all the values
     # to string values so we can combine it.
     @gamestatePawns.each_value do |gamestatePawn|
-      tempPlayerStatus += String(gamestatePawn.pawn_id) + ";" + String(gamestatePawn.x) + "," + String(gamestatePawn.y) + ";" + String(gamestatePawn.status) + "$"
+      tempPlayerStatus << gamestatePawn.pawn_id.to_s << ";" << gamestatePawn.x.to_s << "," << gamestatePawn.y.to_s << ";" << gamestatePawn.status.to_s << "$"
     end
 
     # Update the models playerstatus.
