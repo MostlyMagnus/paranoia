@@ -18,8 +18,6 @@ class LogEntry < ActiveRecord::Base
         "A_Vote"
       when ActionTypeDef::A_INITVOTE
         "A_InitVote"
-      when ActionTypeDef::A_STATUS
-        "A_Status"        
     end  
   end
   

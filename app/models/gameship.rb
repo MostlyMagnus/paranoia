@@ -204,7 +204,7 @@ class GameShip
     toAjaxResponse = Hash.new
     
     toAjaxResponse[:name] = @ship.name
-    toAjaxResponse[:width] = 16
+    toAjaxResponse[:width] = 17
     toAjaxResponse[:height] = 16
     
     toAjaxResponse[:map] = @rooms
