@@ -405,4 +405,15 @@ class Gamestate < ActiveRecord::Base
     S_Position.new(virtualPawn.x, virtualPawn.y)
   end
 
+  # == Logger related code
+  
+  # Early implementation of the logger. This will look up the actual names etc needed and build
+  # the correct string and input it into the logger table.
+  
+  # Problems: 
+  # Vote results vs Water Consumption
+  
+  def add_log_entry(entry = nil)
+    self.log_entries.create(:turn => @turn, :entry => entry)
+  end
 end
