@@ -153,28 +153,28 @@ class GameShip
     allowedMoves = Hash[:north => 0, :south => 0, :east => 0, :west => 0]   
     if @rooms[pawn.x][pawn.y-1].kind_of? Room then
       #There's a room north
-      unless @rooms[pawn.x][pawn.y].access[:north] == "x"
+      unless @rooms[pawn.x][pawn.y].access[:north].to_s == "x"
         allowedMoves[:north] = 1   
       end
     end
  
     if @rooms[pawn.x][pawn.y+1].kind_of? Room then
       #There's a room south
-      unless @rooms[pawn.x][pawn.y].access[:south] == "x"
+      unless @rooms[pawn.x][pawn.y].access[:south].to_s == "x"
         allowedMoves[:south] = 1   
       end
     end
       
     if @rooms[pawn.x-1][pawn.y].kind_of? Room then
       #There's a room west
-      unless @rooms[pawn.x][pawn.y].access[:west] == "x"
+      unless @rooms[pawn.x][pawn.y].access[:west].to_s == "x"
         allowedMoves[:west] = 1   
       end
     end
  
     if @rooms[pawn.x+1][pawn.y].kind_of? Room then
       #There's a room east
-      unless @rooms[pawn.x][pawn.y].access[:east] == "x"
+      unless @rooms[pawn.x][pawn.y].access[:east].to_s == "x"
         allowedMoves[:east] = 1   
       end
     end

@@ -9,11 +9,16 @@ class ActionQueue
     
     @pawns = Pawn.find_all_by_gamestate_id(@gamestate.id) 
     @action_queue = Array.new
+    @init_votes   = Array.new
   end
 
   def buildExecuteAndClearActions!  
     # Starting with tick #1, build it's action queue, sort it, execute it,
-    # and then clear it. Repeat for the remaining ticks.    
+    # and then clear it. Repeat for the remaining ticks.
+    
+    # Lets make sure the list of votes to be initiated is clean.
+    @init_votes.clear
+    
     for tick in 0..4
       # Build the action queue based on the supplied tick
       buildActionQueue(tick)
@@ -27,6 +32,13 @@ class ActionQueue
       
       # Clear the action queue before we do another tick
       clearActionQueue!
+    end
+    
+    # Everything has been executed. If there is anything in the @init_votes array
+    # this means that a vote has been suggested, but failed to receive a second.
+    # Let's log this.
+    @init_votes.each do |init_vote|
+      @gamestate.add_log_entry(LoggerTypeDef::LOG_VOTE_INIT_FAIL, {:subject_id => init_vote[:subject_id], :target_id => init_vote[:target_id]})
     end
     
     clearActions
@@ -191,10 +203,30 @@ class ActionQueue
   end
 
   def executeA_InitVote!(action, gamestatePawn)
+    deletable = Array.new
     
-    @gamestate.add_log_entry("A vote was initiated!")
+    @init_votes.each do |init_vote|
+      if gamestatePawn.pawn_id != init_vote[:subject_id] && init_vote[:target_id] == action.target then
+        # There was a vote with the same target already in the array. This means that the user that ends
+        # up here is the second to this vote. Lets log that.     
+        @gamestate.add_log_entry(LoggerTypeDef::LOG_VOTE_INIT_SUCCESS, {:subject_a_id => init_vote[:subject_id], :subject_b_id => gamestatePawn.pawn_id, :target_id => init_vote[:target_id]})
         
-    @gamestate.user_events.create!(:action_type => ActionTypeDef::A_VOTE, :lifespan => 1, :params => String(gamestatePawn.pawn_id)+", "+String(action.target))
+        # Now lets add the user_event for the other users to respond to.
+        @gamestate.user_events.create!(:action_type => ActionTypeDef::A_VOTE, :lifespan => 1, :params => action.target.to_s)
+        
+        # Lets remove the entry from the array.
+        deletable.push(init_vote)
+      end
+    end
+    
+    if deletable.size > 0 then
+      deletable.each do |d|
+        @init_votes.delete(d)
+      end
+    else
+      # If we reach this point it means that there was no pre-existing init_vote in the array. Lets add it.
+      @init_votes.push({:subject_id => gamestatePawn.pawn_id, :target_id => action.target})
+    end
   end
   
   def executeA_Status!(action, gamestatePawn)

@@ -5,8 +5,8 @@
 <div>
   <% @events[:votes].each do |vote| %>
     <div>
-      <%= vote %> <%= @gamestatePawns.find{|pawn|pawn[1].pawn_id==vote.params.split(",").first.to_i}[1].persona.name %> wants to airlock
-      <%= @gamestatePawns.find{|pawn|pawn[1].pawn_id==vote.params.split(",").last.to_i}[1].persona.name %>. Vote expires in <%= pluralize(vote.lifespan, "turn") %>.
+      <%= vote %> Vote to airlock 
+      <%= @gamestatePawns.find{|pawn|pawn[1].pawn_id==vote.params.to_i}[1].persona.name %>. Vote expires in <%= pluralize(vote.lifespan, "turn") %>.
       
       <%= link_to "In favour", :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_VOTE, :details => String(vote.id) + ", 1" %>
       <%= link_to "Oppose",    :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_VOTE, :details => String(vote.id) + ", -1" %>
@@ -161,3 +161,11 @@
 </td>
 
 </tr></table>
+
+<div>
+	<ul>
+	<% @gamestate.log_entries.each do |entry| %>
+		<li> [ Turn <%= entry.turn %> ] <%= entry.entry %> 
+	<% end %>
+	</ul>
+</div>

@@ -15,6 +15,7 @@
 
 require 'ActionQueue'
 require 'ActionTypeDef'
+require 'LoggerTypeDef'
 require 'GamestatePawn'
 require 'Gameship'
 require 'StructDef'
@@ -108,13 +109,20 @@ class Gamestate < ActiveRecord::Base
 
     for i in 1..@updatesRequired
       # Idle logic goes here (detoriation, random events, etc)
-	  
+ 
+      # Bump the turn for this update cycle
+      @turn = ((self.updated_at.advance(:minutes => self.timescale * i)  - self.created_at)/(60 * self.timescale)).floor
+      	  
 	  # distance from home: fixed number
 	  # expected turns: distance_from_home(1/difficulty_rating)
 	  # starting water: #expected_turns x #players x (1/difficulty_rating)
 	  # 
 	  # prob("node breaks") = 0.
-	  # scenario: difficulty_rating, 
+	  # scenario: difficulty_rating,
+      
+      # Add a log entry regarding the water consumption this turn. :delta_water is how much water has been used.
+      add_log_entry(LoggerTypeDef::LOG_CONSUMPTION, {:delta_water => 0})
+
     end
 
     # When we're done, we update the update_when of our gamestate.
@@ -142,26 +150,29 @@ class Gamestate < ActiveRecord::Base
   end
   
   def crunch_events
+    # This code sorely needs to be rewritten.
     self.user_events.each do |event|
-		event.lifespan-=1
+      event.lifespan-=1
       
-		if event.lifespan < 0
-			tally = 0
-        
-			event.event_inputs.each do |input|
-			tally += input.params.to_i
+      if event.lifespan < 0
+        tally = 0
+          
+        event.event_inputs.each do |input|
+          tally += input.params.to_i
         end
-        
-        if tally > 0
-			if event.action_type == ActionTypeDef::A_VOTE
-				@gamestatePawns.find{|pawn|pawn[1].pawn_id==event.params.split(",").last.to_i}[1].status = 0
-			end
+          
+        if event.action_type == ActionTypeDef::A_VOTE
+          if tally > 0
+            @gamestatePawns.find{|pawn|pawn[1].pawn_id==event.params.split(",").last.to_i}[1].status = 0
+          end
+          
+          self.add_log_entry(LoggerTypeDef::LOG_VOTE_COMPLETE, {:target_id => event.params.split(",").last.to_i, :tally => tally})
         end
-        
+      
         event.destroy
-		else
-			event.save
-		end
+      else
+        event.save
+      end
     end    
   end
 
@@ -410,10 +421,24 @@ class Gamestate < ActiveRecord::Base
   # Early implementation of the logger. This will look up the actual names etc needed and build
   # the correct string and input it into the logger table.
   
-  # Problems: 
-  # Vote results vs Water Consumption
+  def add_log_entry(log_type = nil, params = Hash.new)
+    self.log_entries.create(:turn => @turn, :entry => get_log_entry(log_type, params))  
+  end
   
-  def add_log_entry(entry = nil)
-    self.log_entries.create(:turn => @turn, :entry => entry)
+  def get_log_entry(log_type = nil, params = Hash.new)
+    case log_type
+    when LoggerTypeDef::LOG_NIL
+      "Oops! You passed a nil attribute to the logger."
+    when LoggerTypeDef::LOG_CONSUMPTION
+      params[:delta_water].to_s << " units of water consumed this turn."
+    when LoggerTypeDef::LOG_VOTE_INIT_SUCCESS        
+      "" << Persona.find_by_id(self.pawns.find_by_id(params[:subject_a_id]).persona_id).name << " and " << Persona.find_by_id(self.pawns.find_by_id(params[:subject_b_id]).persona_id).name << " succesfully initiated a vote to airlock " << Persona.find_by_id(self.pawns.find_by_id(params[:target_id]).persona_id).name << "."
+    when LoggerTypeDef::LOG_VOTE_INIT_FAIL
+      "" << Persona.find_by_id(self.pawns.find_by_id(params[:subject_id]).persona_id).name << " failed to initiate a vote to airlock " << Persona.find_by_id(self.pawns.find_by_id(params[:target_id]).persona_id).name << "."
+    when LoggerTypeDef::LOG_VOTE_COMPLETE
+      "The vote to airlock " << Persona.find_by_id(self.pawns.find_by_id(params[:target_id]).persona_id).name << " tallied at " << params[:tally].to_s << "."
+    else 
+      "Unhandled log type " << log_type.to_s << " with parameters: " << params
+    end  
   end
 end
