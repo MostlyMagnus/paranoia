@@ -437,6 +437,8 @@ class Gamestate < ActiveRecord::Base
       "" << Persona.find_by_id(self.pawns.find_by_id(params[:subject_id]).persona_id).name << " failed to initiate a vote to airlock " << Persona.find_by_id(self.pawns.find_by_id(params[:target_id]).persona_id).name << "."
     when LoggerTypeDef::LOG_VOTE_COMPLETE
       "The vote to airlock " << Persona.find_by_id(self.pawns.find_by_id(params[:target_id]).persona_id).name << " tallied at " << params[:tally].to_s << "."
+    when LoggerTypeDef::LOG_GENERIC
+      params[:message]
     else 
       "Unhandled log type " << log_type.to_s << " with parameters: " << params
     end  
