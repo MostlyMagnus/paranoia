@@ -107,7 +107,7 @@ class Gamestate < ActiveRecord::Base
     # Now let's do some idle logic for the correct amount of turns
     @updatesRequired = ((Time.now - self.update_when)/(60 * self.timescale)).floor
 
-    for i in 1..@updatesRequired
+    for i in 0..@updatesRequired
       # Idle logic goes here (detoriation, random events, etc)
  
       # Bump the turn for this update cycle
