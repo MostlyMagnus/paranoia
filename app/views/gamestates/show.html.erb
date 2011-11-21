@@ -93,20 +93,20 @@
       <tr><td></td>
       
       <td>
-      <%= if @access[:north] == 1 then link_to 'north', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_MOVE, :details => "0,-1"  end %>
+      <%= if @access[:north] == 1 then link_to 'north', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_MOVE, :details => (@vPos.x.to_i - 0).to_s << ", " << (@vPos.y.to_i-1).to_s  end %>
       </td>
       
       </tr>
       
       <tr>        
         <td>
-        <%= if @access[:west] == 1 then link_to 'west', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_MOVE, :details => "-1,0"  end %>
+        <%= if @access[:west] == 1 then link_to 'west', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_MOVE, :details => (@vPos.x.to_i - 1).to_s << ", " << (@vPos.y.to_i-0).to_s  end %>
         </td>
         
         <td></td>
         
         <td>
-        <%= if @access[:east] == 1 then link_to 'east', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_MOVE, :details => "1,0"  end %>
+        <%= if @access[:east] == 1 then link_to 'east', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_MOVE, :details => (@vPos.x.to_i  + 1).to_s << ", " << (@vPos.y.to_i-0).to_s  end %>
         </td>      
         
       </tr>
@@ -115,7 +115,7 @@
         <td>
         </td>
         <td>  
-          <%= if @access[:south] == 1 then link_to 'south', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_MOVE, :details => "0,1"  end %>
+          <%= if @access[:south] == 1 then link_to 'south', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_MOVE, :details => (@vPos.x.to_i - 0).to_s << ", " << (@vPos.y.to_i+1).to_s  end %>
         </td>
         <td>
         </td>

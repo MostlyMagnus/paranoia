@@ -29,6 +29,7 @@ class Gamestate < ActiveRecord::Base
   has_many :pawns, :dependent => :destroy
   has_many :user_events, :dependent => :destroy
   has_many :log_entries, :dependent => :destroy
+  has_many :snapshots, :dependent => :destroy
   
   def self.create_new(lobby_id)
 	# creates a new game

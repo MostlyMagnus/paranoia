@@ -27,6 +27,9 @@ class ActionQueue
       # See action.rb for priority listings
       sortActionQueue!
       
+      # Lets store a snapshot of each tick for this turn.
+      @gamestate.snapshots.create!(:turn => @gamestate.turn, :tick => tick, :actions => @action_queue)
+
       # Now execute the action queue
       executeActionQueue!
       
@@ -194,8 +197,8 @@ class ActionQueue
   end
   
   def executeA_Move!(action, gamestatePawn)
-    gamestatePawn.x = gamestatePawn.x + Integer(action.toX)
-    gamestatePawn.y = gamestatePawn.y + Integer(action.toY)
+    gamestatePawn.x = action.toX.to_i
+    gamestatePawn.y = action.toY.to_i
   end
   
   def executeA_Vote!(action, gamestatePawn)

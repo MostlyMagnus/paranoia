@@ -1,0 +1,13 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  gamestate_id: 1
+  turn: 1
+  tick: 1
+  actions: MyString
+
+two:
+  gamestate_id: 1
+  turn: 1
+  tick: 1
+  actions: MyString
