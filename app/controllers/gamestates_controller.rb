@@ -71,6 +71,8 @@ class GamestatesController < ApplicationController
     @user = User.find_by_id(current_user)  
   end
   
+  
+  
   def ajax_gamestate
     @gamestate = Gamestate.find_by_id(params[:id])    
     render :text => @gamestate.to_json
@@ -90,5 +92,12 @@ class GamestatesController < ApplicationController
   def ajax_gamestatepawns
     @gamestate = Gamestate.find_by_id(params[:id])
     render :text => @gamestate.AJAX_GamestatePawns
+  end
+  
+  def ajax_snapshot
+	@gamestate = Gamestate.find_by_id(params[:id])
+    @gamestate.setup
+    
+	render :text => @gamestate.getSnapshot.to_json
   end
 end

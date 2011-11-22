@@ -247,23 +247,22 @@ class Gamestate < ActiveRecord::Base
   end
     
   def getGamestatePawnsNoPositions(passed_gamestatepawns)
-    # clean out positions yo
     passed_gamestatepawns.each do |gamestatePawn|
       gamestatePawn.sanitize
     end
   end
 
-  def getVisibleGamestatePawns(user_pawn)
+  def getVisibleGamestatePawns(user_pawn, passed_gamestatepawns = @gamestatePawns)
     visiblePawns  = Array.new
     
     pawn_position = getPosition(user_pawn)
   
     @checked_grid = Hash.new(false)
     
-    scanDirection(user_pawn, pawn_position, visiblePawns,  1,   1)
-    scanDirection(user_pawn, pawn_position, visiblePawns,  1,  -1)
-    scanDirection(user_pawn, pawn_position, visiblePawns, -1,  -1)
-    scanDirection(user_pawn, pawn_position, visiblePawns, -1,   1)
+    scanDirection(user_pawn, pawn_position, visiblePawns,  1,   1, passed_gamestatepawns)
+    scanDirection(user_pawn, pawn_position, visiblePawns,  1,  -1, passed_gamestatepawns)
+    scanDirection(user_pawn, pawn_position, visiblePawns, -1,  -1, passed_gamestatepawns)
+    scanDirection(user_pawn, pawn_position, visiblePawns, -1,   1, passed_gamestatepawns)
     
     return visiblePawns
   end
@@ -285,7 +284,7 @@ class Gamestate < ActiveRecord::Base
   # Scan direction is used to figure out what we can see. Related to the gamestatepawns since it spits out
   # a list of visible gamestatepawns.
   
-  def scanDirection(user_pawn, pawn_position, visiblePawns, multiplier_x, multiplier_y, passed_gamestatepawns = @gamestatePawns )
+  def scanDirection(user_pawn, pawn_position, visiblePawns, multiplier_x, multiplier_y, passed_gamestatepawns = @gamestatePawns)
     # You see a long way down hallways.
     @view_distance = 35;
     
@@ -444,5 +443,18 @@ class Gamestate < ActiveRecord::Base
     else 
       "Unhandled log type " << log_type.to_s << " with parameters: " << params
     end  
+  end
+  
+  # == Snapshot related code ==
+  
+  def getSnapshots
+  # Must figure out a way to keep the actual user pawn in the gamestate at all times. 
+	snapshot_data = Array.new
+	
+	self.each do |snapshot|
+		visiblePawns = getVisibleGamestatePawns(user_pawn, getGamestatePawns(snapshot.actions.split("#").first))
+		
+		snapshot_data.push({:tick => snapshot.tick, :visiblePawns => visiblePawns})
+	end
   end
 end
