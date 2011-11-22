@@ -66,6 +66,13 @@ class Gamestate < ActiveRecord::Base
 # This function needs to be called to build all the needed runtime data. This is in it's own function
 # instead of the constructor since the constructor doesn't seem to get called when .find_by_id is used.
   
+  def init(current_user)
+    @current_user = current_user
+    
+    setup
+    pawnSetup(current_user)
+  end
+  
   def setup
     @game_ship = GameShip.new(self.ship_id)
     
@@ -74,10 +81,7 @@ class Gamestate < ActiveRecord::Base
     @turn = ((self.updated_at - self.created_at)/(60 * self.timescale)).floor
   end
 
-  def pawnSetup(current_user)
-    # Always call this function in code that needs to use the pawn of the user viewing
-    # the gamestate
-    
+  def pawnSetup(current_user)    
     if @pawn.nil? then
       @pawn = Pawn.find_by_user_id_and_gamestate_id(current_user.id, self.id)
     end
@@ -210,7 +214,6 @@ class Gamestate < ActiveRecord::Base
 
   def getGamestatePawns(passed_playerstatus)
 
-    #@gamestatePawns.clear
     tempGamestatePawns = Hash.new
     
     splitGamestatePawns = passed_playerstatus.split("$")
@@ -248,21 +251,19 @@ class Gamestate < ActiveRecord::Base
     
   def getGamestatePawnsNoPositions(passed_gamestatepawns)
     passed_gamestatepawns.each do |gamestatePawn|
-      gamestatePawn.sanitize
+      gamestatePawn.sanitize_position
     end
   end
 
   def getVisibleGamestatePawns(user_pawn, passed_gamestatepawns = @gamestatePawns)
     visiblePawns  = Array.new
-    
-    pawn_position = getPosition(user_pawn)
-  
+      
     @checked_grid = Hash.new(false)
     
-    scanDirection(user_pawn, pawn_position, visiblePawns,  1,   1, passed_gamestatepawns)
-    scanDirection(user_pawn, pawn_position, visiblePawns,  1,  -1, passed_gamestatepawns)
-    scanDirection(user_pawn, pawn_position, visiblePawns, -1,  -1, passed_gamestatepawns)
-    scanDirection(user_pawn, pawn_position, visiblePawns, -1,   1, passed_gamestatepawns)
+    scanDirection(user_pawn, visiblePawns,  1,   1, passed_gamestatepawns)
+    scanDirection(user_pawn, visiblePawns,  1,  -1, passed_gamestatepawns)
+    scanDirection(user_pawn, visiblePawns, -1,  -1, passed_gamestatepawns)
+    scanDirection(user_pawn, visiblePawns, -1,   1, passed_gamestatepawns)
     
     return visiblePawns
   end
@@ -284,10 +285,12 @@ class Gamestate < ActiveRecord::Base
   # Scan direction is used to figure out what we can see. Related to the gamestatepawns since it spits out
   # a list of visible gamestatepawns.
   
-  def scanDirection(user_pawn, pawn_position, visiblePawns, multiplier_x, multiplier_y, passed_gamestatepawns = @gamestatePawns)
+  def scanDirection(user_pawn, visiblePawns, multiplier_x, multiplier_y, passed_gamestatepawns = @gamestatePawns)
     # You see a long way down hallways.
     @view_distance = 35;
     
+    pawn_position = getPosition(user_pawn, passed_gamestatepawns)
+
     for angle in 0..90 do
       ray_angle     = (angle*3.14)/180
       ray_delta     = S_Position.new(cos(ray_angle), sin(ray_angle))
@@ -300,6 +303,7 @@ class Gamestate < ActiveRecord::Base
         unless @checked_grid[[ray_grid.x, ray_grid.y]] then
           if @game_ship.isThisARoom?(ray_grid)
              getGamestatePawnsAtGrid(ray_grid, passed_gamestatepawns).each do |gamestatePawn|
+              #gamestatePawn.sanitize_persona
               visiblePawns.push(gamestatePawn)
             end
           else
@@ -405,10 +409,10 @@ class Gamestate < ActiveRecord::Base
     S_Position.new(Integer(virtualPawn.x), Integer(virtualPawn.y))
   end
   
-  def getPosition(pawn)
+  def getPosition(pawn, passed_gamestatepawns = @gamestatePawns)
     virtualPawn = GamestatePawn.new
         
-    @gamestatePawns.each do |gamestatePawn|
+    passed_gamestatepawns.each do |gamestatePawn|
       if gamestatePawn[1].pawn_id == pawn.id
         virtualPawn = gamestatePawn[1]
       end
@@ -447,14 +451,19 @@ class Gamestate < ActiveRecord::Base
   
   # == Snapshot related code ==
   
-  def getSnapshots
-  # Must figure out a way to keep the actual user pawn in the gamestate at all times. 
-	snapshot_data = Array.new
-	
-	self.each do |snapshot|
-		visiblePawns = getVisibleGamestatePawns(user_pawn, getGamestatePawns(snapshot.actions.split("#").first))
-		
-		snapshot_data.push({:tick => snapshot.tick, :visiblePawns => visiblePawns})
-	end
+  def getSnapshots(turn = nil)
+    snapshot_data = Array.new
+    
+    if @pawn.nil? then self.logger.debug "getSnapshots - @pawn is nil. Did you initialize this gamestate properly?" end
+    
+    self.snapshots.each do |snapshot|
+      if snapshot.turn == turn.to_i || turn.nil? then
+        visiblePawns = getVisibleGamestatePawns(@pawn, getGamestatePawns(snapshot.actions.split("#").first))
+        
+        snapshot_data.push({:turn => snapshot.turn, :tick => snapshot.tick, :visiblePawns => visiblePawns})
+      end
+    end
+    
+    return snapshot_data
   end
 end

@@ -1,4 +1,4 @@
 class Snapshot < ActiveRecord::Base
   belongs_to :gamestate
-  #serialize :actions, Array
+  default_scope :order => 'turn, tick ASC'
 end

@@ -7,8 +7,12 @@ class GamestatePawn
     @persona = persona
   end
   
-  def sanitize
+  def sanitize_position
     @x, @y = nil, nil
+  end
+  
+  def sanitize_persona
+    @persona = nil
   end
   
   attr_accessor :pawn_id, :x, :y, :status, :persona

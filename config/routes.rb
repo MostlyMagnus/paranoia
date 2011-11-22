@@ -20,6 +20,7 @@ Paranoia::Application.routes.draw do
       get :ajax_ship
       get :ajax_possibleactions
       get :ajax_gamestatepawns
+      get :ajax_snapshots
       
       get :add_action
       get :remove_action

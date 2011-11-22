@@ -5,7 +5,7 @@ class GamestatesController < ApplicationController
 
   def show    
     @gamestate = Gamestate.find_by_id(params[:id])
-    @gamestate.setup
+    @gamestate.init(current_user)
     
     @events = @gamestate.getEvents
     
@@ -94,10 +94,10 @@ class GamestatesController < ApplicationController
     render :text => @gamestate.AJAX_GamestatePawns
   end
   
-  def ajax_snapshot
-	@gamestate = Gamestate.find_by_id(params[:id])
-    @gamestate.setup
-    
-	render :text => @gamestate.getSnapshot.to_json
+  def ajax_snapshots
+    @gamestate = Gamestate.find_by_id(params[:id])
+    @gamestate.init(current_user)
+      
+    render :text => @gamestate.getSnapshots(params[:turn]).to_json
   end
 end
