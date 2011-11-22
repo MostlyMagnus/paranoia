@@ -355,6 +355,12 @@ class Gamestate < ActiveRecord::Base
     return gamestatePawns
   end
 
+  def getActionqueue
+    actionQueue = ActionQueue.new(self)
+    
+    return actionQueue.buildActionQueue(nil, @pawn)
+  end
+  
   # == Possible Actions
   # Returns a list of what can be done at the currently vpos
   

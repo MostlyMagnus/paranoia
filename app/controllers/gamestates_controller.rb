@@ -40,7 +40,10 @@ class GamestatesController < ApplicationController
     else
       @queue_number = 0
     end
-
+    
+    # Instead of doing this, we should create a new personal actionqueue for this pawn
+    # and then have a member function to actionqueue that lets you add an action to it,
+    # provided that there's enough AP left. Too tired now.
     unless @queue_number > 4 then @user_pawn.actions.create(:queue_number => @queue_number, :action_type => params[:type], :params => params[:details]) end
     
     redirect_to gamestate_path

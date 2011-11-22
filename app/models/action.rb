@@ -19,7 +19,7 @@ class Action < ActiveRecord::Base
   
   default_scope :order => 'queue_number ASC'
   
-  attr_accessor :priority
+  attr_accessor :priority, :tick_cost
   
   # Lets pass a hash of paramters instead, so that all the constructors have
   # the same number of parameters
@@ -36,8 +36,7 @@ class Action < ActiveRecord::Base
   def default_priority(priority = nil)
     if !priority.nil? then @priority = priority else @priority = -1000 end
   end
-  
-  
+    
   def typeToString 
     case self.action_type
       when ActionTypeDef::A_NIL
@@ -73,6 +72,7 @@ class A_Nil < Action
     # Always let super end the constructor
     #
     @action_type = ActionTypeDef::A_NIL
+    @tick_cost = 0
     
     default_priority(-500)    
     
@@ -86,6 +86,7 @@ class A_Use < Action
   def initialize(parameters = Hash.new)
     @action_type = ActionTypeDef::A_USE
     @target_node = parameters["params"].split(",").first.to_i
+    @tick_cost = 2
     
     if !parameters[:node].nil? then @node = parameters[:node] end
     default_priority(50)
@@ -99,6 +100,7 @@ class A_Kill < Action
   
   def initialize(parameters = Hash.new)
     @action_type = ActionTypeDef::A_KILL
+    @tick_cost = 4
 
     @target_pawn_id = parameters["params"].split(",")[0]
     
@@ -114,6 +116,7 @@ class A_Repair < Action
   
   def initialize(parameters = Hash.new)
     @action_type = ActionTypeDef::A_REPAIR
+    @tick_cost = 2
     
     @target_node = parameters["params"].split(",").first.to_i
     @multiplier  = parameters["params"].split(",").last.to_i
@@ -130,6 +133,7 @@ class A_Move < Action
   
   def initialize(parameters = Hash.new)
     @action_type = ActionTypeDef::A_MOVE
+    @tick_cost = 1
     
     @toX = parameters["params"].split(",")[0]
     @toY = parameters["params"].split(",")[1]
@@ -146,6 +150,7 @@ class A_InitVote < Action
   
   def initialize(parameters = Hash.new)
     @action_type = ActionTypeDef::A_INITVOTE
+    @tick_cost = 2
     
     @target = parameters["params"]
     
@@ -161,6 +166,7 @@ class A_Vote < Action
   
   def initialize(parameters = Hash.new)
     @action_type = ActionTypeDef::A_VOTE
+    @tick_cost = 5
     
     @event_id    = parameters["params"].split(",")[0]
     @input       = parameters["params"].split(",")[1]
@@ -176,7 +182,8 @@ class A_Status < Action
   
   def initialize(parameters = Hash.new)
     @action_type = ActionTypeDef::A_STATUS
-    
+    @tick_cost = 2
+
     if !parameters[:node].nil? then @node = parameters[:node] end
     default_priority(80)
     super

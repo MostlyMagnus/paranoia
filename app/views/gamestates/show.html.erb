@@ -14,8 +14,26 @@
   <% end %>
 </div>
 
+<div>
 
-<table><tr><td>
+<td>
+
+<% @gamestatePawns.each do |gamestatePawn| %>
+
+[
+    <%= gamestatePawn[1].persona.name %> @ <%= 100*gamestatePawn[1].status.to_i %>% 
+	<%= link_to 'Kill', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_KILL, :details => gamestatePawn[1].pawn_id %>
+	<%= link_to 'Airlock', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_INITVOTE, :details => gamestatePawn[1].pawn_id %>
+]
+<% end %>
+
+</td>
+
+</div>
+
+<table><tr>
+<td>
+
   <div>
   Room render (* denotes current player position)    
   <!-- <%= @visiblePawns %> -->
@@ -130,36 +148,49 @@
       <% @possibleActions.each do |possibleAction| %>
         <%= link_to possibleAction[:verbose], :controller => "gamestates", :action => "add_action", :type => possibleAction[:action_type], :details => possibleAction[:params] %><br>
       <% end %>
-    </div>
-       
-    <div>Action Queue</div>
-    <div><%= link_to 'Backspace', :controller => "gamestates", :action => "remove_action" %></div>
-    <div>
-      <% actionQueue.each do |a| %>
-      <li><%= a.typeToString %></li>
-      <% end %>
-    </div>
+    </div>	
     
   </div>
 
 </td>
-
 <td>
 
-<% @gamestatePawns.each do |gamestatePawn| %>
+	<!-- This is the ugliest code. -->
+	<!-- This is the ugliest code. -->
+	<!-- This is the ugliest code. -->
 
-  <div>
-    <div><%= gamestatePawn[1].persona.name %> @ <%= 100*gamestatePawn[1].status.to_i %>% </div>
-    <div>
-      <%= link_to 'Kill', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_KILL, :details => gamestatePawn[1].pawn_id %>
-      <%= link_to 'Airlock', :controller => "gamestates", :action => "add_action", :type => ActionTypeDef::A_INITVOTE, :details => gamestatePawn[1].pawn_id %>
-    </div>
-  </div>
+    <div>	
 
-<% end %>
+	<table>
+	<tr>
+	
+	<td style="height: <%= 360 %>px">
+	<% for i in 1..10 %>
+		<div style="height: 36px; float: right; clear: right;"><%= i %> </div>
+	<% end %>
+	</td>
+	
+	<% colors_hack = ["#339966", "#33CC66", "#33FF66"] * 10 %>
+	
+	<td style="vertical-align: top; width: 100px;">
+	<% color_counter = 0 %>
+	<% @gamestate.getActionqueue.each do |a| %>
+		<% color_counter+=1%>
+		<div style="background: <%= colors_hack[color_counter] %>; padding-left: 5px; height: <%= 36*a.tick_cost %>px">
+			<%= a.typeToString %> 
+		</div>    
+	<% end %>
+    <div style="padding-left: 5px; background: <%= colors_hack[color_counter+1] %>"><%= link_to '<< step Back', :controller => "gamestates", :action => "remove_action" %></div>
+	</td>
+	
+	</tr></table>
+	</div>
+
+	<!-- This is the ugliest code. -->
+	<!-- This is the ugliest code. -->
+	<!-- This is the ugliest code. -->
 
 </td>
-
 </tr></table>
 
 <div>

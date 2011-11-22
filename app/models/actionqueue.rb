@@ -21,7 +21,7 @@ class ActionQueue
     
     for tick in 0..4
       # Build the action queue based on the supplied tick
-      buildActionQueue(tick)
+      @action_queue = buildActionQueue(tick)
       
       # Sorts the action queue based on priority derived from the action type
       # See action.rb for priority listings
@@ -75,7 +75,25 @@ class ActionQueue
     
     return gamestatePawn
   end
+  
+  def buildActionQueue(action_tick = nil, pawn = nil)
+    action_queue = Array.new
     
+    if !pawn.nil? then
+      pawn.actions.each do |action|
+        action_queue.push(actionToSpecificActionType(action))
+      end
+    else
+      @pawns.each do |p|
+        if !p.actions[action_tick].nil?
+          action_queue.push(actionToSpecificActionType(p.actions[action_tick]))   
+        end
+      end
+    end
+    
+    return action_queue
+  end 
+ 
   private
   
   def clearActions
@@ -92,14 +110,6 @@ class ActionQueue
     @action_queue.clear
   end
   
-  def buildActionQueue(action_tick)    
-    @pawns.each do |p|
-      if !p.actions[action_tick].nil?
-        @action_queue.push(actionToSpecificActionType(p.actions[action_tick]))   
-      end
-    end  
-  end
-
   def actionToSpecificActionType(action)
     #This will parse the params of the action as well
     case action.action_type

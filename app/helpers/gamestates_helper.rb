@@ -21,8 +21,8 @@ module GamestatesHelper
     ((gamestate.updated_at - gamestate.created_at)/(60 * gamestate.timescale)).floor
   end
 
-  def actionQueue
-    Pawn.find_by_user_id_and_gamestate_id(current_user.id, params[:id]).actionQueue
-  end
+#  def actionQueue
+#    Pawn.find_by_user_id_and_gamestate_id(current_user.id, params[:id]).actionQueue
+#  end
     
 end
