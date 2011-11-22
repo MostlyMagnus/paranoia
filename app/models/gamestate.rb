@@ -69,8 +69,7 @@ class Gamestate < ActiveRecord::Base
   def setup
     @game_ship = GameShip.new(self.ship_id)
     
-    @gamestatePawns = Hash.new
-    buildGamestatePawns
+    @gamestatePawns = getGamestatePawns(self.playerstatus)
     
     @turn = ((self.updated_at - self.created_at)/(60 * self.timescale)).floor
   end
@@ -133,7 +132,7 @@ class Gamestate < ActiveRecord::Base
     self.nodestatus = @game_ship.build_nodestatus_string
     
     # Update self.playerstatus to reflect any updates done
-    updatePlayerStatus
+    self.playerstatus = self.getPlayerStatus
     
     # We attempt to save the gamestate.
     if self.save
@@ -190,7 +189,7 @@ class Gamestate < ActiveRecord::Base
     return playerstatusString
   end
 
-  def updatePlayerStatus    
+  def getPlayerStatus    
     # Make sure the string is clean.
     tempPlayerStatus = ""
     
@@ -202,29 +201,26 @@ class Gamestate < ActiveRecord::Base
     end
 
     # Update the models playerstatus.
-    self.playerstatus = tempPlayerStatus
+    return tempPlayerStatus
   end
 
       
   # == GamestatePawns Functions
   # All the code regarding gamestate pawns
 
-  def buildGamestatePawns
-    # Make sure we don't, for some reason, have no playerstatus string. If we
-    # don't, buildPlayerstatus will build a default one for us, with all the pawns
-    # at 0,0.
-    #if self.playerstatus.nil? then self.playerstatus = buildPlayerstatus end
+  def getGamestatePawns(passed_playerstatus)
 
-    @gamestatePawns.clear
-            
-    splitGamestatePawns = playerstatus.split("$")
+    #@gamestatePawns.clear
+    tempGamestatePawns = Hash.new
+    
+    splitGamestatePawns = passed_playerstatus.split("$")
     
     splitGamestatePawns.each do |gamestate_pawn|    
       #id; x,y; status$
       splitPawn = gamestate_pawn.split(";")
       
       # Get the id
-      pawn_id = Integer(splitPawn[0])
+      pawn_id = splitPawn[0].to_i
   
       # Get the position
       pos = S_Position.new(splitPawn[1].split(",").first.to_i, splitPawn[1].split(",").last.to_i)
@@ -232,14 +228,16 @@ class Gamestate < ActiveRecord::Base
       # Get the status (alive, dead, etc)
       status = splitPawn[2].to_f
             
-      @gamestatePawns[pawn_id] = GamestatePawn.new(pawn_id, pos.x, pos.y, status, Persona.find_by_id(Pawn.find_by_id(pawn_id).persona_id))      
+      tempGamestatePawns[pawn_id] = GamestatePawn.new(pawn_id, pos.x, pos.y, status, Persona.find_by_id(Pawn.find_by_id(pawn_id).persona_id))      
     end
+    
+    return tempGamestatePawns
   end
 
-  def getGamestatePawns(grid)
+  def getGamestatePawnsAtGrid(grid, passed_gamestatepawns)
     list_of_pawns = Array.new
     
-    @gamestatePawns.each do |gamestatePawn|
+    passed_gamestatepawns.each do |gamestatePawn|
       if gamestatePawn[1].x == grid.x && gamestatePawn[1].y == grid.y then
         list_of_pawns.push(gamestatePawn[1])
       end
@@ -248,8 +246,11 @@ class Gamestate < ActiveRecord::Base
     return list_of_pawns
   end
     
-  def getGamestatePawnsNoPositions
+  def getGamestatePawnsNoPositions(passed_gamestatepawns)
     # clean out positions yo
+    passed_gamestatepawns.each do |gamestatePawn|
+      gamestatePawn.sanitize
+    end
   end
 
   def getVisibleGamestatePawns(user_pawn)
@@ -284,7 +285,7 @@ class Gamestate < ActiveRecord::Base
   # Scan direction is used to figure out what we can see. Related to the gamestatepawns since it spits out
   # a list of visible gamestatepawns.
   
-  def scanDirection(user_pawn, pawn_position, visiblePawns, multiplier_x, multiplier_y )
+  def scanDirection(user_pawn, pawn_position, visiblePawns, multiplier_x, multiplier_y, passed_gamestatepawns = @gamestatePawns )
     # You see a long way down hallways.
     @view_distance = 35;
     
@@ -299,8 +300,8 @@ class Gamestate < ActiveRecord::Base
                        
         unless @checked_grid[[ray_grid.x, ray_grid.y]] then
           if @game_ship.isThisARoom?(ray_grid)
-            getGamestatePawns(ray_grid).each do |gamestatePawn|
-                visiblePawns.push(gamestatePawn)
+             getGamestatePawnsAtGrid(ray_grid, passed_gamestatepawns).each do |gamestatePawn|
+              visiblePawns.push(gamestatePawn)
             end
           else
             break 

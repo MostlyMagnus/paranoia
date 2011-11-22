@@ -28,7 +28,7 @@ class ActionQueue
       sortActionQueue!
       
       # Lets store a snapshot of each tick for this turn.
-      @gamestate.snapshots.create!(:turn => @gamestate.turn, :tick => tick, :actions => @action_queue)
+      @gamestate.snapshots.create!(:turn => @gamestate.turn, :tick => tick, :actions => @gamestate.getPlayerStatus << "#" << @gamestate.game_ship.build_nodestatus_string)
 
       # Now execute the action queue
       executeActionQueue!

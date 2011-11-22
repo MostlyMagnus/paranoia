@@ -7,5 +7,9 @@ class GamestatePawn
     @persona = persona
   end
   
+  def sanitize
+    @x, @y = nil, nil
+  end
+  
   attr_accessor :pawn_id, :x, :y, :status, :persona
 end
