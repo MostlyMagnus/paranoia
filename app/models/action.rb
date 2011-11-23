@@ -57,6 +57,40 @@ class Action < ActiveRecord::Base
         "A_Status"        
     end
   end
+  
+  def actionToSpecificActionType
+    #This will parse the params of the action as well
+    case self.action_type
+      when ActionTypeDef::A_NIL        
+        returnAction = A_Nil.new(self.attributes)
+        
+      when ActionTypeDef::A_USE
+        returnAction = A_Use.new(self.attributes)
+        
+      when ActionTypeDef::A_REPAIR
+        returnAction = A_Repair.new(self.attributes)
+        
+      when ActionTypeDef::A_KILL
+        returnAction = A_Kill.new(self.attributes)        
+
+      when ActionTypeDef::A_MOVE
+        returnAction = A_Move.new(self.attributes)
+
+      when ActionTypeDef::A_INITVOTE
+        returnAction = A_InitVote.new(self.attributes)
+
+      when ActionTypeDef::A_VOTE
+        returnAction = A_Vote.new(self.attributes)
+
+      when ActionTypeDef::A_STATUS
+        returnAction = A_Status.new(self.attributes)
+
+    end
+    
+    returnAction
+  end
+  
+  
 end
 
 # A nil action in case something goes wrong and we don't have a action_type set

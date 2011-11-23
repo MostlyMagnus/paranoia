@@ -19,6 +19,10 @@ class ActionQueue
     # Lets make sure the list of votes to be initiated is clean.
     @init_votes.clear
     
+    # Call this outside of the tick loop just to build the queue and print it to the log.
+    # This will replace the other build action queue later when Im less tired.
+    buildActionQueue2
+    
     for tick in 0..4
       # Build the action queue based on the supplied tick
       @action_queue = buildActionQueue(tick)
@@ -51,7 +55,7 @@ class ActionQueue
     singleActionQueue = Array.new
     
     Action.find_all_by_pawn_id(pawn_id).each do |action|
-      singleActionQueue.push(actionToSpecificActionType(action))
+      singleActionQueue.push(action.actionToSpecificActionType)
     end
   end
   
@@ -68,7 +72,7 @@ class ActionQueue
       
       Action.find_all_by_pawn_id(pawn.id).each do |action|
         if(action.action_type == actionFilter)
-          executeAction!(actionToSpecificActionType(action), gamestatePawn) 
+          executeAction!(action.actionToSpecificActionType, gamestatePawn) 
         end 
       end
     end
@@ -81,12 +85,12 @@ class ActionQueue
     
     if !pawn.nil? then
       pawn.actions.each do |action|
-        action_queue.push(actionToSpecificActionType(action))
+        action_queue.push(action.actionToSpecificActionType)
       end
     else
       @pawns.each do |p|
         if !p.actions[action_tick].nil?
-          action_queue.push(actionToSpecificActionType(p.actions[action_tick]))   
+          action_queue.push(p.actions[action_tick].actionToSpecificActionType)
         end
       end
     end
@@ -94,6 +98,40 @@ class ActionQueue
     return action_queue
   end 
  
+  def buildActionQueue2
+    # This should replace the actual action queue later when I'm less tired.
+    
+    @aq = Array.new
+
+    @pawns.each do |pawn|
+      tick = 0
+      
+      pawn.actions.each do |action|
+        if !@aq[tick].kind_of? Array then @aq[tick] = Array.new end
+        
+        @aq[tick].push(action.actionToSpecificActionType)
+        
+        tick += action.actionToSpecificActionType.tick_cost.to_i
+      end
+    end
+    
+    # Print it to the log so we can see it.
+    
+    @gamestate.logger.debug "============== new action queue ================"
+    @aq.each do |aq| 
+      @gamestate.logger.debug " === new tick === "
+
+      unless aq.nil? 
+        aq.each do |action|
+          @gamestate.logger.debug action
+        end
+      end
+    end
+    @gamestate.logger.debug "============== new action queue ================"
+    
+    return @aq
+  end
+  
   private
   
   def clearActions
@@ -110,37 +148,6 @@ class ActionQueue
     @action_queue.clear
   end
   
-  def actionToSpecificActionType(action)
-    #This will parse the params of the action as well
-    case action.action_type
-      when ActionTypeDef::A_NIL        
-        returnAction = A_Nil.new(action.attributes)
-        
-      when ActionTypeDef::A_USE
-        returnAction = A_Use.new(action.attributes)
-        
-      when ActionTypeDef::A_REPAIR
-        returnAction = A_Repair.new(action.attributes)
-        
-      when ActionTypeDef::A_KILL
-        returnAction = A_Kill.new(action.attributes)        
-
-      when ActionTypeDef::A_MOVE
-        returnAction = A_Move.new(action.attributes)
-
-      when ActionTypeDef::A_INITVOTE
-        returnAction = A_InitVote.new(action.attributes)
-
-      when ActionTypeDef::A_VOTE
-        returnAction = A_Vote.new(action.attributes)
-
-      when ActionTypeDef::A_STATUS
-        returnAction = A_Status.new(action.attributes)
-
-    end
-    
-    returnAction
-  end
     
   def sortActionQueue!
     @action_queue.sort! { |a,b| a.priority <=> b.priority }
