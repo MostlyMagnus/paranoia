@@ -13,3 +13,21 @@ PDA implementation
 Persona implementation
   Contains portrait, profession, biography
   
+
+
+# New action queue code type thing for latah
+
+@action_queue = Array.new
+
+@pawns.each do |pawn|
+  tick = 0
+	
+	@pawn.actions.each do |action|
+		# 
+		if !@action_queue[i].kind_of? Array then @action_queue[i] = Array.new end
+		
+		@action_queue[i].push(action.toSpecificType)
+		
+		tick += action.tick_cost
+	end
+end
