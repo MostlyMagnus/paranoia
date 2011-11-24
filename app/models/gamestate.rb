@@ -111,6 +111,9 @@ class Gamestate < ActiveRecord::Base
     # Now let's do some idle logic for the correct amount of turns
     @updatesRequired = ((Time.now - self.update_when)/(60 * self.timescale)).floor
 
+    # (3 litres/full tank of water)*amount of pawns = water consumption per turn
+	delta_water_per_turn = (3.0/AppConfig::WATER_FULL_TANK.to_f)*self.pawns.size;
+	
     for i in 0..@updatesRequired
       # Idle logic goes here (detoriation, random events, etc)
  
@@ -125,7 +128,7 @@ class Gamestate < ActiveRecord::Base
 	  # scenario: difficulty_rating,
       
       # Add a log entry regarding the water consumption this turn. :delta_water is how much water has been used.
-      add_log_entry(LoggerTypeDef::LOG_CONSUMPTION, {:delta_water => 0})
+      add_log_entry(LoggerTypeDef::LOG_CONSUMPTION, {:delta_water => delta_water_per_turn})
 
     end
 
@@ -440,8 +443,8 @@ class Gamestate < ActiveRecord::Base
     case log_type
     when LoggerTypeDef::LOG_NIL
       "Oops! You passed a nil attribute to the logger."
-    when LoggerTypeDef::LOG_CONSUMPTION
-      params[:delta_water].to_s << " units of water consumed this turn."
+    when LoggerTypeDef::LOG_CONSUMPTION	  
+      (params[:delta_water].to_f*AppConfig::WATER_FULL_TANK.to_f).to_s << " " << AppConfig::WATER_UNIT << "(s) of water consumed this turn."
     when LoggerTypeDef::LOG_VOTE_INIT_SUCCESS        
       "" << Persona.find_by_id(self.pawns.find_by_id(params[:subject_a_id]).persona_id).name << " and " << Persona.find_by_id(self.pawns.find_by_id(params[:subject_b_id]).persona_id).name << " succesfully initiated a vote to airlock " << Persona.find_by_id(self.pawns.find_by_id(params[:target_id]).persona_id).name << "."
     when LoggerTypeDef::LOG_VOTE_INIT_FAIL

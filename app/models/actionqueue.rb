@@ -12,33 +12,25 @@ class ActionQueue
     @init_votes   = Array.new
   end
 
-  def buildExecuteAndClearActions!  
-    # Starting with tick #1, build it's action queue, sort it, execute it,
-    # and then clear it. Repeat for the remaining ticks.
-    
+  def buildExecuteAndClearActions!(passed_gamestatepawns = @gamestate.gamestatePawns)      
     # Lets make sure the list of votes to be initiated is clean.
     @init_votes.clear
     
-    # Call this outside of the tick loop just to build the queue and print it to the log.
-    # This will replace the other build action queue later when Im less tired.
-    buildActionQueue2
-    
-    for tick in 0..4
-      # Build the action queue based on the supplied tick
-      @action_queue = buildActionQueue(tick)
-      
-      # Sorts the action queue based on priority derived from the action type
-      # See action.rb for priority listings
-      sortActionQueue!
-      
-      # Lets store a snapshot of each tick for this turn.
-      @gamestate.snapshots.create!(:turn => @gamestate.turn, :tick => tick, :actions => @gamestate.getPlayerStatus << "#" << @gamestate.game_ship.build_nodestatus_string)
-
-      # Now execute the action queue
-      executeActionQueue!
-      
-      # Clear the action queue before we do another tick
-      clearActionQueue!
+    # Call this outside of the tick loop to build the queue    
+    @action_queue = getAdvancedActionQueue
+  
+    for tick in 0..AppConfig::ACTION_TOTAL_AP-1
+ 
+		# If no actions were performed on this specific tick, there's a risk that it's nil.
+		if !@action_queue[tick].nil? then		  
+			
+			# Call sortActionQueue on the current tick. It returns a sorted actionQueue variable
+			# that then gets executed by executeActionQueue!
+			executeActionQueue!(sortActionQueue(@action_queue[tick]), passed_gamestatepawns)
+		end 
+	  	  
+		# Lets store a snapshot of each tick for this turn.
+		@gamestate.snapshots.create!(:turn => @gamestate.turn, :tick => tick, :actions => @gamestate.getPlayerStatus << "#" << @gamestate.game_ship.build_nodestatus_string)	  
     end
     
     # Everything has been executed. If there is anything in the @init_votes array
@@ -98,38 +90,24 @@ class ActionQueue
     return action_queue
   end 
  
-  def buildActionQueue2
-    # This should replace the actual action queue later when I'm less tired.
-    
-    @aq = Array.new
+  def getAdvancedActionQueue
+	# 2D Array
+    aq = Array.new(AppConfig::ACTION_TOTAL_AP) { Array.new }
 
     @pawns.each do |pawn|
       tick = 0
       
       pawn.actions.each do |action|
-        if !@aq[tick].kind_of? Array then @aq[tick] = Array.new end
+        if !aq[tick].kind_of? Array then aq[tick].push(Array.new) end
         
-        @aq[tick].push(action.actionToSpecificActionType)
+        aq[tick].push(action.actionToSpecificActionType)
         
         tick += action.actionToSpecificActionType.tick_cost.to_i
       end
+	  
     end
     
-    # Print it to the log so we can see it.
-    
-    @gamestate.logger.debug "============== new action queue ================"
-    @aq.each do |aq| 
-      @gamestate.logger.debug " === new tick === "
-
-      unless aq.nil? 
-        aq.each do |action|
-          @gamestate.logger.debug action
-        end
-      end
-    end
-    @gamestate.logger.debug "============== new action queue ================"
-    
-    return @aq
+	return aq
   end
   
   private
@@ -149,13 +127,13 @@ class ActionQueue
   end
   
     
-  def sortActionQueue!
-    @action_queue.sort! { |a,b| a.priority <=> b.priority }
+  def sortActionQueue(tick_queue)
+    return tick_queue.sort! { |a,b| a.priority <=> b.priority }
   end
     
-  def executeActionQueue!    
-    for i in 0..@action_queue.size-1
-      executeAction!(@action_queue[i],     @gamestate.gamestatePawns[@action_queue[i].pawn_id])
+  def executeActionQueue!(tick_queue, passed_gamestatepawns)    
+    for i in 0..tick_queue.size-1	  
+      executeAction!(tick_queue[i],     passed_gamestatepawns[tick_queue[i].pawn_id])
     end
   end
   

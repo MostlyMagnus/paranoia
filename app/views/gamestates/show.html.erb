@@ -44,7 +44,7 @@
      
      <div style="clear: both">
         <% for x in 0..17 %>
-          <div class="<%= if @gamestate.game_ship.rooms[x][y].kind_of? Room  then @gamestate.game_ship.rooms[x][y].room_type end %>" style="width: 32px; height: 32px; position: relative; float: left; margin: 1px; text-align: center">
+          <div class="<%= if @gamestate.game_ship.rooms[x][y].kind_of? Room  then @gamestate.game_ship.rooms[x][y].room_type end %>" style="width: 42px; height: 42px; position: relative; float: left; margin: 1px; text-align: center">
             
           <!-- <%= if @gamestate.game_ship.rooms[x][y].kind_of? Room  then @gamestate.game_ship.rooms[x][y].room_type end %>-->
 
@@ -86,12 +86,12 @@
  
   </div>
 
-</td><td>
+</td><td style="vertical-align: top">
   
   <div>
     
     <div>
-      <%= image_tag "rooms/"+@gamestate.game_ship.rooms[@vPos.x][@vPos.y].room_type+"_large.jpg"%>
+      <!-- <%= image_tag "rooms/"+@gamestate.game_ship.rooms[@vPos.x][@vPos.y].room_type+"_large.jpg"%> -->
     </div>
     
     <div>Current turn <%= currentTurn %></div>
@@ -153,7 +153,7 @@
   </div>
 
 </td>
-<td>
+<td style="vertical-align: top">
 
 	<!-- This is the ugliest code. -->
 	<!-- This is the ugliest code. -->
@@ -164,7 +164,7 @@
 	<table>
 	<tr>
 	
-	<td style="height: <%= 360 %>px">
+	<td style="height: <%= 36*AppConfig::ACTION_TOTAL_AP %>px; vertical-align: top;">
 	<% for i in 1..10 %>
 		<div style="height: 36px; float: right; clear: right;"><%= i %> </div>
 	<% end %>
@@ -180,7 +180,7 @@
 			<%= a.typeToString %> 
 		</div>    
 	<% end %>
-    <div style="padding-left: 5px; background: <%= colors_hack[color_counter+1] %>"><%= link_to '<< step Back', :controller => "gamestates", :action => "remove_action" %></div>
+    <div style="padding-left: 5px; background: <%= colors_hack[color_counter+1] %>"><%= link_to '<< step back', :controller => "gamestates", :action => "remove_action" %></div>
 	</td>
 	
 	</tr></table>

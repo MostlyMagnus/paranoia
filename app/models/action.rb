@@ -120,7 +120,7 @@ class A_Use < Action
   def initialize(parameters = Hash.new)
     @action_type = ActionTypeDef::A_USE
     @target_node = parameters["params"].split(",").first.to_i
-    @tick_cost = 2
+    @tick_cost = AppConfig::ACTION_COST_USE
     
     if !parameters[:node].nil? then @node = parameters[:node] end
     default_priority(50)
@@ -134,7 +134,7 @@ class A_Kill < Action
   
   def initialize(parameters = Hash.new)
     @action_type = ActionTypeDef::A_KILL
-    @tick_cost = 4
+    @tick_cost =  AppConfig::ACTION_COST_KILL
 
     @target_pawn_id = parameters["params"].split(",")[0]
     
@@ -150,7 +150,7 @@ class A_Repair < Action
   
   def initialize(parameters = Hash.new)
     @action_type = ActionTypeDef::A_REPAIR
-    @tick_cost = 2
+    @tick_cost =  AppConfig::ACTION_COST_REPAIR
     
     @target_node = parameters["params"].split(",").first.to_i
     @multiplier  = parameters["params"].split(",").last.to_i
@@ -167,7 +167,7 @@ class A_Move < Action
   
   def initialize(parameters = Hash.new)
     @action_type = ActionTypeDef::A_MOVE
-    @tick_cost = 1
+    @tick_cost =  AppConfig::ACTION_COST_MOVE
     
     @toX = parameters["params"].split(",")[0]
     @toY = parameters["params"].split(",")[1]
@@ -184,7 +184,7 @@ class A_InitVote < Action
   
   def initialize(parameters = Hash.new)
     @action_type = ActionTypeDef::A_INITVOTE
-    @tick_cost = 2
+    @tick_cost =  AppConfig::ACTION_COST_INITVOTE
     
     @target = parameters["params"]
     
@@ -200,7 +200,7 @@ class A_Vote < Action
   
   def initialize(parameters = Hash.new)
     @action_type = ActionTypeDef::A_VOTE
-    @tick_cost = 5
+    @tick_cost =  AppConfig::ACTION_COST_VOTE
     
     @event_id    = parameters["params"].split(",")[0]
     @input       = parameters["params"].split(",")[1]
@@ -216,7 +216,7 @@ class A_Status < Action
   
   def initialize(parameters = Hash.new)
     @action_type = ActionTypeDef::A_STATUS
-    @tick_cost = 2
+    @tick_cost =  AppConfig::ACTION_COST_STATUS
 
     if !parameters[:node].nil? then @node = parameters[:node] end
     default_priority(80)
