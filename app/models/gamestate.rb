@@ -112,7 +112,8 @@ class Gamestate < ActiveRecord::Base
     @updatesRequired = ((Time.now - self.update_when)/(60 * self.timescale)).floor
 
     # (3 litres/full tank of water)*amount of pawns = water consumption per turn
-	delta_water_per_turn = (3.0/AppConfig::WATER_FULL_TANK.to_f)*self.pawns.size;
+    # Should not use self.pawns.size but instead count the number of alive pawns.
+    delta_water_per_turn = (3.0/AppConfig::WATER_FULL_TANK.to_f)*self.pawns.size;
 	
     for i in 0..@updatesRequired
       # Idle logic goes here (detoriation, random events, etc)
@@ -120,12 +121,15 @@ class Gamestate < ActiveRecord::Base
       # Bump the turn for this update cycle
       @turn = ((self.updated_at.advance(:minutes => self.timescale * i)  - self.created_at)/(60 * self.timescale)).floor
       	  
-	  # distance from home: fixed number
-	  # expected turns: distance_from_home(1/difficulty_rating)
-	  # starting water: #expected_turns x #players x (1/difficulty_rating)
-	  # 
-	  # prob("node breaks") = 0.
-	  # scenario: difficulty_rating,
+      # distance from home: fixed number
+      # expected turns: distance_from_home(1/difficulty_rating)
+      # starting water: #expected_turns x #players x (1/difficulty_rating)
+      # 
+      # prob("node breaks") = 0.
+      # scenario: difficulty_rating,
+        
+      # Drain water from the water nodes.
+      @game_ship.drainWater(delta_water_per_turn)
       
       # Add a log entry regarding the water consumption this turn. :delta_water is how much water has been used.
       add_log_entry(LoggerTypeDef::LOG_CONSUMPTION, {:delta_water => delta_water_per_turn})

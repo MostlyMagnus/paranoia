@@ -70,6 +70,21 @@ class GameShip
     end
   end
   
+  def drainWater(delta_water)
+    @logic_nodes.each do |node|
+      case node.node_type
+      when NodeTypeDef::N_WATER_CONTAINER
+        node.health = (node.health.to_f - delta_water).to_s
+
+        if node.health.to_f < 0 then
+          delta_water = node.health.to_f.abs
+        else
+          break
+        end
+      end
+    end
+  end
+  
   def create_node_status_from_ship
     setup_ship(@ship_id)
     
