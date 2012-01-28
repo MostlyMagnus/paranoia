@@ -4,21 +4,18 @@ class SessionsController < ApplicationController
   end
   
   def create
-	print "create start"
     user = User.authenticate(params[:session][:email],
                              params[:session][:password])
     
     if user.nil?
-      # Error
-	  print "user nil"
-      flash.now[:error] = "Invalid email/password combination"
-      @title = "Sign in"
-      
-      render 'new'
-    else
-		print "user not nil"
-      sign_in user
-      redirect_to user
+      # Error	  
+		#flash.now[:error] = "Invalid email/password combination"
+		
+		# Return a 0
+		render :text => "0"
+    else		
+		sign_in user
+		render :text => "1"
     end
   end
   

@@ -16,11 +16,11 @@ Paranoia::Application.routes.draw do
       #get :create
       get :wip_show
       
-      get :ajax_gamestate
-      get :ajax_ship
-      get :ajax_possibleactions
-      get :ajax_gamestatepawns
-      get :ajax_snapshots
+      get :json_gamestate
+      get :json_ship
+      get :json_possibleactions
+      get :json_gamestatepawns
+      get :json_snapshots
       
       get :add_action
       get :remove_action
@@ -29,24 +29,24 @@ Paranoia::Application.routes.draw do
     end
   end
   
-  match '/tempIndex', :to => 'pages#tempIndex'
+  #match '/tempIndex', :to => 'pages#tempIndex'
   
-  match '/signup',  :to => 'users#new'
+  #match '/signup',  :to => 'users#new'
 
-  match '/contact', :to => 'pages#contact'
-  match '/about',   :to => 'pages#about'
-  match '/help',    :to => 'pages#help'
+  #match '/contact', :to => 'pages#contact'
+  #match '/about',   :to => 'pages#about'
+  #match '/help',    :to => 'pages#help'
   
-  match '/signin',  :to => 'sessions#new'
-  match '/signout', :to => 'sessions#destroy'
+  #match '/signin',  :to => 'sessions#new'
+  #match '/signout', :to => 'sessions#destroy'
 
-  match '/lobbies', :to => 'lobbies#index'
+  #match '/lobbies', :to => 'lobbies#index'
   
-  match '/joingame', :to => 'pawns#new'
+  #match '/joingame', :to => 'pawns#new'
  # match '/mygames', :to => 'gamestates#mygames'
-  match '/creategame', :to => 'gamestates#create'
+  #match '/creategame', :to => 'gamestates#create'
   
-  match '/update', :to => 'updaters#update'
+  #match '/update', :to => 'updaters#update'
   
-  root :to => 'pages#home'
+	root :to => 'pages#home'
 end

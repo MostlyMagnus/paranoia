@@ -78,28 +78,28 @@ class GamestatesController < ApplicationController
 	render :text => gs_ids.to_json
   end  
   
-  def ajax_gamestate
+  def json_gamestate
     @gamestate = Gamestate.find_by_id(params[:id])    
     render :text => @gamestate.to_json
   end
   
-  def ajax_ship    
+  def json_ship    
     @gamestate = Gamestate.find_by_id(params[:id])    
     render :text => @gamestate.AJAX_ship.to_json
   end
   
-  def ajax_possibleactions
+  def json_possibleactions
     @gamestate = Gamestate.find_by_id(params[:id])
     @gamestate.setup_game_ship
     render :text => @gamestate.AJAX_possibilities(current_user).to_json
   end
 
-  def ajax_gamestatepawns
+  def json_gamestatepawns
     @gamestate = Gamestate.find_by_id(params[:id])
     render :text => @gamestate.AJAX_GamestatePawns
   end
   
-  def ajax_snapshots
+  def json_snapshots
     @gamestate = Gamestate.find_by_id(params[:id])
     @gamestate.init(current_user)
       
