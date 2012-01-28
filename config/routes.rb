@@ -43,7 +43,7 @@ Paranoia::Application.routes.draw do
   match '/lobbies', :to => 'lobbies#index'
   
   match '/joingame', :to => 'pawns#new'
-  match '/mygames', :to => 'gamestates#mygames'
+ # match '/mygames', :to => 'gamestates#mygames'
   match '/creategame', :to => 'gamestates#create'
   
   match '/update', :to => 'updaters#update'

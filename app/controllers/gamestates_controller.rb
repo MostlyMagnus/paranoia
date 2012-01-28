@@ -61,21 +61,22 @@ class GamestatesController < ApplicationController
     
     redirect_to gamestate_path
   end
-  
-  def index
-    return render :text => 'GamestateController:index'
-  end
-  
+   
   def create        
    	game_id = Gamestate.create_new(params[:lobby_id])
 	redirect_to mygames_path
   end
   
-  def mygames
+  def index
     @user = User.find_by_id(current_user)  
-  end
-  
-  
+	
+	gs_ids = Array.new
+	@user.pawns.each do |pawn| 
+		gs_ids.push(pawn.gamestate_id)
+	end
+	
+	render :text => gs_ids.to_json
+  end  
   
   def ajax_gamestate
     @gamestate = Gamestate.find_by_id(params[:id])    
