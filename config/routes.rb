@@ -19,7 +19,7 @@ Paranoia::Application.routes.draw do
       get :json_gamestate
       get :json_ship
       get :json_possibleactions
-      get :json_gamestatepawns
+      get :json_clean_gamestatepawns
       get :json_snapshots
       
       get :add_action

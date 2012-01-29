@@ -258,8 +258,10 @@ class Gamestate < ActiveRecord::Base
     
   def getGamestatePawnsNoPositions(passed_gamestatepawns)
     passed_gamestatepawns.each do |gamestatePawn|
-      gamestatePawn.sanitize_position
+      gamestatePawn[1].sanitize_position
     end
+	
+	return passed_gamestatepawns
   end
 
   def getVisibleGamestatePawns(user_pawn, passed_gamestatepawns = @gamestatePawns)
@@ -326,40 +328,48 @@ class Gamestate < ActiveRecord::Base
     end
   end
       
-  # == AJAX calls
+  # == JSON calls
   # The front end uses these to get the relevant information
 
-  def AJAX_ship
+  # 
+  def JSON_Gamestate(current_user)
+  	setup
+	pawnSetup(current_user)
+	
+  # getVisibleGamestatePawns(user_pawn, passed_gamestatepawns = @gamestatePawns)
+    returned_data = Hash.new
+	returned_data[:gamestate] = self
+	
+	returned_data[:gamestatePawns] = getVisibleGamestatePawns(@pawn)
+	
+	return returned_data
+  end  
+  
+  def JSON_ship
     setup
     
-    return @game_ship.AJAX_formatForResponse
+    return @game_ship.JSON_formatForResponse
   end
   
-  def AJAX_possibilities(current_user)
+  def JSON_possibilities(current_user)
     setup
     pawnSetup(current_user)
     
     virtualPawn = getVirtualPawn(@pawn)
     
     possibilities = Hash.new
-    
+		
     possibilities[:access] = @game_ship.whereCanIMoveFromHere?(virtualPawn)
     possibilities[:possibleActions] = possibleActions(virtualPawn)
        
     return possibilities 
   end
   
-  def AJAX_GamestatePawns
-    gamestatePawns = getGamestatePawns
-    pawnsList = Array.new
-    
-    gamestatePawns.each do |gamestatePawn|
-      #@gamestatePawn[1].x, @gamestatePawn[1].y = -1,-1
-      
-      #pawnsList.push(@gamestatePawn[1])
-    end
-    
-    return gamestatePawns
+  def JSON_CLEAN_GamestatePawns(current_user)
+	setup
+	pawnSetup(current_user)
+	
+	return getGamestatePawnsNoPositions(@gamestatePawns)
   end
 
   def getActionqueue

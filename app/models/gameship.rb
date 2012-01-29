@@ -213,22 +213,22 @@ class GameShip
     return nil
   end
   
-  def AJAX_formatForResponse
+  def JSON_formatForResponse
     setup_ship(@ship_id)
     
-    toAjaxResponse = Hash.new
+    toJSONResponse = Hash.new
     
-    toAjaxResponse[:name] = @ship.name
+    toJSONResponse[:name] = @ship.name
     
-    ajax_rooms = @rooms
+    json_rooms = @rooms
     
     @logic_nodes.each do |node|
-      ajax_rooms[node.position.x][node.position.y].node = node
+      json_rooms[node.position.x][node.position.y].node = node
     end
     
-    toAjaxResponse[:map] = ajax_rooms    
+    toJSONResponse[:map] = json_rooms    
     
-    return toAjaxResponse
+    return toJSONResponse
   end
   
   def isThisARoom?(grid)

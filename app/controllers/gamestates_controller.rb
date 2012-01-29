@@ -1,7 +1,10 @@
 class GamestatesController < ApplicationController
   # Remember to update this. :updateGamestate should be run whenever the user views
   # a page that relates to a specific gamestate.
-  before_filter :updateGamestate, :only => :show
+  
+  # Must solve this somehow for client -- update on get gamestate?
+  #before_filter :updateGamestate, :only => :show
+  before_filter :updateGamestate
 
   def show    
     @gamestate = Gamestate.find_by_id(params[:id])
@@ -20,13 +23,15 @@ class GamestatesController < ApplicationController
     @pos              = @gamestate.getPosition(@user_pawn)
          
     @access           = @gamestate.game_ship.whereCanIMoveFromHere?(@virtualPawn)
-    @gamestatePawns   = @gamestate.gamestatePawns
+    @gamestatePawns   = @gamestate.gamestatePawns    
+  end
+
+  def create        
+   	game_id = Gamestate.create_new(params[:lobby_id])
+	redirect_to mygames_path
+  end
     
-  end
-  
-  def wip_show
-    render :layout => 'wip_layout'
-  end
+  # POST CODE
   
   def add_action
     @gamestate = Gamestate.find_by_id(params[:id])
@@ -42,12 +47,12 @@ class GamestatesController < ApplicationController
     end
         
     if @user_pawn.addAction(@queue_number, params[:type], params[:details]) then
-      flash[:success] = "Action added"
+      render :text => "1"
     else
-      flash[:error] = "Too many actions!"
+      render :text => "0"
     end
     
-    redirect_to gamestate_path
+    #redirect_to gamestate_path
   end
   
   def remove_action
@@ -59,13 +64,10 @@ class GamestatesController < ApplicationController
     
     @user_pawn_actions.last.delete
     
-    redirect_to gamestate_path
+    #redirect_to gamestate_path
   end
    
-  def create        
-   	game_id = Gamestate.create_new(params[:lobby_id])
-	redirect_to mygames_path
-  end
+  # GET code  
   
   def index
     @user = User.find_by_id(current_user)  
@@ -80,23 +82,22 @@ class GamestatesController < ApplicationController
   
   def json_gamestate
     @gamestate = Gamestate.find_by_id(params[:id])    
-    render :text => @gamestate.to_json
+    render :text => @gamestate.JSON_Gamestate(current_user).to_json
   end
   
   def json_ship    
     @gamestate = Gamestate.find_by_id(params[:id])    
-    render :text => @gamestate.AJAX_ship.to_json
+    render :text => @gamestate.JSON_ship.to_json
   end
   
   def json_possibleactions
     @gamestate = Gamestate.find_by_id(params[:id])
-    @gamestate.setup_game_ship
-    render :text => @gamestate.AJAX_possibilities(current_user).to_json
+    render :text => @gamestate.JSON_possibilities(current_user).to_json
   end
 
-  def json_gamestatepawns
+  def json_clean_gamestatepawns
     @gamestate = Gamestate.find_by_id(params[:id])
-    render :text => @gamestate.AJAX_GamestatePawns
+    render :text => @gamestate.JSON_CLEAN_GamestatePawns(current_user).to_json
   end
   
   def json_snapshots
