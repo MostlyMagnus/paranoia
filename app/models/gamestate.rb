@@ -335,8 +335,7 @@ class Gamestate < ActiveRecord::Base
   def JSON_Gamestate(current_user)
   	setup
 	pawnSetup(current_user)
-	
-  # getVisibleGamestatePawns(user_pawn, passed_gamestatepawns = @gamestatePawns)
+	  
     returned_data = Hash.new
 	returned_data[:gamestate] = self
 	
@@ -372,6 +371,25 @@ class Gamestate < ActiveRecord::Base
 	return getGamestatePawnsNoPositions(@gamestatePawns)
   end
 
+  def JSON_pawnData(current_user)
+	setup
+	pawnSetup(current_user)
+	
+	return_data = Hash.new
+	
+	return_data[:pawn] = @pawn
+	return_data[:actual_position] = getPosition(@pawn)
+	return_data[:virtualpawn] = getVirtualPawn(@pawn)
+	
+	return return_data	
+  end
+  
+  def JSON_actionQueue
+	return getActionqueue
+  end
+    
+  # == 
+  #
   def getActionqueue
     actionQueue = ActionQueue.new(self)
     

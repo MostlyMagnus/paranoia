@@ -106,4 +106,18 @@ class GamestatesController < ApplicationController
       
     render :text => @gamestate.getSnapshots(params[:turn]).to_json
   end
+  
+  def json_pawndata
+	@gamestate = Gamestate.find_by_id(params[:id])
+    @gamestate.init(current_user)
+    
+	render :text => @gamestate.JSON_pawnData(current_user).to_json
+  end
+  
+  def json_actionqueue
+	@gamestate = Gamestate.find_by_id(params[:id])
+    @gamestate.init(current_user)
+	
+	render :text => @gamestate.JSON_actionQueue.to_json
+  end
 end
