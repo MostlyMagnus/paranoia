@@ -340,6 +340,7 @@ class Gamestate < ActiveRecord::Base
 	returned_data[:gamestate] = self
 	
 	returned_data[:gamestatePawns] = getVisibleGamestatePawns(@pawn)
+	returned_data[:checkedGrid] = self.checked_grid
 	
 	return returned_data
   end  
