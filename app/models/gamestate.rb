@@ -266,9 +266,7 @@ class Gamestate < ActiveRecord::Base
 
   def getVisibleGamestatePawns(user_pawn, passed_gamestatepawns = @gamestatePawns)
     visiblePawns  = Array.new
-      
-    @checked_grid = Hash.new(false)
-    
+          
     scanDirection(user_pawn, visiblePawns,  1,   1, passed_gamestatepawns)
     scanDirection(user_pawn, visiblePawns,  1,  -1, passed_gamestatepawns)
     scanDirection(user_pawn, visiblePawns, -1,  -1, passed_gamestatepawns)
@@ -304,28 +302,32 @@ class Gamestate < ActiveRecord::Base
       ray_angle     = (angle*3.14)/180
       ray_delta     = S_Position.new(cos(ray_angle), sin(ray_angle))
       ray_traversed = S_Position.new(0,0)
-         
-      while ray_traversed.x < ray_delta.x*@view_distance  && ray_traversed.y < ray_delta.y*@view_distance  do
-        ray_grid = S_Position.new(pawn_position.x + multiplier_x*ray_traversed.x.round,
-                                  pawn_position.y + multiplier_y*ray_traversed.y.round)
-                       
-        unless @checked_grid[[ray_grid.x, ray_grid.y]] then
-          if @game_ship.isThisARoom?(ray_grid)
-             getGamestatePawnsAtGrid(ray_grid, passed_gamestatepawns).each do |gamestatePawn|
-              #gamestatePawn.sanitize_persona
-              visiblePawns.push(gamestatePawn)
-            end
-          else
-            break 
-          end
- 
-          @checked_grid[[ray_grid.x, ray_grid.y]] = true
-        end
- 
-        ray_traversed.x += ray_delta.x
-        ray_traversed.y += ray_delta.y
-      end
-    end
+	  hitWall = false
+         		
+		while (ray_traversed.x < ray_delta.x*@view_distance  && ray_traversed.y < ray_delta.y*@view_distance && !hitWall) do
+			ray_grid = S_Position.new(pawn_position.x + multiplier_x*ray_traversed.x.round,
+								  pawn_position.y + multiplier_y*ray_traversed.y.round)
+								  
+			if @game_ship.isThisARoom?(ray_grid) then	
+			
+				if !@game_ship.rooms[ray_grid.x][ray_grid.y].seen then
+	
+					getGamestatePawnsAtGrid(ray_grid, passed_gamestatepawns).each do |gamestatePawn|
+						visiblePawns.push(gamestatePawn)
+						
+						
+					end
+					@game_ship.rooms[ray_grid.x][ray_grid.y].seen = true
+				end
+			else
+				hitWall = true
+			end
+							
+			ray_traversed.x += ray_delta.x
+			ray_traversed.y += ray_delta.y
+		end
+
+	end
   end
       
   # == JSON calls
@@ -340,7 +342,8 @@ class Gamestate < ActiveRecord::Base
 	returned_data[:gamestate] = self
 	
 	returned_data[:gamestatePawns] = getVisibleGamestatePawns(@pawn)
-	returned_data[:checkedGrid] = self.checked_grid
+	#returned_data[:checkedGrid] = self.checked_grid
+	returned_data[:ship] = @game_ship.JSON_formatForResponse
 	
 	return returned_data
   end  

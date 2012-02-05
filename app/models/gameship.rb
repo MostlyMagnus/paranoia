@@ -123,21 +123,24 @@ class GameShip
     tempShip = getTempShip
     splitShip = tempShip.split("$")
     
-    #splitShip = @ship.layout.split("$")
+		#splitShip = @ship.layout.split("$")
     
     splitShip.each do |room|
-      splitRoom = room.split(";")
-      
-      # First we get the position
-      pos = S_Position.new(Integer(splitRoom[0].split(",")[0]), Integer(splitRoom[0].split(",")[1]))
-      
-      # Then we get the access codes
-      access = S_Access.new(String(splitRoom[1][0]), String(splitRoom[1][1]), String(splitRoom[1][2]), String(splitRoom[1][3]))
+		splitRoom = room.split(";")
+		
+		# First we get the position
+		pos = S_Position.new(Integer(splitRoom[0].split(",")[0]), Integer(splitRoom[0].split(",")[1]))
+
+		# Then we get the access codes
+		access = S_Access.new(String(splitRoom[1][0]), String(splitRoom[1][1]), String(splitRoom[1][2]), String(splitRoom[1][3]))
                   
-      # Lets put it in our hash (-That's what SHE said!)        
-      @rooms[pos.x][pos.y] = Room.new(pos, access, splitRoom[2])      
+		# Lets put it in our hash (-That's what SHE said!) 
+		# make sure that its legit before putting it in. Heh.
+		
+		if(splitRoom[2] != "") then
+			@rooms[pos.x.to_i][pos.y.to_i] = Room.new(pos, access, splitRoom[2])      
+		end
     end
-    
   end
   
   def parse_nodes_from_ship
@@ -214,25 +217,37 @@ class GameShip
   end
   
   def JSON_formatForResponse
-    setup_ship(@ship_id)
+    #setup_ship(@ship_id)
     
     toJSONResponse = Hash.new
     
     toJSONResponse[:name] = @ship.name
     
     json_rooms = @rooms
-    
-    @logic_nodes.each do |node|
-      json_rooms[node.position.x][node.position.y].node = node
+	
+    @logic_nodes.each do |node|	
+		json_rooms[node.position.x][node.position.y].node = node
     end
     
-    toJSONResponse[:map] = json_rooms    
+    toJSONResponse[:map] = json_rooms
     
     return toJSONResponse
   end
   
   def isThisARoom?(grid)
-    return @rooms[grid.x][grid.y].kind_of? Room
+	unless @rooms[grid.x].nil? then
+		@rooms[grid.x].each do |room|
+			if(room[1].position.y == grid.y) then
+				if room[1].kind_of? Room then
+					return true
+				end
+			end
+		end
+		
+		return false
+	else
+		return false
+	end
   end
 end
 
@@ -241,9 +256,10 @@ class Room
     @position   = pos
     @access     = access
     @room_type  = room_type
+	@seen = nil
   end
 
-  attr_accessor :position, :access, :room_type, :node
+  attr_accessor :position, :access, :room_type, :node, :seen
 end
 
 class Ship_Node
