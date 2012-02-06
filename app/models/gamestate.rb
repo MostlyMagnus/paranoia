@@ -342,9 +342,14 @@ class Gamestate < ActiveRecord::Base
 	returned_data[:gamestate] = self
 	
 	returned_data[:gamestatePawns] = getVisibleGamestatePawns(@pawn)
-	#returned_data[:checkedGrid] = self.checked_grid
 	returned_data[:ship] = @game_ship.JSON_formatForResponse
-	
+	    
+    virtualPawn = getVirtualPawn(@pawn)
+    		
+	returned_data[:virtualPawn] = virtualPawn
+    returned_data[:possibleMoves] = @game_ship.whereCanIMoveFromHere?(virtualPawn)
+    returned_data[:possibleActions] = possibleActions(virtualPawn)
+ 
 	return returned_data
   end  
   
@@ -425,9 +430,15 @@ class Gamestate < ActiveRecord::Base
     #
     #  Convert node_type to something better.
 
-    #possibleActionIndex.push({:verbose => "Kill", :action_type => ActionTypeDef::A_KILL, :params => "-1"})
-    #possibleActionIndex.push({:verbose => "Initiate vote", :action_type => ActionTypeDef::A_VOTE, :params => "-1"})
+    possibleActionIndex.push({:verbose => "Kill", :action_type => ActionTypeDef::A_KILL, :params => "-1"})
+    possibleActionIndex.push({:verbose => "Initiate vote", :action_type => ActionTypeDef::A_VOTE, :params => "-1"})
     possibleActionIndex.push({:verbose => "Check Shipstatus", :action_type => ActionTypeDef::A_STATUS, :params => "-1"})
+	
+	getGamestatePawnsAtGrid(S_Position.new(virtualPawn.x, virtualPawn.y), @gamestatePawns).each do |gspawn|
+		unless @pawn.id == gspawn.pawn_id then
+			possibleActionIndex.push({:verbose => "Kill "+gspawn.persona.name, :action_type => ActionTypeDef::A_KILL, :params =>  gspawn.pawn_id.to_s})
+		end
+	end
     
     if !@game_ship.somethingInteractiveHere?(virtualPawn).nil? then
       possibleActionIndex.push({:verbose => "Use "      +@game_ship.somethingInteractiveHere?(virtualPawn).node_type, :action_type => ActionTypeDef::A_USE, :params => @game_ship.somethingInteractiveHere?(virtualPawn).id})
