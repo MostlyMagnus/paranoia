@@ -339,6 +339,7 @@ class Gamestate < ActiveRecord::Base
 	pawnSetup(current_user)
 	  
     returned_data = Hash.new
+	
 	returned_data[:gamestate] = self
 	
 	returned_data[:gamestatePawns] = getVisibleGamestatePawns(@pawn)
@@ -348,9 +349,8 @@ class Gamestate < ActiveRecord::Base
     		
 	returned_data[:virtualPawn] = virtualPawn
     returned_data[:possibleMoves] = @game_ship.whereCanIMoveFromHere?(virtualPawn)
-    #returned_data[:possibleActions] = possibleActions(virtualPawn)
 	
-	@game_ship.rooms[virtualPawn.x][virtualPawn.y] = possibleActions(virtualPawn)
+	@game_ship.rooms[virtualPawn.x][virtualPawn.y].possibleactions = possibleActions(virtualPawn)
 	return returned_data
   end  
   
@@ -435,9 +435,11 @@ class Gamestate < ActiveRecord::Base
     possibleActionIndex.push({:verbose => "Initiate vote", :action_type => ActionTypeDef::A_VOTE, :params => "-1"})
     possibleActionIndex.push({:verbose => "Check Shipstatus", :action_type => ActionTypeDef::A_STATUS, :params => "-1"})
 	
-	getGamestatePawnsAtGrid(S_Position.new(virtualPawn.x, virtualPawn.y), @gamestatePawns).each do |gspawn|
-		unless @pawn.id == gspawn.pawn_id then
-			possibleActionIndex.push({:verbose => "Kill "+gspawn.persona.name, :action_type => ActionTypeDef::A_KILL, :params =>  gspawn.pawn_id.to_s})
+	if(@game_ship.rooms[virtualPawn.x][virtualPawn.y].seen) then
+		getGamestatePawnsAtGrid(S_Position.new(virtualPawn.x, virtualPawn.y), @gamestatePawns).each do |gspawn|
+			unless @pawn.id == gspawn.pawn_id then
+				possibleActionIndex.push({:verbose => "Kill "+gspawn.persona.name, :action_type => ActionTypeDef::A_KILL, :params =>  gspawn.pawn_id.to_s})
+			end
 		end
 	end
     

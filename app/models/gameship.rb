@@ -257,7 +257,9 @@ class Room
     @access     = access
     @room_type  = room_type
 	@seen = nil
-	@possibleactions = Array.new
+	
+	@possibleactions = Array.new()
+	@possibleactions.push(nil)
   end
 
   attr_accessor :position, :access, :room_type, :node, :seen, :possibleactions
