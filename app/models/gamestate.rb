@@ -348,8 +348,9 @@ class Gamestate < ActiveRecord::Base
     		
 	returned_data[:virtualPawn] = virtualPawn
     returned_data[:possibleMoves] = @game_ship.whereCanIMoveFromHere?(virtualPawn)
-    returned_data[:possibleActions] = possibleActions(virtualPawn)
- 
+    #returned_data[:possibleActions] = possibleActions(virtualPawn)
+	
+	@game_ship.rooms[virtualPawn.x][virtualPawn.y] = possibleActions(virtualPawn)
 	return returned_data
   end  
   
