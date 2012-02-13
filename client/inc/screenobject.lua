@@ -51,7 +51,7 @@ end
 function PawnObject:update(dt)
 	local actionRemoved = false
 
-	local mMoveSpeed = 1
+	local mMoveSpeed = 2
 
 	if(self.mMoves) then
 		if (table.getn(self.mMoves)>0) then

@@ -453,8 +453,11 @@ function buildscreenObjects()
 	end
 	
 	for key, value in pairs(gamestate.gamestatePawns) do
-		table.insert(screenObjects, PawnObject:new(value.x+1, value.y+1, graphicsHandler:add("player"), value.pawn_id))
-		table.insert(textObjects, TextObject:new(value.persona.persona.name, value.x+1, value.y+1, love.graphics.getFont():getWidth(value.persona.persona.name)))
+
+		if (value.x) then
+			table.insert(screenObjects, PawnObject:new(value.x+1, value.y+1, graphicsHandler:add("player"), value.pawn_id))
+			table.insert(textObjects, TextObject:new(value.persona.persona.name, value.x+1, value.y+1, love.graphics.getFont():getWidth(value.persona.persona.name)))
+		end
 	end
 	
 	-- add the virtual pawn

@@ -5,6 +5,7 @@ class GamestatePawn
     @y = y
     @status = status
     @persona = persona
+    @positionAllowed = false
   end
   
   def sanitize_position
@@ -15,5 +16,5 @@ class GamestatePawn
     @persona = nil
   end
   
-  attr_accessor :pawn_id, :x, :y, :status, :persona
+  attr_accessor :pawn_id, :x, :y, :status, :persona, :positionAllowed
 end

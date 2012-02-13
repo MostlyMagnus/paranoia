@@ -265,14 +265,21 @@ class Gamestate < ActiveRecord::Base
   end
 
   def getVisibleGamestatePawns(user_pawn, passed_gamestatepawns = @gamestatePawns)
-    visiblePawns  = Array.new
+    #visiblePawns  = Array.new
           
-    scanDirection(user_pawn, visiblePawns,  1,   1, passed_gamestatepawns)
-    scanDirection(user_pawn, visiblePawns,  1,  -1, passed_gamestatepawns)
-    scanDirection(user_pawn, visiblePawns, -1,  -1, passed_gamestatepawns)
-    scanDirection(user_pawn, visiblePawns, -1,   1, passed_gamestatepawns)
-    
-    return visiblePawns
+    scanDirection(user_pawn,  1,   1, passed_gamestatepawns)
+    scanDirection(user_pawn,  1,  -1, passed_gamestatepawns)
+    scanDirection(user_pawn, -1,  -1, passed_gamestatepawns)
+    scanDirection(user_pawn, -1,   1, passed_gamestatepawns)
+
+    passed_gamestatepawns.each do |gamestatePawn|
+      if(!gamestatePawn[1].positionAllowed) then
+          gamestatePawn[1].sanitize_position
+      end
+      
+    end
+   
+    return passed_gamestatepawns
   end
   
   def getEvents
@@ -294,7 +301,7 @@ class Gamestate < ActiveRecord::Base
   # Scan direction is used to figure out what we can see. Related to the gamestatepawns since it spits out
   # a list of visible gamestatepawns.
   
-  def scanDirection(user_pawn, visiblePawns, multiplier_x, multiplier_y, passed_gamestatepawns = @gamestatePawns)
+  def scanDirection(user_pawn, multiplier_x, multiplier_y, passed_gamestatepawns = @gamestatePawns)
     # You see a long way down hallways.
     @view_distance = 35;
     
@@ -315,8 +322,8 @@ class Gamestate < ActiveRecord::Base
 				if !@game_ship.rooms[ray_grid.x][ray_grid.y].seen then
 	
 					getGamestatePawnsAtGrid(ray_grid, passed_gamestatepawns).each do |gamestatePawn|
-						visiblePawns.push(gamestatePawn)
-						
+						#visiblePawns.push(gamestatePawn)
+						gamestatePawn.positionAllowed = true
 						
 					end
 					@game_ship.rooms[ray_grid.x][ray_grid.y].seen = true
@@ -348,11 +355,11 @@ class Gamestate < ActiveRecord::Base
     # Add the possible actions for the vpawn grid to the hash
     @game_ship.rooms[virtualPawn.x][virtualPawn.y].possibleactions = possibleActions(virtualPawn)
 
-  	
+  	# The actual gamestate. This should be cleaned up so that the node health isnt passed along.
   	returned_data[:gamestate] = self
   	
+    # Get visible gamestatepawns sanitizes the gamestatepawns hash based on what the current vpawn sees.
   	returned_data[:gamestatePawns] = getVisibleGamestatePawns(@pawn)
-    returned_data[:gamestatePawnsClean] =  getGamestatePawnsNoPositions(@gamestatePawns)
 
   	returned_data[:ship] = @game_ship.JSON_formatForResponse
   	 	
@@ -363,7 +370,7 @@ class Gamestate < ActiveRecord::Base
 
     returned_data[:events] = getEvents
   	returned_data[:log] = self.log_entries
-      
+
     return returned_data
   end  
          
@@ -401,7 +408,7 @@ class Gamestate < ActiveRecord::Base
     #  Convert node_type to something better.
 
     possibleActionIndex.push({:verbose => "Kill", :action_type => ActionTypeDef::A_KILL, :params => "-1"})
-    possibleActionIndex.push({:verbose => "Initiate vote", :action_type => ActionTypeDef::A_VOTE, :params => "-1"})
+    #possibleActionIndex.push({:verbose => "Initiate vote", :action_type => ActionTypeDef::A_VOTE, :params => "-1"})
     possibleActionIndex.push({:verbose => "Check Shipstatus", :action_type => ActionTypeDef::A_STATUS, :params => "-1"})
 	
 	if(@game_ship.rooms[virtualPawn.x][virtualPawn.y].seen) then
