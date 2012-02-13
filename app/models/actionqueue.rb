@@ -77,7 +77,10 @@ class ActionQueue
     
     if !pawn.nil? then
       pawn.actions.each do |action|
-        action_queue.push(action.actionToSpecificActionType)
+        pushAction = action.actionToSpecificActionType
+        pushAction[:tick_cost] = action.getTickCost
+
+        action_queue.push(pushAction)
       end
     else
       @pawns.each do |p|
@@ -87,6 +90,8 @@ class ActionQueue
       end
     end
     
+    if action_queue.empty? then action_queue.push(nil) end
+
     return action_queue
   end 
  

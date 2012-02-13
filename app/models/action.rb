@@ -89,6 +89,38 @@ class Action < ActiveRecord::Base
     
     returnAction
   end
+ 
+  def getTickCost
+    # Returns the tick cost of this specific action
+    case self.action_type
+      when ActionTypeDef::A_NIL        
+        0
+        
+      when ActionTypeDef::A_USE
+        AppConfig::ACTION_COST_USE
+                
+      when ActionTypeDef::A_REPAIR
+        AppConfig::ACTION_COST_REPAIR
+        
+      when ActionTypeDef::A_KILL
+        AppConfig::ACTION_COST_KILL        
+
+      when ActionTypeDef::A_MOVE
+        AppConfig::ACTION_COST_MOVE
+
+      when ActionTypeDef::A_INITVOTE
+        AppConfig::ACTION_COST_INITVOTE
+
+      when ActionTypeDef::A_VOTE
+        AppConfig::ACTION_COST_VOTE
+
+      when ActionTypeDef::A_STATUS
+        AppConfig::ACTION_COST_STATUS
+
+    end
+    
+    nil
+  end
   
   
 end

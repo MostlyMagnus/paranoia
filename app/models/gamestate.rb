@@ -285,6 +285,8 @@ class Gamestate < ActiveRecord::Base
         events[:votes].push(event)
       end
     end
+
+    if events[:votes].empty? then events[:votes].push(nil) end
     
     events
   end
@@ -336,68 +338,35 @@ class Gamestate < ActiveRecord::Base
   # 
   def JSON_Gamestate(current_user)
   	setup
-	pawnSetup(current_user)
-	  
+  	pawnSetup(current_user)
+  	  
     returned_data = Hash.new
-	
-	returned_data[:gamestate] = self
-	
-	returned_data[:gamestatePawns] = getVisibleGamestatePawns(@pawn)
-	returned_data[:ship] = @game_ship.JSON_formatForResponse
-	    
-    virtualPawn = getVirtualPawn(@pawn)
-    		
-	returned_data[:virtualPawn] = virtualPawn
-    returned_data[:possibleMoves] = @game_ship.whereCanIMoveFromHere?(virtualPawn)
-	
-	@game_ship.rooms[virtualPawn.x][virtualPawn.y].possibleactions = possibleActions(virtualPawn)
-	return returned_data
-  end  
-  
-  def JSON_ship
-    setup
-    
-    return @game_ship.JSON_formatForResponse
-  end
-  
-  def JSON_possibilities(current_user)
-    setup
-    pawnSetup(current_user)
-    
-    virtualPawn = getVirtualPawn(@pawn)
-    
-    possibilities = Hash.new
-		
-    possibilities[:access] = @game_ship.whereCanIMoveFromHere?(virtualPawn)
-    possibilities[:possibleActions] = possibleActions(virtualPawn)
-       
-    return possibilities 
-  end
-  
-  def JSON_CLEAN_GamestatePawns(current_user)
-	setup
-	pawnSetup(current_user)
-	
-	return getGamestatePawnsNoPositions(@gamestatePawns)
-  end
 
-  def JSON_pawnData(current_user)
-	setup
-	pawnSetup(current_user)
-	
-	return_data = Hash.new
-	
-	return_data[:pawn] = @pawn
-	return_data[:actual_position] = getPosition(@pawn)
-	return_data[:virtualpawn] = getVirtualPawn(@pawn)
-	
-	return return_data	
-  end
-  
-  def JSON_actionQueue
-	return getActionqueue
-  end
-    
+    # set up the virtual pawn
+    virtualPawn = getVirtualPawn(@pawn)
+
+    # Add the possible actions for the vpawn grid to the hash
+    @game_ship.rooms[virtualPawn.x][virtualPawn.y].possibleactions = possibleActions(virtualPawn)
+
+  	
+  	returned_data[:gamestate] = self
+  	
+  	returned_data[:gamestatePawns] = getVisibleGamestatePawns(@pawn)
+    returned_data[:gamestatePawnsClean] =  getGamestatePawnsNoPositions(@gamestatePawns)
+
+  	returned_data[:ship] = @game_ship.JSON_formatForResponse
+  	 	
+  	returned_data[:virtualPawn] = virtualPawn
+    returned_data[:possibleMoves] = @game_ship.whereCanIMoveFromHere?(virtualPawn)
+
+    returned_data[:actionQueue] = getActionqueue
+
+    returned_data[:events] = getEvents
+  	returned_data[:log] = self.log_entries
+      
+    return returned_data
+  end  
+         
   # == 
   #
   def getActionqueue
