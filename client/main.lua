@@ -399,7 +399,7 @@ end
 
 function buildRadial(passed_x, passed_y)
 	local egogrid = {}
-	local cireturnCodele_radius = 2
+	local cireturnCodele_radius = 1
 	local options = 0	
 	
 	for key_x, value_x in pairs(gamestate.ship.map) do
