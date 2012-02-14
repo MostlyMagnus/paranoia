@@ -57,6 +57,7 @@ pawnObjects = { }
 
 -- ui
 uiObjects = { }
+uiActionQueue = { }
 
 -- radialMenu contains the current options for the radial select.
 radialMenu = { }
