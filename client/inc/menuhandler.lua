@@ -22,13 +22,27 @@ class "MenuHandler" {
 
 	mVerticalSwoop = false
 	mHorizontalSwoop = false
+
+	mEdge = ""
 }
 
-function MenuHandler:__init(xTop, yTop)
-	self.mXTop = xTop
-	self.mYTop = yTop
+function MenuHandler:__init(frameID, openID, openHoverID, vertSwoop, HoriSwoop)
+	self.mAssetID_Frame = frameID
+	self.mAssetID_Open = openID
+	self.mAssetID_Open_Hover = openHoverID
+
+	mVerticalSwoop = vertSwoop
+	mHorizontalSwoop = HoriSwoop
 end
 
 function addObject()
 	-- body
+end
+
+class TickMenu : extends MenuHandler {
+	
+}
+
+function TickMenu::__init(frameID, openID, openHoverID, vertSwoop, HoriSwoop)
+	self.super.__init(self)
 end
