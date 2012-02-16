@@ -48,8 +48,10 @@ GFX_COL_BG = GFX_COL_BLACK
 -- set up the handler to handle our graphics
 graphicsHandler = GraphicsHandler:new()
 
--- set up the left menu (frameID, vertSwoop, HoriSwoop)
-tickMenu = TickMenu:new(graphicsHandler:add("tick_frame"), nil, nil, 96, 360)
+-- set up the left menu function MenuHandler:__init(frameID, vertSwoop, HoriSwoop, x, y, w, h)
+tickMenu = TickMenu:new(graphicsHandler:add("tick_frame"), nil, nil, 96, 360,
+						graphicsHandler:getWidth(graphicsHandler:add("tick_frame")), 
+						graphicsHandler:getHeight(graphicsHandler:add("tick_frame")))
 
 -- handles all the objects to be drawn to the screen
 screenObjects = { }
@@ -127,8 +129,8 @@ function love.load()
 	
 	-- addButton(id, hover_id,  x, y, metadata, callback)
 
-	tickMenu:addButton(graphicsHandler:add("tick"), graphicsHandler:add("tick"),						
-						0, 0, "", function ()  swapState() end )
+	-- tickMenu:addButton(graphicsHandler:add("tick"), graphicsHandler:add("tick"),						
+	-- 					96, 32, "", function ()  swapState() end )
 end
 
 
@@ -216,7 +218,7 @@ function love.update(dt)
 	graphicsHandler:update(dt)
 
 	-- update menus
-	tickMenu:update()
+	if tickMenu then tickMenu:update() end
 end
 
 function love.draw()
@@ -279,6 +281,7 @@ function love.mousepressed(x, y, button)
 		if button == "l" then
 			local state_changed = false
 			
+
 			--last = "left pressed"		
 			if(STATE == STATE_IDLE and not state_changed) then								
 				local clicked_x = math.floor(mouse_x_relative / GFX_R_SZ)
@@ -295,9 +298,13 @@ function love.mousepressed(x, y, button)
 				else
 					-- check if we clicked a different square
 					--	if we did, set state to radial with room radial
-					-- go into pan mode				
-					STATE = STATE_PAN				
-					lbuttonDown = { true, x, y, OFFSET_X, OFFSET_Y }
+					-- go into pan mode	
+					if not (tickMenu:clickCheck()) then	
+						STATE = STATE_PAN				
+						lbuttonDown = { true, x, y, OFFSET_X, OFFSET_Y }
+					else
+						state_changed = true
+					end
 				end
 			end
 			
@@ -412,7 +419,9 @@ function refreshSession()
 	-- radialMenu contains the current options for the radial select.
 	radialMenu = { }
 	radialGrid = { }
-	
+
+	tickMenu:clear()
+
 	buildscreenObjects()
 
 	if GLOBAL_justLoaded then 
@@ -477,7 +486,6 @@ function buildscreenObjects()
 	end
 	
 	for key, value in pairs(gamestate.gamestatePawns) do
-
 		if (value.x) then
 			table.insert(screenObjects, PawnObject:new(value.x+1, value.y+1, graphicsHandler:add("player"), value.pawn_id))
 			table.insert(textObjects, TextObject:new(value.persona.persona.name, value.x+1, value.y+1, love.graphics.getFont():getWidth(value.persona.persona.name)))
@@ -487,7 +495,17 @@ function buildscreenObjects()
 	-- add the virtual pawn
 	table.insert(pawnObjects, PawnObject:new(gamestate.virtualPawn.x+1, gamestate.virtualPawn.y+1, graphicsHandler:add("player"), "Your virtual pawn!"))
 
-	--table.insert(textObjects, TextObject:new("", gamestate.virtualPawn.x+1, gamestate.virtualPawn.y+1, love.graphics.getFont():getWidth("Your virtual pawn!")))
+	-- rebuild the actionqueue menu
+	for key, tick in pairs(gamestate.actionQueue) do
+		for key, action in pairs (tick) do
+			-- function Button:__init( id, hover_id,  x, y, w, h, metadata, callback )
+			tickMenu:addButton(graphicsHandler:add("tick"), graphicsHandler:add("tick_hovering"),						
+								92, graphicsHandler:getHeight(graphicsHandler:add("tick"))*(action["queue_number"]), 
+								graphicsHandler:getWidth(graphicsHandler:add("tick")), graphicsHandler:getHeight(graphicsHandler:add("tick")),
+								"",  function () return "This callback does nothing." end  )
+		end
+	end
+
 	PAWNOBJECTS_VIRTUALPAWN = # pawnObjects 	
 end
 

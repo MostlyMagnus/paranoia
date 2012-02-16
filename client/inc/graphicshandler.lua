@@ -49,6 +49,7 @@ function GraphicsHandler:__init()
 	table.insert(self.manifest, {"tick_frame", "static"})	
 
 	table.insert(self.manifest, {"tick" ,"static"})
+	table.insert(self.manifest, {"tick_hovering" ,"static"})
 
 	table.insert(self.manifest, {"fog", "static"})
 
@@ -65,7 +66,6 @@ function GraphicsHandler:__init()
 	table.insert(self.manifest, {"r3", "static"})
 	
 	table.insert(self.manifest, {"r_air", "static"})
-	
 	
 	table.insert(self.manifest, {"na", "static"})
 	

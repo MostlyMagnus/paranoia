@@ -31,11 +31,13 @@ function Button:getAssetID()
 end
 
 function Button:clicked()
-	self.mCallback()
+	return self.mCallback
 end
 
 function Button:getHalfWidth() 
+	return self.mW/2
 end
 
 function Button:getHalfHeight()	
+	return self.mH/2
 end
