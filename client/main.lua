@@ -1,3 +1,6 @@
+-- LuaTask for threading the network traffic
+assert(require('task'))
+
 -- 32 lines of goodness - OO
 assert(require('lib/32log'))
 
@@ -10,7 +13,7 @@ assert(require('lib/json'))
 -- Ship data symbols
 assert(require('inc/symbols'))
 
--- Håkans helpers
+-- HÃ¥kans helpers
 assert(require('inc/helpers'))
 
 -- GraphicsHandler
@@ -25,8 +28,7 @@ assert(require('inc/textobject'))
 -- MenuObject class
 assert(require('inc/menuobject'))
 
--- LuaTask for threading the network traffic
-assert(require('task'))
+assert(require('inc/tickmenu'))
 
 lbuttonDown = { false, 0, 0 }
 
@@ -45,6 +47,9 @@ GFX_COL_BG = GFX_COL_BLACK
 
 -- set up the handler to handle our graphics
 graphicsHandler = GraphicsHandler:new()
+
+-- set up the left menu (frameID, vertSwoop, HoriSwoop)
+tickMenu = TickMenu:new(graphicsHandler:add("tick_frame"), nil, nil, 96, 360)
 
 -- handles all the objects to be drawn to the screen
 screenObjects = { }
@@ -120,6 +125,10 @@ function love.load()
 	-- login!
 	task.post(networkThread, json.encode(userInfo), 2)
 	
+	-- addButton(id, hover_id,  x, y, metadata, callback)
+
+	tickMenu:addButton(graphicsHandler:add("tick"), graphicsHandler:add("tick"),						
+						0, 0, "", function ()  swapState() end )
 end
 
 
@@ -151,7 +160,7 @@ function love.update(dt)
 			local okToUpdate = true
 
 			for key, value in pairs(pawnObjects) do
-				print(# value.mMoves)
+				
 				if(# value.mMoves > 0) then okToUpdate = false end
 			end
 
@@ -167,7 +176,6 @@ function love.update(dt)
 	-- and refresh the session.
 	if(flags == THREAD_GAMESTATE) then
 		stored_gamestate = json.decode(messageFromThread)
-
 	end
 
 	--  Thread has just returned the info that an action has been added.
@@ -201,13 +209,21 @@ function love.update(dt)
 
 	mouse_x_relative = -1*OFFSET_X + love.mouse.getX()
 	mouse_y_relative = -1*OFFSET_Y + love.mouse.getY()
-	   	
+	
+   	
 	-- call the graphicshandler to update any animations we currently
 	-- have running.
 	graphicsHandler:update(dt)
+
+	-- update menus
+	tickMenu:update()
 end
 
 function love.draw()
+	-- Lets draw!
+	love.graphics.setColor(255,255,255,190)
+	love.graphics.setFont(defaultFont)
+
    	graphicsHandler:draw(graphicsHandler:add("background"), love.graphics.getWidth()/2, love.graphics.getHeight()/2)
 
 	-- draw sprites	
@@ -238,12 +254,19 @@ function love.draw()
 	end
 
 	if not (STATE == STATE_LOGGING_IN) and not (STATE == STATE_LOADING) then
-		-- draw ui
+		-- draw ui overlay objects
 		for _key, _value in pairs(uiObjects) do
 			graphicsHandler:draw(_value.mAssetID, _value.mX, _value.mY, nil, 1)
 		end	
 
+		local ui = tickMenu:getMenuAssets()
+
+		for _key, _value in pairs(ui) do
+			graphicsHandler:draw(_value.mAssetID, _value.mX, _value.mY, nil, 1)
+		end
 	end
+
+
 end
 
 

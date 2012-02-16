@@ -46,6 +46,8 @@ function GraphicsHandler:__init()
 	table.insert(self.manifest, {"logo_big", "static"})
 	table.insert(self.manifest, {"logo_small", "static"})
 
+	table.insert(self.manifest, {"tick_frame", "static"})	
+
 	table.insert(self.manifest, {"tick" ,"static"})
 
 	table.insert(self.manifest, {"fog", "static"})
@@ -139,7 +141,7 @@ end
 function GraphicsHandler:getWidth(assetID)
 	if self.loaded[assetID][3] then
 		-- it has the animation_id flag, so lets assume it's an animation
-		--self.animations[self.loaded[asset_id][3]]:getWidth()
+		--return self.animations[self.loaded[asset_id][3]]:getWidth()
 		return 64
 	else
 		--love.graphics.draw(self.loaded[asset_id][1], x, y, rotation, scale, scale)
@@ -148,5 +150,14 @@ function GraphicsHandler:getWidth(assetID)
 	end
 end
 
-
-
+function GraphicsHandler:getHeight(assetID)
+	if self.loaded[assetID][3] then
+		-- it has the animation_id flag, so lets assume it's an animation
+		--return self.animations[self.loaded[asset_id][3]]:getHeight()
+		return 64
+	else
+		--love.graphics.draw(self.loaded[asset_id][1], x, y, rotation, scale, scale)
+		--love.graphics.draw(self.loaded[asset_id][1], x, y, rotation, scale, scale, self.loaded[asset_id][1]:getWidth()/2, self.loaded[asset_id][1]:getHeight()/2)
+		return self.loaded[assetID][1]:getHeight()
+	end
+end
