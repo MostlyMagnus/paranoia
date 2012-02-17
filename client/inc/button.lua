@@ -10,7 +10,7 @@ class "Button" {
 	mHovering 		= false;
 }
 
-function Button:__init( id, hover_id,  x, y, w, h, metadata, callback )
+function Button:__init( id, hover_id,  x, y, w, h, metadata, callback)
 	self.mButtonID = id
 	self.mButtonID_Hover = hover_id	
 	self.mCallback = callback
@@ -30,8 +30,8 @@ function Button:getAssetID()
 	end	
 end
 
-function Button:clicked()
-	return self.mCallback
+function Button:clicked() 
+	self.mCallback()
 end
 
 function Button:getHalfWidth() 

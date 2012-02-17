@@ -218,7 +218,7 @@ function love.update(dt)
 	graphicsHandler:update(dt)
 
 	-- update menus
-	if tickMenu then tickMenu:update() end
+	tickMenu:update(dt)
 end
 
 function love.draw()
@@ -420,9 +420,8 @@ function refreshSession()
 	radialMenu = { }
 	radialGrid = { }
 
-	tickMenu:clear()
-
 	buildscreenObjects()
+	buildTickmenu()
 
 	if GLOBAL_justLoaded then 
 		centerOffsetOnVirtualPawn() 
@@ -495,18 +494,40 @@ function buildscreenObjects()
 	-- add the virtual pawn
 	table.insert(pawnObjects, PawnObject:new(gamestate.virtualPawn.x+1, gamestate.virtualPawn.y+1, graphicsHandler:add("player"), "Your virtual pawn!"))
 
+
+	PAWNOBJECTS_VIRTUALPAWN = # pawnObjects 	
+end
+
+function buildTickmenu()
+	tickMenu:clear()
+
+	tickMenu:addButton(graphicsHandler:add("open"), graphicsHandler:add("open"),						
+					tickMenu.mWidth, tickMenu.mHeight/2, 
+					graphicsHandler:getWidth(graphicsHandler:add("open")), 
+					graphicsHandler:getHeight(graphicsHandler:add("open")),
+					"", 
+					function () 
+						tickMenu:swapState()
+					end)						
+
 	-- rebuild the actionqueue menu
 	for key, tick in pairs(gamestate.actionQueue) do
 		for key, action in pairs (tick) do
 			-- function Button:__init( id, hover_id,  x, y, w, h, metadata, callback )
-			tickMenu:addButton(graphicsHandler:add("tick"), graphicsHandler:add("tick_hovering"),						
-								92, graphicsHandler:getHeight(graphicsHandler:add("tick"))*(action["queue_number"]), 
-								graphicsHandler:getWidth(graphicsHandler:add("tick")), graphicsHandler:getHeight(graphicsHandler:add("tick")),
-								"",  function () return "This callback does nothing." end  )
+			tickMenu:addButton(graphicsHandler:add("tick"), 
+								graphicsHandler:add("tick_hovering"),						
+								92, 
+								graphicsHandler:getHeight(graphicsHandler:add("tick"))/2 + graphicsHandler:getHeight(graphicsHandler:add("tick"))*(action["queue_number"]), 
+								graphicsHandler:getWidth(graphicsHandler:add("tick")), 
+								graphicsHandler:getHeight(graphicsHandler:add("tick")),
+								"", 
+								function () 
+									tickMenu:swapState()
+								end)
 		end
 	end
 
-	PAWNOBJECTS_VIRTUALPAWN = # pawnObjects 	
+	
 end
 
 function centerOffsetOnVirtualPawn()

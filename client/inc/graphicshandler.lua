@@ -43,6 +43,8 @@ class "GraphicsHandler" {
 function GraphicsHandler:__init() 	
 	table.insert(self.manifest, {"background", "static"})
 
+	table.insert(self.manifest, {"open", "static"})
+
 	table.insert(self.manifest, {"logo_big", "static"})
 	table.insert(self.manifest, {"logo_small", "static"})
 
