@@ -30,6 +30,10 @@ assert(require('inc/menuobject'))
 
 assert(require('inc/tickmenu'))
 
+
+assert(require('inc/serverinterface'))
+
+
 lbuttonDown = { false, 0, 0 }
 
 -- global stuff
@@ -47,6 +51,8 @@ GFX_COL_BG = GFX_COL_BLACK
 
 -- set up the handler to handle our graphics
 graphicsHandler = GraphicsHandler:new()
+
+server = ServerInterface:new()
 
 -- set up the left menu function MenuHandler:__init(frameID, vertSwoop, HoriSwoop, x, y, w, h)
 tickMenu = TickMenu:new(graphicsHandler:add("tick_frame"), nil, nil, 96, 360,
@@ -101,8 +107,8 @@ PAWNOBJECTS_VIRTUALPAWN = 0
 
 function love.load()
 	-- Create a thread for the data from-to server interface
-	mainThreadId	= task.id()
-	networkThread 	= task.create('thread/network.lua', {mainThreadId})
+--	mainThreadId	= task.id()
+--	networkThread 	= task.create('thread/network.lua', {mainThreadId})
 	
 	--font setup
 	defaultFont = love.graphics.newFont('fonts/coalition_v2.ttf', 16)
@@ -124,28 +130,22 @@ function love.load()
 	-- set up UI
 	table.insert(uiObjects, ScreenObject:new(150, 20, graphicsHandler:add("logo_small")))
 
-	-- login!
-	task.post(networkThread, json.encode(userInfo), 2)
-	
-	-- addButton(id, hover_id,  x, y, metadata, callback)
+	server:start()
+	server:login("foo@bar.com", "foobar")
 
-	-- tickMenu:addButton(graphicsHandler:add("tick"), graphicsHandler:add("tick"),						
-	-- 					96, 32, "", function ()  swapState() end )
 end
 
 
 function love.update(dt)	
+	server:update()
 	-- get incoming messages
-	local messageFromThread, flags, returnCode = task.receive(0)
-
-	--actionQueue:update (messageFromThread, flags, returnCode)
 
 	-- If we're in the logging in state, see if the network thread has returned
 	-- the message that the login was successful.
 	if(STATE == STATE_LOGGING_IN) then		
-		if(messageFromThread == "login_ok" and flags == THREAD_LOGIN) then
+		if(server:getMessage("login") == "login_ok") then
+			print("Got login_ok!")
 			STATE = STATE_IDLE
-		else	
 		end
 	end
 
@@ -154,7 +154,7 @@ function love.update(dt)
 		-- if we're in idle, and we need to update the gamestate
 		-- post an action to the network thread to fetch a new gamestate
 		if (GAMESTATE_NEEDS_UPDATING) then
-			task.post(networkThread, "", THREAD_GAMESTATE)
+			server:getGamestate()
 			GAMESTATE_NEEDS_UPDATING = false	
 		end
 
@@ -176,15 +176,22 @@ function love.update(dt)
 
 	-- Thread has returned a new gamestate for us. Lets decode it,
 	-- and refresh the session.
-	if(flags == THREAD_GAMESTATE) then
-		stored_gamestate = json.decode(messageFromThread)
+	local temp_stored_state = server:getMessage("get gamestate")
+	if not (temp_stored_state == nil) then
+		stored_gamestate = json.decode(temp_stored_state)
 	end
+
+	--print(stored_gamestate)
+--	if() then
+--		stored_gamestate = json.decode(messageFromThread)
+--	end
 
 	--  Thread has just returned the info that an action has been added.
 	-- Lets flag the gamestate for update.
 	if(flags == THREAD_ADD_ACTION) then
 		GAMESTATE_NEEDS_UPDATING = true
 	end
+
 
 	if(STATE == STATE_PAN) then
 		OFFSET_X = lbuttonDown[4] + love.mouse.getX() - lbuttonDown[2]
@@ -314,8 +321,9 @@ function love.mousepressed(x, y, button)
 						mouse_x_relative < (value.mX+0.5)*GFX_R_SZ + love.graphics.getFont():getWidth(value.mText)/2 and
 						mouse_y_relative > (value.mY+0.5)*GFX_R_SZ and
 						mouse_y_relative < (value.mY+0.5)*GFX_R_SZ + love.graphics.getFont():getHeight(value.mText)  then				
-										
-						task.post(networkThread, json.encode(value), THREAD_ADD_ACTION)
+						
+						server:addAction(json.encode(value))
+						--task.post(networkThread, json.encode(value), THREAD_ADD_ACTION)
 					end
 				end
 				
@@ -402,7 +410,7 @@ end
 function addMove( xMod, yMod )
 	if not (STATE == STATE_MOVING) then
 		pawnObjects[PAWNOBJECTS_VIRTUALPAWN]:addMove(xMod, yMod)
-		task.post(networkThread, json.encode(MenuObject:new(nil, nil, nil, "4", gamestate.virtualPawn.x+xMod ..","..gamestate.virtualPawn.y+yMod)), 4)
+		server:addAction(json.encode(MenuObject:new(nil, nil, nil, "4", gamestate.virtualPawn.x+xMod ..","..gamestate.virtualPawn.y+yMod)))
 
 		STATE = STATE_MOVING
 	end

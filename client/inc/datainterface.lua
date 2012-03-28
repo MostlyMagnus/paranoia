@@ -1,7 +1,6 @@
 -- curl for http reqs
 assert(require('curl'))
 	
-global_server="http://127.0.0.1:3000"
 -- This function will take a username and password and return a finished 
 -- and logged in session for the rest of the client to use. If the login fails
 -- it returns nil.

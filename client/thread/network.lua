@@ -22,7 +22,6 @@ global_gamestate_id = "1"
 	
 local main_id = arg[1]
 
-
 while true do
 	local messageFromMain, flags, returnCode = task.receive(-1)
 	
@@ -37,7 +36,6 @@ while true do
 			task.post(main_id, "login_ok", THREAD_LOGIN)
 		end
 	end
-
 
 	-- if we're logged in
 	if(flags == THREAD_GAMESTATE) then
