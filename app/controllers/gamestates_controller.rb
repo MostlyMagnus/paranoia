@@ -34,6 +34,7 @@ class GamestatesController < ApplicationController
   # POST CODE
   
   def add_action
+    # Lets sanity check the action we're trying to add.
     @gamestate = Gamestate.find_by_id(params[:id])
     @pawns = Pawn.find_all_by_gamestate_id(@gamestate.id)
     
@@ -45,7 +46,12 @@ class GamestatesController < ApplicationController
     else
       @queue_number = 0
     end
-        
+    
+    # if params[:type] is move then
+    # => is valid move? virtualPawn + details 
+    # end
+
+
     if @user_pawn.addAction(@queue_number, params[:type], params[:details]) then
       render :text => "1"
     else

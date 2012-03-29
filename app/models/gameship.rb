@@ -77,7 +77,7 @@ class GameShip
         node.health = (node.health.to_f - delta_water).to_s
 
         if node.health.to_f < 0 then
-          delta_water = node.health.to_f.abs
+          delta_water = 0 #node.health.to_f.abs
         else
           break
         end
@@ -235,19 +235,19 @@ class GameShip
   end
   
   def isThisARoom?(grid)
-	unless @rooms[grid.x].nil? then
-		@rooms[grid.x].each do |room|
-			if(room[1].position.y == grid.y) then
-				if room[1].kind_of? Room then
-					return true
-				end
-			end
-		end
-		
-		return false
-	else
-		return false
-	end
+  	unless @rooms[grid.x].nil? then
+  		@rooms[grid.x].each do |room|
+  			if(room[1].position.y == grid.y) then
+  				if room[1].kind_of? Room then
+  					return true
+  				end
+  			end
+  		end
+  		
+  		return false
+  	else
+  		return false
+  	end
   end
 end
 

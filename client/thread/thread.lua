@@ -12,6 +12,7 @@ print(require('task'))
 
 	
 local main_id = arg[1]
+
 global_server = arg[2]
 global_gamestate_id = arg[3]
 
