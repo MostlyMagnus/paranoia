@@ -37,7 +37,6 @@ function PawnObject:__init( x, y, assetID, pawnID, hoverText )
 end
 
 function PawnObject:addMove(xMod, yMod)
-
 	local move = {}
 
 	move["xMod"] = xMod
@@ -66,6 +65,7 @@ function PawnObject:update(dt)
 					end
 				end
 			end
+
 			if not actionRemoved then		 
 				if(self.mMoves[1].xMod < 0) then
 					if(self.mMoves[1].xMovedSoFar > -1) then
@@ -78,8 +78,8 @@ function PawnObject:update(dt)
 
 				end
 			end
-			if not actionRemoved then
 
+			if not actionRemoved then
 				if(self.mMoves[1].yMod > 0) then
 					if(self.mMoves[1].yMovedSoFar < 1) then
 						self.mY = self.mY + mMoveSpeed*dt
@@ -90,6 +90,7 @@ function PawnObject:update(dt)
 					end
 				end
 			end
+
 			if not actionRemoved then
 				if(self.mMoves[1].yMod < 0) then
 					if(self.mMoves[1].yMovedSoFar > -1) then

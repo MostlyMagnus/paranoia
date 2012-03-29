@@ -51,7 +51,9 @@ function ServerInterface:login(username, password)
 	task["type"] = "login"
 	task["parameters"] = userInfo
 
-	table.insert(self.mTasks, task)
+	self:_addTask(task)
+	self:getGamestate()
+
 end
 
 function ServerInterface:addAction(action)
@@ -60,7 +62,8 @@ function ServerInterface:addAction(action)
 	task["type"] = "add action"
 	task["parameters"] = action
 
-	table.insert(self.mTasks, task)
+	self:_addTask(task)
+	self:getGamestate()
 end
 
 function ServerInterface:getGamestate()
@@ -68,7 +71,7 @@ function ServerInterface:getGamestate()
 
 	task["type"] = "get gamestate"
 
-	table.insert(self.mTasks, task)
+	self:_addTask(task)
 end
 
 function ServerInterface:getMessage(filter)
@@ -81,6 +84,27 @@ function ServerInterface:getMessage(filter)
 	end
 
 	return nil
+end
+
+function ServerInterface:_addTask(task)
+	-- behaviour:
+	-- 	get gamestate should always be last in the task list, and there should only be one or none.
+
+	if(# self.mTasks > 0) then
+	
+	if(self.mTasks[# self.mTasks]["type"] == "get gamestate") then				
+		if(task["type"] == "get gamestate") then
+			return 0		
+		else
+			table.insert(self.mTasks, # self.mTasks, task)
+
+			return 1			
+		end
+	end
+	
+	end
+
+	table.insert(self.mTasks, task)
 end
 
 function ServerInterface:update()
@@ -96,12 +120,14 @@ function ServerInterface:update()
 				if (self.mState == SERVER_IDLE) then
 					-- we're idle, but there are tasks to be done.
 					task.post(self.mWorker, json.encode(self.mTasks[1]), 1)
+					
+					print(json.encode(self.mTasks[1]))
 
 					self.mState = SERVER_WAITING
 				elseif (self.mState == SERVER_WAITING) then
 
 					-- waiting to receive the result of the current task.
-					local messageFromThread, flag, returnCode = task.receive(1)
+					local messageFromThread, flag, returnCode = task.receive(0)
 
 					if not(messageFromThread == nil) then
 						print("We got a message from the thread.")
@@ -132,6 +158,12 @@ function ServerInterface:update()
 								table.insert(self.mMessages, message)
 							end
 						end
+
+						if(self.mTasks[1].type == "add action") then
+							if(flag == 1) then
+								print("Action added ok.")
+							end							
+						end						
 
 						if (flag >= 0) then
 							table.remove(self.mTasks, 1)

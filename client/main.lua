@@ -321,9 +321,7 @@ function love.mousepressed(x, y, button)
 						mouse_x_relative < (value.mX+0.5)*GFX_R_SZ + love.graphics.getFont():getWidth(value.mText)/2 and
 						mouse_y_relative > (value.mY+0.5)*GFX_R_SZ and
 						mouse_y_relative < (value.mY+0.5)*GFX_R_SZ + love.graphics.getFont():getHeight(value.mText)  then				
-						
-						server:addAction(json.encode(value))
-						--task.post(networkThread, json.encode(value), THREAD_ADD_ACTION)
+						server:addAction(value)						
 					end
 				end
 				
@@ -408,12 +406,16 @@ function love.keypressed(key)
 end
 
 function addMove( xMod, yMod )
-	if not (STATE == STATE_MOVING) then
+	--if not (STATE == STATE_MOVING) then
 		pawnObjects[PAWNOBJECTS_VIRTUALPAWN]:addMove(xMod, yMod)
-		server:addAction(json.encode(MenuObject:new(nil, nil, nil, "4", gamestate.virtualPawn.x+xMod ..","..gamestate.virtualPawn.y+yMod)))
+	
+		server:addAction(MenuObject:new(nil, nil, nil, "4", gamestate.virtualPawn.x+xMod ..","..gamestate.virtualPawn.y+yMod))
+
+		gamestate.virtualPawn.x = gamestate.virtualPawn.x+xMod 
+		gamestate.virtualPawn.y = gamestate.virtualPawn.y+yMod 
 
 		STATE = STATE_MOVING
-	end
+	--end
 end
 
 function refreshSession()

@@ -66,7 +66,7 @@ function get(session, url)
 	return table.concat(t)	
 end
 
-function add_action(session, action)
+function add_action(session, actionType, params)
 	-- since we use the same session throughout the app, and we know that this function
 	-- should only be GETs, set OPT_POST to false. 
 	session:setopt(curl.OPT_POST, 0)
@@ -81,7 +81,7 @@ function add_action(session, action)
 		return #s
 	end)
 	
-	local url = global_server.."gamestates/"..global_gamestate_id.."/add_action?type="..action.mActionType.."&details="..action.mParams
+	local url = global_server.."gamestates/"..global_gamestate_id.."/add_action?type="..actionType.."&details="..params
 	
 	-- set OPT_URL to the passed parameter url
 	session:setopt(curl.OPT_URL,url)

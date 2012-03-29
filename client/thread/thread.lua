@@ -32,7 +32,7 @@ while true do
 
 		if(fromMain["type"] == "add action") then
 			if(session) then
-				add_action(session, fromMain["parameters"])
+				add_action(session, fromMain["parameters"]["mActionType"], fromMain["parameters"]["mParams"])
 
 				task.post(main_id, '', THREAD_ADD_ACTION)
 			end
