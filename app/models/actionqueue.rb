@@ -1,4 +1,4 @@
-require 'ActionTypeDef'
+require 'actiontypedef'
 require 'GamestatePawn'
 
 class ActionQueue
