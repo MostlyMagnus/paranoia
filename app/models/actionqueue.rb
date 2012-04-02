@@ -1,5 +1,5 @@
 require 'actiontypedef'
-require 'GamestatePawn'
+require 'gamestatepawn'
 
 class ActionQueue
   attr_accessor :action_queue, :gamestatePawns

@@ -1,4 +1,4 @@
-require 'StructDef'
+require 'structdef'
 
 class NodeTypeDef
   N_NIL               = nil

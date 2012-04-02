@@ -12,7 +12,7 @@
 #  updated_at  :datetime
 #
 
-require 'StructDef'
+require 'structdef'
 
 class Ship < ActiveRecord::Base
   attr_accessor :rooms, :nodes

@@ -13,13 +13,13 @@
 #  update_when  :datetime
 
 
-require 'ActionQueue'
+require 'actionqueue'
 require 'actiontypedef'
-require 'LoggerTypeDef'
-require 'GamestatePawn'
-require 'Gameship'
-require 'StructDef'
-require 'Lobby'
+require 'loggertypedef'
+require 'gamestatepawn'
+require 'gameship'
+require 'structdef'
+require 'lobby'
 
 include Math
 
