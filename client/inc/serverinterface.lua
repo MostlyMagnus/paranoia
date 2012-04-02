@@ -16,7 +16,10 @@ SERVER_WAITING = 1
 class "ServerInterface" {
 	mMainThreadId	= nil;
 
-	mServer = "http://localhost:3000/";
+	mServer = "http://192.168.1.248/";
+	--mServer = "http://83.191.71.93/";
+	--mServer = "http://localhost:3000/";
+
 	mSession = "";
 
 	mMessages = {};
