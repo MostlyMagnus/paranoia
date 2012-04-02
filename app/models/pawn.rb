@@ -12,7 +12,7 @@
 #  updated_at   :datetime
 #
 
-require 'AppConfig'
+require 'appconfig'
 
 class Pawn < ActiveRecord::Base
   # We might need to change this, but I imagine you should never access this through the web. It will be handled by code.
