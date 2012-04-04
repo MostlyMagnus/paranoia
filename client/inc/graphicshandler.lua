@@ -15,7 +15,7 @@ assert(require('lib/32log'))
 --  logo:static
 --  pawn_idle:animation
 
--- add (asset_name, permanent = false)
+-- asset (asset_name, permanent = false)
 --  adds an asset to the list of currently active assets, and loads the correct file
 --  into memeroy. Return the asset_id number in the table/vector. This should be stored
 --  in whatever object that uses it in the main loop. Permanent flag tells the asset not
@@ -82,7 +82,7 @@ end
 function GraphicsHandler:updateManifest() 
 end
 
-function GraphicsHandler:add(assetName, permanent) 
+function GraphicsHandler:asset(assetName, permanent) 
 	-- locate asset in manifest
 
 	for _key, _value in pairs(self.manifest) do

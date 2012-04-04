@@ -6,9 +6,11 @@ assert(require('inc/menuobject'))
 
 assert(require('inc/button'))
 
-class "MenuHandler" {	
-	buttons = { };
+assert(require('inc/textfield'))
 
+class "MenuHandler" {	
+	mButtons = { };
+	
 	-- Should be host to a whole slew of asset ids
 	mAssetID_Frame = nil;
 		
@@ -49,8 +51,8 @@ function MenuHandler:update(dt)
 
 	self:updateMoves(dt)
 
-	if self.buttons then
-		for key, value in pairs (self.buttons) do
+	if self.mButtons then
+		for key, value in pairs (self.mButtons) do
 			if 	love.mouse.getX() > value.mX+self.mOffsetX - value:getHalfWidth()
 		 	and love.mouse.getX() < value.mX+self.mOffsetX + value:getHalfWidth() 
 			and	love.mouse.getY() > self.mOffsetY+value.mY - value:getHalfHeight()
@@ -65,8 +67,9 @@ end
 
 function MenuHandler:clickCheck( )
 	local clicked = false
-	if self.buttons then
-		for key, value in pairs (self.buttons) do
+
+	if self.mButtons then
+		for key, value in pairs (self.mButtons) do
 			if 	love.mouse.getX() > value.mX+self.mOffsetX - value:getHalfWidth()
 		 	and love.mouse.getX() < value.mX+self.mOffsetX + value:getHalfWidth() 
 			and	love.mouse.getY() > self.mOffsetY+value.mY - value:getHalfHeight()
@@ -82,7 +85,7 @@ function MenuHandler:clickCheck( )
 end
 
 function MenuHandler:addButton(id, hover_id,  x, y, w, h, metadata, callback)
-	table.insert(self.buttons, Button:new(id, hover_id, x, y, w, h, metadata, callback))
+	table.insert(self.mButtons, Button:new(id, hover_id, x, y, w, h, metadata, callback))
 end
 
 function MenuHandler:getMenuAssets()
@@ -90,7 +93,7 @@ function MenuHandler:getMenuAssets()
 	
 	table.insert(formattedAssets, ScreenObject:new(self.mX, self.mY, self.mAssetID_Frame))
 
-	for key, value in pairs(self.buttons) do
+	for key, value in pairs(self.mButtons) do
 		table.insert(formattedAssets, ScreenObject:new(value.mX+self.mOffsetX, value.mY+self.mOffsetY, value:getAssetID()))
 	end
 
@@ -98,7 +101,8 @@ function MenuHandler:getMenuAssets()
 end
 
 function MenuHandler:clear()
-	self.buttons = {}
+	self.mButtons = {}
+	self.mTextfields = {}
 end
 
 function MenuHandler:swapState()	

@@ -26,13 +26,17 @@ assert(require('inc/screenobject'))
 assert(require('inc/textobject'))
 
 -- MenuObject class
-assert(require('inc/menuobject'))
+--assert(require('inc/menuobject'))
 
 assert(require('inc/tickmenu'))
 
-
 assert(require('inc/serverinterface'))
 
+-- QUICKIE UI.
+GUI = require('inc/ui')
+
+-- Testing Quickie UI.
+local input = {text = "Hello, World!", cursor = 0}
 
 lbuttonDown = { false, 0, 0 }
 
@@ -55,9 +59,9 @@ graphicsHandler = GraphicsHandler:new()
 server = ServerInterface:new()
 
 -- set up the left menu function MenuHandler:__init(frameID, vertSwoop, HoriSwoop, x, y, w, h)
-tickMenu = TickMenu:new(graphicsHandler:add("tick_frame"), nil, nil, 96, 360,
-						graphicsHandler:getWidth(graphicsHandler:add("tick_frame")), 
-						graphicsHandler:getHeight(graphicsHandler:add("tick_frame")))
+tickMenu = TickMenu:new(graphicsHandler:asset("tick_frame"), nil, nil, 96, 360,
+						graphicsHandler:getWidth(graphicsHandler:asset("tick_frame")), 
+						graphicsHandler:getHeight(graphicsHandler:asset("tick_frame")))
 
 -- handles all the objects to be drawn to the screen
 screenObjects = { }
@@ -90,14 +94,10 @@ STATE_RADIAL = 2
 STATE_PAN = 3
 STATE_LOGGING_IN = 4
 STATE_MOVING = 5
+STATE_LOGIN_SCREEN = 6
 
 -- we start in the logging in state
 STATE = STATE_LOGGING_IN
-
--- thread symbols 
-THREAD_LOGIN = 2
-THREAD_GAMESTATE = 3
-THREAD_ADD_ACTION = 4
 
 -- we have no gamestate starting from scratch, so lets flag it as in need of update
 GAMESTATE_NEEDS_UPDATING = true
@@ -106,10 +106,7 @@ GAMESTATE_NEEDS_UPDATING = true
 PAWNOBJECTS_VIRTUALPAWN = 0
 
 function love.load()
-	-- Create a thread for the data from-to server interface
---	mainThreadId	= task.id()
---	networkThread 	= task.create('thread/network.lua', {mainThreadId})
-	
+
 	--font setup
 	defaultFont = love.graphics.newFont('fonts/coalition_v2.ttf', 16)
 	love.graphics.setFont(defaultFont)
@@ -124,11 +121,11 @@ function love.load()
 	userInfo["password"] = "foobar"
 
 	-- Set up some bogus things to look at while we're logging in.
-	table.insert(screenObjects, PawnObject:new((love.graphics.getWidth()/GFX_R_SZ)/2-1, (love.graphics.getHeight()/GFX_R_SZ)/2-3, graphicsHandler:add("logo_big")))
-	table.insert(textObjects, TextObject:new("logging in", (love.graphics.getWidth()/GFX_R_SZ)/2-1, (love.graphics.getHeight()/GFX_R_SZ)/2-0.5, love.graphics.getFont():getWidth("logging in"), fontLogo))
+	table.insert(screenObjects, PawnObject:new((love.graphics.getWidth()/GFX_R_SZ)/2-1, (love.graphics.getHeight()/GFX_R_SZ)/2-3, graphicsHandler:asset("logo_big")))
+	--table.insert(textObjects, TextObject:new("logging in", (love.graphics.getWidth()/GFX_R_SZ)/2-1, (love.graphics.getHeight()/GFX_R_SZ)/2-0.5, love.graphics.getFont():getWidth("logging in"), fontLogo))
 
 	-- set up UI
-	table.insert(uiObjects, ScreenObject:new(150, 20, graphicsHandler:add("logo_small")))
+	table.insert(uiObjects, ScreenObject:new(150, 20, graphicsHandler:asset("logo_small")))
 
 	server:start()
 	server:login("foo@bar.com", "foobar")
@@ -138,7 +135,14 @@ end
 
 function love.update(dt)	
 	server:update()
+
 	-- get incoming messages
+
+	if(STATE == STATE_LOGIN_SCREEN) then
+		if GUI.Input(input, 10, 10, 300, 20) then
+			print('Text changed:', input.text)
+		end
+	end
 
 	-- If we're in the logging in state, see if the network thread has returned
 	-- the message that the login was successful.
@@ -177,14 +181,10 @@ function love.update(dt)
 	-- Thread has returned a new gamestate for us. Lets decode it,
 	-- and refresh the session.
 	local temp_stored_state = server:getMessage("get gamestate")
+
 	if not (temp_stored_state == nil) then
 		stored_gamestate = json.decode(temp_stored_state)
 	end
-
-	--print(stored_gamestate)
---	if() then
---		stored_gamestate = json.decode(messageFromThread)
---	end
 
 	--  Thread has just returned the info that an action has been added.
 	-- Lets flag the gamestate for update.
@@ -233,7 +233,7 @@ function love.draw()
 	love.graphics.setColor(255,255,255,190)
 	love.graphics.setFont(defaultFont)
 
-   	graphicsHandler:draw(graphicsHandler:add("background"), love.graphics.getWidth()/2, love.graphics.getHeight()/2)
+   	graphicsHandler:draw(graphicsHandler:asset("background"), love.graphics.getWidth()/2, love.graphics.getHeight()/2)
 
 	-- draw sprites	
 	for _key, _value in pairs(screenObjects) do
@@ -275,7 +275,8 @@ function love.draw()
 		end
 	end
 
-
+	-- draw the widgets which were "created" in love.update
+	GUI.core.draw()
 end
 
 
@@ -383,7 +384,9 @@ function love.mousereleased(x, y, button)
 	end
 end
 
-function love.keypressed(key) 
+function love.keypressed(key, code) 
+
+	-- For specific game states, should be filtered based on that.
 	if key == "kp+" then
 		GFX_R_SZ = GFX_R_SZ + 6
 		GFX_D_SZ = GFX_D_SZ + 2
@@ -394,6 +397,7 @@ function love.keypressed(key)
 		OFFSET_CHANGE = OFFSET_CHANGE - 6
 	end		
 	
+	-- For specific game states, should be filtered based on that.
 	if key == "up" then
 		addMove(0,-1)
 	elseif key == "down" then		
@@ -403,6 +407,9 @@ function love.keypressed(key)
 	elseif key == "left" then
 		addMove(-1,0)
 	end			
+
+	-- forward keyboard events to the gui. 
+	GUI.core.keyboard.pressed(key, code)	
 end
 
 function addMove( xMod, yMod )
@@ -479,16 +486,16 @@ function buildscreenObjects()
 	for key_x, value_x in pairs(gamestate.ship.map) do
 		for key_y, value_y in pairs(value_x) do
 			if(value_y.room_type) then
-				table.insert(screenObjects, ScreenObject:new(key_x+1, key_y+1, graphicsHandler:add(value_y.room_type)))
+				table.insert(screenObjects, ScreenObject:new(key_x+1, key_y+1, graphicsHandler:asset(value_y.room_type)))
 
 				if value_y.node then
 					if value_y.node.node_type > N_NA then
-						table.insert(screenObjects, ScreenObject:new(key_x+1, key_y+1, graphicsHandler:add(value_y.node.node_type)))
+						table.insert(screenObjects, ScreenObject:new(key_x+1, key_y+1, graphicsHandler:asset(value_y.node.node_type)))
 					end
 				end
 				
 				if not value_y.seen then
-					table.insert(screenObjects, ScreenObject:new(key_x+1, key_y+1, graphicsHandler:add("fog")))
+					table.insert(screenObjects, ScreenObject:new(key_x+1, key_y+1, graphicsHandler:asset("fog")))
 				end
 			end
 		end
@@ -496,13 +503,13 @@ function buildscreenObjects()
 	
 	for key, value in pairs(gamestate.gamestatePawns) do
 		if (value.x) then
-			table.insert(screenObjects, PawnObject:new(value.x+1, value.y+1, graphicsHandler:add("player"), value.pawn_id))
+			table.insert(screenObjects, PawnObject:new(value.x+1, value.y+1, graphicsHandler:asset("player"), value.pawn_id))
 			table.insert(textObjects, TextObject:new(value.persona.persona.name, value.x+1, value.y+1, love.graphics.getFont():getWidth(value.persona.persona.name)))
 		end
 	end
 	
 	-- add the virtual pawn
-	table.insert(pawnObjects, PawnObject:new(gamestate.virtualPawn.x+1, gamestate.virtualPawn.y+1, graphicsHandler:add("player"), "Your virtual pawn!"))
+	table.insert(pawnObjects, PawnObject:new(gamestate.virtualPawn.x+1, gamestate.virtualPawn.y+1, graphicsHandler:asset("player"), "Your virtual pawn!"))
 
 
 	PAWNOBJECTS_VIRTUALPAWN = # pawnObjects 	
@@ -511,10 +518,10 @@ end
 function buildTickmenu()
 	tickMenu:clear()
 
-	tickMenu:addButton(graphicsHandler:add("open"), graphicsHandler:add("open"),						
+	tickMenu:addButton(graphicsHandler:asset("open"), graphicsHandler:asset("open"),						
 					tickMenu.mWidth, tickMenu.mHeight/2, 
-					graphicsHandler:getWidth(graphicsHandler:add("open")), 
-					graphicsHandler:getHeight(graphicsHandler:add("open")),
+					graphicsHandler:getWidth(graphicsHandler:asset("open")), 
+					graphicsHandler:getHeight(graphicsHandler:asset("open")),
 					"", 
 					function () 
 						tickMenu:swapState()
@@ -524,12 +531,12 @@ function buildTickmenu()
 	for key, tick in pairs(gamestate.actionQueue) do
 		for key, action in pairs (tick) do
 			-- function Button:__init( id, hover_id,  x, y, w, h, metadata, callback )
-			tickMenu:addButton(graphicsHandler:add("tick"), 
-								graphicsHandler:add("tick_hovering"),						
+			tickMenu:addButton(graphicsHandler:asset("tick"), 
+								graphicsHandler:asset("tick_hovering"),						
 								92, 
-								graphicsHandler:getHeight(graphicsHandler:add("tick"))/2 + graphicsHandler:getHeight(graphicsHandler:add("tick"))*(action["queue_number"]), 
-								graphicsHandler:getWidth(graphicsHandler:add("tick")), 
-								graphicsHandler:getHeight(graphicsHandler:add("tick")),
+								graphicsHandler:getHeight(graphicsHandler:asset("tick"))/2 + graphicsHandler:getHeight(graphicsHandler:asset("tick"))*(action["queue_number"]), 
+								graphicsHandler:getWidth(graphicsHandler:asset("tick")), 
+								graphicsHandler:getHeight(graphicsHandler:asset("tick")),
 								"", 
 								function () 
 									tickMenu:swapState()
