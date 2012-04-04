@@ -127,7 +127,7 @@ function love.load()
 	userInfo["password"] = "foobar"
 
 	-- Set up some bogus things to look at while we're logging in.
-	table.insert(screenObjects, PawnObject:new((love.graphics.getWidth()/GFX_R_SZ)/2-1, (love.graphics.getHeight()/GFX_R_SZ)/2-3, graphicsHandler:asset("logo_big")))
+	--table.insert(screenObjects, PawnObject:new((love.graphics.getWidth()/GFX_R_SZ)/2-1, (love.graphics.getHeight()/GFX_R_SZ)/2-3, graphicsHandler:asset("logo_big")))
 	--table.insert(textObjects, TextObject:new("logging in", (love.graphics.getWidth()/GFX_R_SZ)/2-1, (love.graphics.getHeight()/GFX_R_SZ)/2-0.5, love.graphics.getFont():getWidth("logging in"), fontLogo))
 
 	-- set up UI
@@ -280,7 +280,7 @@ function love.draw()
 	
 	end
 
-	if not (STATE == STATE_LOGGING_IN) and not (STATE == STATE_LOADING) then
+	if not (STATE == STATE_LOGGING_IN) and not (STATE == STATE_LOADING) and not (STATE == STATE_LOGIN_SCREEN) then
 		-- draw ui overlay objects
 		for _key, _value in pairs(uiObjects) do
 			graphicsHandler:draw(_value.mAssetID, _value.mX, _value.mY, nil, 1)
