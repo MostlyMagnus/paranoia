@@ -8,7 +8,7 @@ function log_in(username, password)
 	session = curl.easy_init()
 	
 	session:setopt(curl.OPT_COOKIEFILE, "cookie.txt")
-	session:setopt(curl.OPT_USERAGENT, "Mozilla/4.0")
+	session:setopt(curl.OPT_USERAGENT, "ParanoiaClient")
 	session:setopt(curl.OPT_POSTFIELDS, "session[email]="..username.."&session[password]="..password)
 	session:setopt(curl.OPT_URL, global_server..'sessions')
 	

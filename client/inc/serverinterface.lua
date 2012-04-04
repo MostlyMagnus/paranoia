@@ -36,7 +36,7 @@ end
 function ServerInterface:start()
 	print("Starting network thread...")
 	self.mMainThreadId = task.id()
-	self.mWorker = task.create("thread/thread.lua", {task.id(), self.mServer, "1"}) -- Parameter 1 is gamestate id
+	self.mWorker = task.create("inc/thread.lua", {task.id(), self.mServer, "1"}) -- Parameter 1 is gamestate id
 end
 
 
@@ -94,17 +94,15 @@ function ServerInterface:_addTask(task)
 	-- 	get gamestate should always be last in the task list, and there should only be one or none.
 
 	if(# self.mTasks > 0) then
-	
-	if(self.mTasks[# self.mTasks]["type"] == "get gamestate") then				
-		if(task["type"] == "get gamestate") then
-			return 0		
-		else
-			table.insert(self.mTasks, # self.mTasks, task)
+		if(self.mTasks[# self.mTasks]["type"] == "get gamestate") then				
+			if(task["type"] == "get gamestate") then
+				return 0		
+			else
+				table.insert(self.mTasks, # self.mTasks, task)
 
-			return 1			
-		end
-	end
-	
+				return 1			
+			end
+		end	
 	end
 
 	table.insert(self.mTasks, task)

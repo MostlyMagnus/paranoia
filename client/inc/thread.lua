@@ -1,4 +1,6 @@
+
 print(require('../inc/datainterface'))
+
 -- JSON encode/decode
 print(require('../lib/json'))
 
@@ -8,6 +10,7 @@ print(require('../inc/symbols'))
 -- curl for http reqs
 print(require('curl'))
 
+-- LuaTask for threading
 print(require('task'))
 
 	
