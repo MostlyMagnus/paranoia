@@ -147,7 +147,7 @@ function love.update(dt)
 		if GUI.Input(login, love.graphics.getWidth()/2 - 150, love.graphics.getHeight()/2-20, 300, 20) then
 			print('Text changed:', login.text)
 		end
-		if GUI.Input(password, love.graphics.getWidth()/2 - 150, love.graphics.getHeight()/2+5, 300, 20) then
+		if GUI.Password(password, love.graphics.getWidth()/2 - 150, love.graphics.getHeight()/2+5, 300, 20) then
 			print('Text changed:', password.text)
 		end
 		if GUI.Button('Login', love.graphics.getWidth()/2 - 150, love.graphics.getHeight()/2+40,300,20) then

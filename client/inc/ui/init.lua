@@ -33,5 +33,6 @@ return {
 	Slider2D = require(BASE .. 'slider2d'),
 	Label    = require(BASE .. 'label'),
 	Input    = require(BASE .. 'input'),
+	Password = require(BASE .. 'password'),
 	Checkbox = require(BASE .. 'checkbox')
 }
