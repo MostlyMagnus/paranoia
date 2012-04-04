@@ -16,8 +16,8 @@ SERVER_WAITING = 1
 class "ServerInterface" {
 	mMainThreadId	= nil;
 
-	--mServer = "http://192.168.1.248/";
-	mServer = "http://83.191.71.93/";
+	mServer = "http://192.168.1.248/";
+	--mServer = "http://83.191.71.93/";
 	--mServer = "http://localhost:3000/";
 
 	mSession = "";
@@ -36,7 +36,7 @@ end
 function ServerInterface:start()
 	print("Starting network thread...")
 	self.mMainThreadId = task.id()
-	self.mWorker = task.create("thread/thread.lua", {task.id(), self.mServer, "1"}) -- 1 is gamestate id
+	self.mWorker = task.create("thread/thread.lua", {task.id(), self.mServer, "1"}) -- Parameter 1 is gamestate id
 end
 
 
@@ -55,7 +55,7 @@ function ServerInterface:login(username, password)
 	task["parameters"] = userInfo
 
 	self:_addTask(task)
-	self:getGamestate()
+	--self:getGamestate()
 
 end
 
@@ -137,7 +137,7 @@ function ServerInterface:update()
 
 						if(self.mTasks[1].type == "login") then
 							if(flag == 1) then
-								print("Logged in succesfully.")
+								print("Login returned a message.")
 
 								local message = {}
 
@@ -145,7 +145,6 @@ function ServerInterface:update()
 								message["data"] = messageFromThread
 
 								table.insert(self.mMessages, message)
-
 							end
 						end
 

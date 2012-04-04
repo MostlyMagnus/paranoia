@@ -28,6 +28,8 @@ while true do
 			if(session) then
 				-- post true back
 				task.post(main_id, "login_ok", 1)
+			else 
+				task.post(main_id, "login_failed", 1)
 			end
 		end
 

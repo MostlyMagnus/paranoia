@@ -36,7 +36,8 @@ assert(require('inc/serverinterface'))
 GUI = require('inc/ui')
 
 -- Testing Quickie UI.
-local input = {text = "Hello, World!", cursor = 0}
+local login = {text = "", cursor = 0}
+local password = {text = "", cursor = 0}
 
 lbuttonDown = { false, 0, 0 }
 
@@ -97,7 +98,7 @@ STATE_MOVING = 5
 STATE_LOGIN_SCREEN = 6
 
 -- we start in the logging in state
-STATE = STATE_LOGGING_IN
+STATE = STATE_LOGIN_SCREEN
 
 --- thread symbols 
 THREAD_LOGIN = 2
@@ -133,28 +134,40 @@ function love.load()
 	table.insert(uiObjects, ScreenObject:new(150, 20, graphicsHandler:asset("logo_small")))
 
 	server:start()
-	server:login("foo@bar.com", "foobar")
-
 end
 
 
 function love.update(dt)	
+	-- get incoming messages
 	server:update()
 
-	-- get incoming messages
-
 	if(STATE == STATE_LOGIN_SCREEN) then
-		if GUI.Input(input, 10, 10, 300, 20) then
-			print('Text changed:', input.text)
+		--server:login("foo@bar.com", "foobar")
+
+		if GUI.Input(login, love.graphics.getWidth()/2 - 150, love.graphics.getHeight()/2-20, 300, 20) then
+			print('Text changed:', login.text)
+		end
+		if GUI.Input(password, love.graphics.getWidth()/2 - 150, love.graphics.getHeight()/2+5, 300, 20) then
+			print('Text changed:', password.text)
+		end
+		if GUI.Button('Login', love.graphics.getWidth()/2 - 150, love.graphics.getHeight()/2+40,300,20) then
+			server:login(login.text, password.text)
+
+			STATE = STATE_LOGGING_IN
 		end
 	end
 
 	-- If we're in the logging in state, see if the network thread has returned
 	-- the message that the login was successful.
 	if(STATE == STATE_LOGGING_IN) then		
-		if(server:getMessage("login") == "login_ok") then
+		local serverMessage = server:getMessage("login")
+
+		if(serverMessage == "login_ok") then
 			print("Got login_ok!")
 			STATE = STATE_IDLE
+		elseif (serverMessage == "login_failed" ) then
+			print("Login failed!")
+			STATE = STATE_LOGIN_SCREEN
 		end
 	end
 
@@ -418,16 +431,14 @@ function love.keypressed(key, code)
 end
 
 function addMove( xMod, yMod )
-	--if not (STATE == STATE_MOVING) then
-		pawnObjects[PAWNOBJECTS_VIRTUALPAWN]:addMove(xMod, yMod)
-	
-		server:addAction(MenuObject:new(nil, nil, nil, "4", gamestate.virtualPawn.x+xMod ..","..gamestate.virtualPawn.y+yMod))
+	pawnObjects[PAWNOBJECTS_VIRTUALPAWN]:addMove(xMod, yMod)
 
-		gamestate.virtualPawn.x = gamestate.virtualPawn.x+xMod 
-		gamestate.virtualPawn.y = gamestate.virtualPawn.y+yMod 
+	server:addAction(MenuObject:new(nil, nil, nil, "4", gamestate.virtualPawn.x+xMod ..","..gamestate.virtualPawn.y+yMod))
 
-		STATE = STATE_MOVING
-	--end
+	gamestate.virtualPawn.x = gamestate.virtualPawn.x+xMod 
+	gamestate.virtualPawn.y = gamestate.virtualPawn.y+yMod 
+
+	STATE = STATE_MOVING
 end
 
 function refreshSession()
