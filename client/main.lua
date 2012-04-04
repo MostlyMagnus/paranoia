@@ -99,6 +99,11 @@ STATE_LOGIN_SCREEN = 6
 -- we start in the logging in state
 STATE = STATE_LOGGING_IN
 
+--- thread symbols 
+THREAD_LOGIN = 2
+THREAD_GAMESTATE = 3
+THREAD_ADD_ACTION = 4
+
 -- we have no gamestate starting from scratch, so lets flag it as in need of update
 GAMESTATE_NEEDS_UPDATING = true
 
