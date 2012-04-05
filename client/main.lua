@@ -106,11 +106,40 @@ THREAD_GAMESTATE = 3
 THREAD_ADD_ACTION = 4
 
 -- we have no gamestate starting from scratch, so lets flag it as in need of update
-GAMESTATE_NEEDS_UPDATING = true
+GAMESTATE_NEEDS_UPDATING = false
 
 -- VirtualPawn in pawnObjects list
 PAWNOBJECTS_VIRTUALPAWN = 0
 
+
+--[[
+	-- PRE GAME STATES
+	if(STATE == STATE_LOGIN_SCREEN) then
+	end
+	if(STATE == STATE_LOGGING_IN) then
+	end
+	if(STATE == STATE_LOADING) then
+	end
+
+	-- IN GAME STATES
+	if(STATE == STATE_IDLE) then
+	end
+	if(STATE == STATE_RADIAL) then
+	end
+	if(STATE == STATE_PAN) then
+	end
+	if(STATE == STATE_MOVING) then
+	end
+]]
+
+--[[
+  _                  _                 _ 
+ | | _____   _____  | | ___   __ _  __| |
+ | |/ _ \ \ / / _ \ | |/ _ \ / _` |/ _` |
+ | | (_) \ V /  __/_| | (_) | (_| | (_| |
+ |_|\___/ \_/ \___(_)_|\___/ \__,_|\__,_|
+                                         
+]]
 function love.load()
 
 	--font setup
@@ -121,13 +150,8 @@ function love.load()
 
 	love.graphics.setBackgroundColor(GFX_COL_BG)
 	
-	userInfo = {}
-	
-	userInfo["login"] = "foo@bar.com"
-	userInfo["password"] = "foobar"
-
 	-- Set up some bogus things to look at while we're logging in.
-	--table.insert(screenObjects, PawnObject:new((love.graphics.getWidth()/GFX_R_SZ)/2-1, (love.graphics.getHeight()/GFX_R_SZ)/2-3, graphicsHandler:asset("logo_big")))
+	--table.insert(screenObjects, ScreenObject:new(love.graphics.getWidth()/2, love.graphics.getHeight()/2, graphicsHandler:asset("logo_big")))
 	--table.insert(textObjects, TextObject:new("logging in", (love.graphics.getWidth()/GFX_R_SZ)/2-1, (love.graphics.getHeight()/GFX_R_SZ)/2-0.5, love.graphics.getFont():getWidth("logging in"), fontLogo))
 
 	-- set up UI
@@ -136,9 +160,255 @@ function love.load()
 	server:start()
 end
 
+--[[
+  _                                  _       _        
+ | | _____   _____   _   _ _ __   __| | __ _| |_  ___ 
+ | |/ _ \ \ / / _ \ | | | | '_ \ / _` |/ _` | __|/ _ \
+ | | (_) \ V /  __/_| |_| | |_) | (_| | (_| | |_|  __/
+ |_|\___/ \_/ \___(_)\__,_| .__/ \__,_|\__,_|\__|\___|
+                          |_|                         
+]]
+function love.update(dt)	
+	-- get incoming messages
+	server:update()
+
+	-- PRE GAME STATES
+	if(STATE == STATE_LOGIN_SCREEN) then
+		inputGetLoginInfo()
+	end
+
+	if(STATE == STATE_LOGGING_IN) then		
+		-- If we're in the logging in state, see if the network thread has returned
+		-- the message that the login was successful.
+		local loginCheck = threadcheckLoggingIn()
+
+		if(loginCheck == true) then
+			server:getGamestate()
+
+			STATE = STATE_LOADING
+		elseif(loginCheck == false) then
+			STATE = STATE_LOGIN_SCREEN
+		end
+	end
+
+	if(STATE == STATE_LOADING) then
+		if(threadcheckLookForGamestate()) then
+			STATE = STATE_IDLE
+		end
+	end
 
 
--- INPUT SNIPPETS
+	-- IN GAME STATES
+	if(STATE == STATE_IDLE) then
+ 		updateGamestateIfNeeded()
+
+		threadcheckLookForGamestate()
+	end
+
+	if(STATE == STATE_RADIAL) then
+		threadcheckLookForGamestate()
+	end
+
+	if(STATE == STATE_PAN) then
+		updateMousePanOffset()
+	end
+	
+	if(STATE == STATE_MOVING) then
+		updateMoves(dt)
+	end
+
+	updateRelativeMousePosition()	
+
+	-- call the graphicshandler to update any animations we currently
+	-- have running.
+	graphicsHandler:update(dt)
+
+	-- update menus
+	tickMenu:update(dt)
+end
+
+--[[
+  _                      _                    
+ | | _____   _____    __| |_ __ __ ___      __
+ | |/ _ \ \ / / _ \  / _` | '__/ _` \ \ /\ / /
+ | | (_) \ V /  __/_| (_| | | | (_| |\ V  V / 
+ |_|\___/ \_/ \___(_)\__,_|_|  \__,_| \_/\_/  
+                                              
+ ]]
+function love.draw()
+	-- Lets draw!
+	love.graphics.setColor(255,255,255,190)
+	love.graphics.setFont(defaultFont)
+
+
+	if(STATE == STATE_LOGIN_SCREEN) then
+	end
+
+	if(STATE == STATE_LOGGING_IN) then
+	end
+
+	if(STATE == STATE_LOADING) then
+	end
+
+	if(STATE == STATE_IDLE) then
+		drawGameBackground()
+		drawGameObjects()	
+
+		drawGameUI()
+	end
+
+	if(STATE == STATE_RADIAL) then
+		drawGameBackground()
+		drawGameObjects()	
+
+		drawGameRadialMenu()
+
+		drawGameUI()
+	end
+
+	if(STATE == STATE_PAN) then
+		drawGameBackground()
+		drawGameObjects()	
+
+		drawGameUI()
+	end
+
+	if(STATE == STATE_MOVING) then
+		drawGameBackground()
+		drawGameObjects()			
+
+		drawGameUI()
+	end
+
+	-- draw the widgets which were "created" in love.update
+	GUI.core.draw()
+end
+
+--[[
+  _                                                                                 _ 
+ | | _____   _____   _ __ ___   ___  _   _ ___  ___ _ __  _ __ ___ ___ ___  ___  __| |
+ | |/ _ \ \ / / _ \ | '_ ` _ \ / _ \| | | / __|/ _ \ '_ \| '__/ _ | __/ __|/ _ \/ _` |
+ | | (_) \ V /  __/_| | | | | | (_) | |_| \__ \  __/ |_) | | |  __|__ \__ \  __/ (_| |
+ |_|\___/ \_/ \___(_)_| |_| |_|\___/ \__,_|___/\___| .__/|_|  \___|___/___/\___|\__,_|
+                                                   |_|                                
+]]
+function love.mousepressed(x, y, button)
+
+	-- PRE GAME STATES
+	if(STATE == STATE_LOGIN_SCREEN) then
+	end
+	if(STATE == STATE_LOGGING_IN) then
+	end
+	if(STATE == STATE_LOADING) then
+	end
+
+	-- IN GAME STATES
+	if(STATE == STATE_IDLE) then
+		mousePressedGame(x, y, button)
+	end
+	if(STATE == STATE_RADIAL) then
+		mousePressedGame(x, y, button)
+	end
+	if(STATE == STATE_PAN) then
+		mousePressedGame(x, y, button)
+	end
+	if(STATE == STATE_MOVING) then
+		mousePressedGame(x, y, button)
+	end
+end
+
+--[[
+  _                                                          _                         _ 
+ | | _____   _____   _ __ ___   ___  _   _ ___  ___ _ __ ___| | ___  __ _ ___  ___  __| |
+ | |/ _ \ \ / / _ \ | '_ ` _ \ / _ \| | | / __|/ _ \ '__/ _ \ |/ _ \/ _` / __|/ _ \/ _` |
+ | | (_) \ V /  __/_| | | | | | (_) | |_| \__ \  __/ | |  __/ |  __/ (_| \__ \  __/ (_| |
+ |_|\___/ \_/ \___(_)_| |_| |_|\___/ \__,_|___/\___|_|  \___|_|\___|\__,_|___/\___|\__,_|
+                                                                                         
+]]
+function love.mousereleased(x, y, button)
+
+	-- PRE GAME STATES
+	if(STATE == STATE_LOGIN_SCREEN) then
+	end
+	if(STATE == STATE_LOGGING_IN) then
+	end
+	if(STATE == STATE_LOADING) then
+	end
+
+	-- IN GAME STATES
+	if(STATE == STATE_IDLE) then
+		mousePressedGame(x, y, button)
+	end
+	if(STATE == STATE_RADIAL) then
+		mouseReleasedGame(x, y, button)
+	end
+	if(STATE == STATE_PAN) then
+		mouseReleasedGame(x, y, button)
+	end
+	if(STATE == STATE_MOVING) then
+		mouseReleasedGame(x, y, button)
+	end
+
+end
+
+--[[
+  _                  _                                               _ 
+ | | _____   _____  | | __ ___ _   _ _ __  _ __ ___ ___ ___  ___  __| |
+ | |/ _ \ \ / / _ \ | |/ // _ \ | | | '_ \| '__/ _ | __/ __|/ _ \/ _` |
+ | | (_) \ V /  __/_|   <|  __/ |_| | |_) | | |  __|__ \__ \  __/ (_| |
+ |_|\___/ \_/ \___(_)_|\_\\___|\__, | .__/|_|  \___|___/___/\___|\__,_|
+                               |___/|_|                                
+]]
+function love.keypressed(key, code) 
+
+	-- PRE GAME STATES
+	if(STATE == STATE_LOGIN_SCREEN) then
+	end
+	if(STATE == STATE_LOGGING_IN) then
+	end
+	if(STATE == STATE_LOADING) then
+	end
+
+	-- IN GAME STATES
+	if(STATE == STATE_IDLE) then
+		gameKeyPressed(key, code)		
+	end
+	if(STATE == STATE_RADIAL) then
+		gameKeyPressed(key, code)
+	end
+	if(STATE == STATE_PAN) then
+		gameKeyPressed(key, code)
+	end
+	if(STATE == STATE_MOVING) then
+		gameKeyPressed(key, code)
+	end
+
+	-- forward keyboard events to the gui. 
+	GUI.core.keyboard.pressed(key, code)	
+end
+
+
+
+
+--[[
+            _                  _       
+  ___ _ __ (_)_ __  _ __   ___| |_ ___ 
+ / __| '_ \| | '_ \| '_ \ / _ \ __/ __|
+ \__ \ | | | | |_) | |_) |  __/ |_\__ \
+ |___/_| |_|_| .__/| .__/ \___|\__|___/
+             |_|   |_|                 
+]]
+
+
+
+--[[
+  _                   _   
+ (_)_ __  _ __  _   _| |_ 
+ | | '_ \| '_ \| | | | __|
+ | | | | | |_) | |_| | |_ 
+ |_|_| |_| .__/ \__,_|\__|
+         |_|              
+]]
 function inputGetLoginInfo() 
 	if GUI.Input(login, love.graphics.getWidth()/2 - 150, love.graphics.getHeight()/2-20, 300, 20) then
 			print('Text changed:', login.text)
@@ -153,17 +423,30 @@ function inputGetLoginInfo()
 	end
 end
 
--- THREAD CHECK SNIPPETS
+--[[
+  _   _                        _        _               _    
+ | |_| |__  _ __ ___  __ _  __| |   ___| |__   ___  ___| | __
+ | __| '_ \| '__/ _ \/ _` |/ _` |  / __| '_ \ / _ \/ __| |/ /
+ | |_| | | | | |  __/ (_| | (_| | | (__| | | |  __/ (__|   < 
+  \__|_| |_|_|  \___|\__,_|\__,_|  \___|_| |_|\___|\___|_|\_\
+                                                             
+]]
 function threadcheckLoggingIn()
 	local serverMessage = server:getMessage("login")
 
 	if(serverMessage == "login_ok") then
 		print("Got login_ok!")
-		STATE = STATE_IDLE
+		--STATE = STATE_IDLE
+		return true
+
 	elseif (serverMessage == "login_failed" ) then
 		print("Login failed!")
-		STATE = STATE_LOGIN_SCREEN
+		return false
+
+		--STATE = STATE_LOGIN_SCREEN
 	end
+
+	return nil
 end
 
 function threadcheckLookForGamestate()
@@ -174,10 +457,21 @@ function threadcheckLookForGamestate()
 
 	if not (temp_stored_state == nil) then
 		stored_gamestate = json.decode(temp_stored_state)
+
+		return true
 	end
+
+	return false
 end
 
--- UPDATE SNIPPETS
+--[[
+                  _       _        
+  _   _ _ __   __| | __ _| |_  ___ 
+ | | | | '_ \ / _` |/ _` | __|/ _ \
+ | |_| | |_) | (_| | (_| | |_|  __/
+  \__,_| .__/ \__,_|\__,_|\__|\___|
+       |_|                         
+]]
 function updateGamestateIfNeeded()
 	-- If we need to update the gamestate
 	-- post an action to the network thread to fetch a new gamestate
@@ -207,7 +501,7 @@ function updateMousePanOffset()
 	OFFSET_Y = lbuttonDown[5] + love.mouse.getY() - lbuttonDown[3]
 end
 
-function updateMoves()
+function updateMoves(dt)
 	local stillMoving = false
 
 	for key, value in pairs(pawnObjects) do
@@ -230,54 +524,19 @@ function updateRelativeMousePosition()
 	mouse_y_relative = -1*OFFSET_Y + love.mouse.getY()
 end
 
-function love.update(dt)	
-	-- get incoming messages
-	server:update()
-
-	if(STATE == STATE_LOGIN_SCREEN) then
-		inputGetLoginInfo()
-	end
-
-	-- If we're in the logging in state, see if the network thread has returned
-	-- the message that the login was successful.
-	if(STATE == STATE_LOGGING_IN) then		
-		threadcheckLoggingIn()
-	end
-
-
-	if(STATE == STATE_IDLE) then
- 		updateGamestateIfNeeded()
-	end
-
-	if(STATE == STATE_PAN) then
-		updateMousePanOffset()
-	end
-	
-	if(STATE == STATE_MOVING) then
-		updateMoves()
-	end
-
-	-- this should be put in one (or many) of the state updates
-	threadcheckLookForGamestate()
-
-	-- This shouldn't get called everytime
-	updateRelativeMousePosition()	
-
-	-- call the graphicshandler to update any animations we currently
-	-- have running.
-	graphicsHandler:update(dt)
-
-	-- update menus
-	tickMenu:update(dt)
+--[[
+      _                    
+   __| |_ __ __ ___      __
+  / _` | '__/ _` \ \ /\ / /
+ | (_| | | | (_| |\ V  V / 
+  \__,_|_|  \__,_| \_/\_/  
+                           
+]]
+function drawGameBackground()
+   	graphicsHandler:draw(graphicsHandler:asset("background"), love.graphics.getWidth()/2, love.graphics.getHeight()/2)
 end
 
-function love.draw()
-	-- Lets draw!
-	love.graphics.setColor(255,255,255,190)
-	love.graphics.setFont(defaultFont)
-
-   	graphicsHandler:draw(graphicsHandler:asset("background"), love.graphics.getWidth()/2, love.graphics.getHeight()/2)
-
+function drawGameObjects()
 	-- draw sprites	
 	for _key, _value in pairs(screenObjects) do
 		graphicsHandler:draw(_value.mAssetID, start_x+_value.mX*GFX_R_SZ, start_y+_value.mY*GFX_R_SZ, nil, GFX_R_SZ/graphicsHandler:getWidth(_value.mAssetID))
@@ -294,140 +553,141 @@ function love.draw()
 	for key, value in pairs(textObjects) do
 		love.graphics.print(value.mText, start_x+value.mX*GFX_R_SZ-love.graphics.getFont():getWidth(value.mText)/2, start_y+value.mY*GFX_R_SZ - GFX_R_SZ*0.6)
 	end
-	
-	
-	if(STATE == STATE_RADIAL) then
-		-- draw radialMenu
-		for key, value in pairs(radialMenu) do
-			love.graphics.rectangle("fill",(value.mX+0.5)*GFX_R_SZ - love.graphics.getFont():getWidth(value.mText)/2, (value.mY+0.5)*GFX_R_SZ, (value.mX+0.5)*GFX_R_SZ + love.graphics.getFont():getWidth(value.mText)/2-(value.mX+0.5)*GFX_R_SZ - love.graphics.getFont():getWidth(value.mText)/2, (value.mY+0.5)*GFX_R_SZ + love.graphics.getFont():getHeight(value.mText) - (value.mY+0.5)*GFX_R_SZ)
-			love.graphics.print(value.mText, start_x+value.mX*GFX_R_SZ-love.graphics.getFont():getWidth(value.mText)/2, start_y+value.mY*GFX_R_SZ)			
-		end
-	
-	end
-
-	if not (STATE == STATE_LOGGING_IN) and not (STATE == STATE_LOADING) and not (STATE == STATE_LOGIN_SCREEN) then
-		-- draw ui overlay objects
-		for _key, _value in pairs(uiObjects) do
-			graphicsHandler:draw(_value.mAssetID, _value.mX, _value.mY, nil, 1)
-		end	
-
-		local ui = tickMenu:getMenuAssets()
-
-		for _key, _value in pairs(ui) do
-			graphicsHandler:draw(_value.mAssetID, _value.mX, _value.mY, nil, 1)
-		end
-	end
-
-	-- draw the widgets which were "created" in love.update
-	GUI.core.draw()
 end
 
-
--- Mousepressed: Called whenever a mouse button was pressed,
--- passing the button and the x and y coordiante it was pressed at.
-function love.mousepressed(x, y, button)
-	if not (STATE == STATE_LOGGING_IN) and not (STATE == STATE_LOADING) then
-
-		-- Checks which button was pressed.
-		if button == "l" then
-			local state_changed = false
-			
-
-			--last = "left pressed"		
-			if(STATE == STATE_IDLE and not state_changed) then								
-				local clicked_x = math.floor(mouse_x_relative / GFX_R_SZ)
-				local clicked_y = math.floor(mouse_y_relative / GFX_R_SZ)
-				
-				grid = buildRadial(clicked_x, clicked_y)
-				
-				if grid then
-					radialMenu = grid
-					--	if we did, set state to radial with ego radial
-					STATE = STATE_RADIAL
-									
-					state_changed = true
-				else
-					-- check if we clicked a different square
-					--	if we did, set state to radial with room radial
-					-- go into pan mode	
-					if not (tickMenu:clickCheck()) then	
-						STATE = STATE_PAN				
-						lbuttonDown = { true, x, y, OFFSET_X, OFFSET_Y }
-					else
-						state_changed = true
-					end
-				end
-			end
-			
-			if(STATE == STATE_RADIAL and not state_changed) then
-				for key, value in pairs(radialMenu) do				
-					if	mouse_x_relative > (value.mX+0.5)*GFX_R_SZ - love.graphics.getFont():getWidth(value.mText)/2 and
-						mouse_x_relative < (value.mX+0.5)*GFX_R_SZ + love.graphics.getFont():getWidth(value.mText)/2 and
-						mouse_y_relative > (value.mY+0.5)*GFX_R_SZ and
-						mouse_y_relative < (value.mY+0.5)*GFX_R_SZ + love.graphics.getFont():getHeight(value.mText)  then				
-						server:addAction(value)						
-					end
-				end
-				
-				STATE = STATE_IDLE
-			end	
-		elseif button == "r" then
-			--last = "right pressed"
-			if(STATE == STATE_RADIAL) then 
-				STATE = STATE_IDLE
-			else		
-				--STATE = STATE_RADIAL
-			end
-
-		elseif button == "m" then
-			--last = "middle pressed"
-		elseif button == "wu" then
-			-- Won't show up because scrollwheels are instantly "released",
-			-- but the event is legitimate.
-			--last = "scrollwheel up pressed"
-		elseif button == "wd" then
-			-- Won't show up because scrollwheels are instantly "released",
-			-- but the event is legitimate.
-			--last = "scrollwheel down pressed"
-		end
+function drawGameRadialMenu()
+	-- draw radialMenu
+	for key, value in pairs(radialMenu) do
+		love.graphics.rectangle("fill",(value.mX+0.5)*GFX_R_SZ - love.graphics.getFont():getWidth(value.mText)/2, (value.mY+0.5)*GFX_R_SZ, (value.mX+0.5)*GFX_R_SZ + love.graphics.getFont():getWidth(value.mText)/2-(value.mX+0.5)*GFX_R_SZ - love.graphics.getFont():getWidth(value.mText)/2, (value.mY+0.5)*GFX_R_SZ + love.graphics.getFont():getHeight(value.mText) - (value.mY+0.5)*GFX_R_SZ)
+		love.graphics.print(value.mText, start_x+value.mX*GFX_R_SZ-love.graphics.getFont():getWidth(value.mText)/2, start_y+value.mY*GFX_R_SZ)			
 	end
 end
 
--- Mousereleased: Called whenever a mouse button was released,
--- passing the button and the x and y coordiante it was released at.
-function love.mousereleased(x, y, button)
-	if not (STATE == STATE_LOGGING_IN) and not (STATE == STATE_LOADING) then
+function drawGameUI()
+	-- draw ui overlay objects
+	for _key, _value in pairs(uiObjects) do
+		graphicsHandler:draw(_value.mAssetID, _value.mX, _value.mY, nil, 1)
+	end	
 
-		-- Checks which button was released.
-		if button == "l" then
-			--last = "left released"
-			if(STATE == STATE_PAN) then
-				STATE = STATE_IDLE
-				
-				lbuttonDown = { false, x, y }
-			end
-		elseif button == "r" then
-			--last = "right released"
-			--STATE = STATE_IDLE
-		elseif button == "m" then
-			--last = "middle released"
-		elseif button == "wu" then
-			--last = "scrollwheel up released"
-			GFX_R_SZ = GFX_R_SZ + 6
-			GFX_D_SZ = GFX_D_SZ + 2
-			OFFSET_CHANGE = OFFSET_CHANGE + 6
+	local ui = tickMenu:getMenuAssets()
+
+	for _key, _value in pairs(ui) do
+		graphicsHandler:draw(_value.mAssetID, _value.mX, _value.mY, nil, 1)
+	end
+end
+
+--[[
+                                 
+  _ __ ___   ___  _   _ ___  ___ 
+ | '_ ` _ \ / _ \| | | / __|/ _ \
+ | | | | | | (_) | |_| \__ \  __/
+ |_| |_| |_|\___/ \__,_|___/\___|
+                                 
+]]
+function mousePressedGame(x, y, button)
+	-- Checks which button was pressed.
+	if button == "l" then
+		local state_changed = false
 		
-		elseif button == "wd" then
-			--last = "scrollwheel down released"
-			GFX_R_SZ = GFX_R_SZ - 6
-			GFX_D_SZ = GFX_D_SZ - 2
-			OFFSET_CHANGE = OFFSET_CHANGE - 6
 
+		--last = "left pressed"		
+		if(STATE == STATE_IDLE and not state_changed) then								
+			local clicked_x = math.floor(mouse_x_relative / GFX_R_SZ)
+			local clicked_y = math.floor(mouse_y_relative / GFX_R_SZ)
+			
+			grid = buildRadial(clicked_x, clicked_y)
+			
+			if grid then
+				radialMenu = grid
+				--	if we did, set state to radial with ego radial
+				STATE = STATE_RADIAL
+								
+				state_changed = true
+			else
+				-- check if we clicked a different square
+				--	if we did, set state to radial with room radial
+				-- go into pan mode	
+				if not (tickMenu:clickCheck()) then	
+					STATE = STATE_PAN				
+					lbuttonDown = { true, x, y, OFFSET_X, OFFSET_Y }
+				else
+					state_changed = true
+				end
+			end
 		end
+		
+		if(STATE == STATE_RADIAL and not state_changed) then
+			for key, value in pairs(radialMenu) do				
+				if	mouse_x_relative > (value.mX+0.5)*GFX_R_SZ - love.graphics.getFont():getWidth(value.mText)/2 and
+					mouse_x_relative < (value.mX+0.5)*GFX_R_SZ + love.graphics.getFont():getWidth(value.mText)/2 and
+					mouse_y_relative > (value.mY+0.5)*GFX_R_SZ and
+					mouse_y_relative < (value.mY+0.5)*GFX_R_SZ + love.graphics.getFont():getHeight(value.mText)  then				
+					server:addAction(value)						
+				end
+			end
+			
+			STATE = STATE_IDLE
+		end	
+	elseif button == "r" then
+		--last = "right pressed"
+		if(STATE == STATE_RADIAL) then 
+			STATE = STATE_IDLE
+		else		
+			--STATE = STATE_RADIAL
+		end
+
+	elseif button == "m" then
+		--last = "middle pressed"
+	elseif button == "wu" then
+		-- Won't show up because scrollwheels are instantly "released",
+		-- but the event is legitimate.
+		--last = "scrollwheel up pressed"
+	elseif button == "wd" then
+		-- Won't show up because scrollwheels are instantly "released",
+		-- but the event is legitimate.
+		--last = "scrollwheel down pressed"
 	end
 end
 
-function love.keypressed(key, code) 
+function mouseReleasedGame(x, y, button)
+	-- Checks which button was released.
+	if button == "l" then
+		--last = "left released"
+		if(STATE == STATE_PAN) then
+			STATE = STATE_IDLE
+			
+			lbuttonDown = { false, x, y }
+		end
+	elseif button == "r" then
+		--last = "right released"
+		--STATE = STATE_IDLE
+	elseif button == "m" then
+		--last = "middle released"
+	elseif button == "wu" then
+		--last = "scrollwheel up released"
+		GFX_R_SZ = GFX_R_SZ + 6
+		GFX_D_SZ = GFX_D_SZ + 2
+		OFFSET_CHANGE = OFFSET_CHANGE + 6
+	
+	elseif button == "wd" then
+		--last = "scrollwheel down released"
+		GFX_R_SZ = GFX_R_SZ - 6
+		GFX_D_SZ = GFX_D_SZ - 2
+		OFFSET_CHANGE = OFFSET_CHANGE - 6
+
+	end
+end
+
+
+--[[
+  _               _                         _ 
+ | | __ ___ _   _| |__   ___   __ _ _ __ __| |
+ | |/ // _ \ | | | '_ \ / _ \ / _` | '__/ _` |
+ |   <|  __/ |_| | |_) | (_) | (_| | | | (_| |
+ |_|\_\\___|\__, |_.__/ \___/ \__,_|_|  \__,_|
+            |___/                             
+]]
+function gameKeyPressed(key, code)
 
 	-- For specific game states, should be filtered based on that.
 	if key == "kp+" then
@@ -451,9 +711,18 @@ function love.keypressed(key, code)
 		addMove(-1,0)
 	end			
 
-	-- forward keyboard events to the gui. 
-	GUI.core.keyboard.pressed(key, code)	
 end
+
+
+
+--[[
+   __ _  __ _ _ __ ___   ___ 
+  / _` |/ _` | '_ ` _ \ / _ \
+ | (_| | (_| | | | | | |  __/
+  \__, |\__,_|_| |_| |_|\___|
+  |___/                        
+
+]]
 
 function addMove( xMod, yMod )
 	pawnObjects[PAWNOBJECTS_VIRTUALPAWN]:addMove(xMod, yMod)
