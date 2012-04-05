@@ -76,7 +76,9 @@ function GraphicsHandler:__init()
 	table.insert(self.manifest, {"n_eng1", "animation", {64,64,0.06,0}})	
 	table.insert(self.manifest, {"n_air1", "animation", {64,64,0.06,0}})	
 	
-	table.insert(self.manifest, {"player", "animation", {64,64,0.1,0}})	
+	table.insert(self.manifest, {"player", 			"animation", {64,64,0.1,0}})	
+	table.insert(self.manifest, {"loading_circle", 	"animation", {128,128,0.05,0}})	
+	
 end
 
 function GraphicsHandler:updateManifest() 

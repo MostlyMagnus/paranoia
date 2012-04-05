@@ -76,6 +76,7 @@ pawnObjects = { }
 -- ui
 uiObjects = { }
 uiActionQueue = { }
+uiLoadingScreen = { }
 
 -- radialMenu contains the current options for the radial select.
 radialMenu = { }
@@ -94,7 +95,7 @@ STATE_IDLE = 1
 STATE_RADIAL = 2
 STATE_PAN = 3
 STATE_LOGGING_IN = 4
-STATE_MOVING = 5
+
 STATE_LOGIN_SCREEN = 6
 
 -- we start in the logging in state
@@ -110,7 +111,6 @@ GAMESTATE_NEEDS_UPDATING = false
 
 -- VirtualPawn in pawnObjects list
 PAWNOBJECTS_VIRTUALPAWN = 0
-
 
 --[[
 	-- PRE GAME STATES
@@ -128,8 +128,7 @@ PAWNOBJECTS_VIRTUALPAWN = 0
 	end
 	if(STATE == STATE_PAN) then
 	end
-	if(STATE == STATE_MOVING) then
-	end
+
 ]]
 
 --[[
@@ -157,6 +156,9 @@ function love.load()
 	-- set up UI
 	table.insert(uiObjects, ScreenObject:new(150, 20, graphicsHandler:asset("logo_small")))
 
+	-- set up loading screen
+	table.insert(uiLoadingScreen, ScreenObject:new((love.graphics.getWidth()/2), (love.graphics.getHeight()/2), graphicsHandler:asset("loading_circle")))
+
 	server:start()
 end
 
@@ -171,6 +173,9 @@ end
 function love.update(dt)	
 	-- get incoming messages
 	server:update()
+	updateRelativeMousePosition()	
+	-- update menus
+	tickMenu:update(dt)
 
 	-- PRE GAME STATES
 	if(STATE == STATE_LOGIN_SCREEN) then
@@ -200,31 +205,30 @@ function love.update(dt)
 
 	-- IN GAME STATES
 	if(STATE == STATE_IDLE) then
+		updateMoves(dt)
+
  		updateGamestateIfNeeded()
 
 		threadcheckLookForGamestate()
 	end
 
 	if(STATE == STATE_RADIAL) then
+		updateMoves(dt)
+
 		threadcheckLookForGamestate()
 	end
 
 	if(STATE == STATE_PAN) then
-		updateMousePanOffset()
-	end
-	
-	if(STATE == STATE_MOVING) then
 		updateMoves(dt)
-	end
 
-	updateRelativeMousePosition()	
+		updateMousePanOffset()
+
+		threadcheckLookForGamestate()
+	end	
 
 	-- call the graphicshandler to update any animations we currently
 	-- have running.
 	graphicsHandler:update(dt)
-
-	-- update menus
-	tickMenu:update(dt)
 end
 
 --[[
@@ -240,14 +244,15 @@ function love.draw()
 	love.graphics.setColor(255,255,255,190)
 	love.graphics.setFont(defaultFont)
 
-
 	if(STATE == STATE_LOGIN_SCREEN) then
 	end
 
 	if(STATE == STATE_LOGGING_IN) then
+		drawLoadingScreen()
 	end
 
 	if(STATE == STATE_LOADING) then
+		drawLoadingScreen()
 	end
 
 	if(STATE == STATE_IDLE) then
@@ -273,13 +278,6 @@ function love.draw()
 		drawGameUI()
 	end
 
-	if(STATE == STATE_MOVING) then
-		drawGameBackground()
-		drawGameObjects()			
-
-		drawGameUI()
-	end
-
 	-- draw the widgets which were "created" in love.update
 	GUI.core.draw()
 end
@@ -293,7 +291,6 @@ end
                                                    |_|                                
 ]]
 function love.mousepressed(x, y, button)
-
 	-- PRE GAME STATES
 	if(STATE == STATE_LOGIN_SCREEN) then
 	end
@@ -303,18 +300,16 @@ function love.mousepressed(x, y, button)
 	end
 
 	-- IN GAME STATES
-	if(STATE == STATE_IDLE) then
-		mousePressedGame(x, y, button)
-	end
 	if(STATE == STATE_RADIAL) then
 		mousePressedGame(x, y, button)
 	end
 	if(STATE == STATE_PAN) then
 		mousePressedGame(x, y, button)
 	end
-	if(STATE == STATE_MOVING) then
+	if(STATE == STATE_IDLE) then
 		mousePressedGame(x, y, button)
 	end
+
 end
 
 --[[
@@ -336,20 +331,20 @@ function love.mousereleased(x, y, button)
 	end
 
 	-- IN GAME STATES
+
 	if(STATE == STATE_IDLE) then
-		mousePressedGame(x, y, button)
-	end
-	if(STATE == STATE_RADIAL) then
-		mouseReleasedGame(x, y, button)
-	end
-	if(STATE == STATE_PAN) then
-		mouseReleasedGame(x, y, button)
-	end
-	if(STATE == STATE_MOVING) then
 		mouseReleasedGame(x, y, button)
 	end
 
+	if(STATE == STATE_RADIAL) then
+		mouseReleasedGame(x, y, button)
+	end
+
+	if(STATE == STATE_PAN) then
+		mouseReleasedGame(x, y, button)
+	end
 end
+
 
 --[[
   _                  _                                               _ 
@@ -370,24 +365,21 @@ function love.keypressed(key, code)
 	end
 
 	-- IN GAME STATES
-	if(STATE == STATE_IDLE) then
-		gameKeyPressed(key, code)		
-	end
 	if(STATE == STATE_RADIAL) then
 		gameKeyPressed(key, code)
 	end
+
 	if(STATE == STATE_PAN) then
 		gameKeyPressed(key, code)
 	end
-	if(STATE == STATE_MOVING) then
-		gameKeyPressed(key, code)
+
+	if(STATE == STATE_IDLE) then
+		gameKeyPressed(key, code)		
 	end
 
 	-- forward keyboard events to the gui. 
 	GUI.core.keyboard.pressed(key, code)	
 end
-
-
 
 
 --[[
@@ -398,8 +390,6 @@ end
  |___/_| |_|_| .__/| .__/ \___|\__|___/
              |_|   |_|                 
 ]]
-
-
 
 --[[
   _                   _   
@@ -436,14 +426,12 @@ function threadcheckLoggingIn()
 
 	if(serverMessage == "login_ok") then
 		print("Got login_ok!")
-		--STATE = STATE_IDLE
-		return true
 
+		return true
 	elseif (serverMessage == "login_failed" ) then
 		print("Login failed!")
-		return false
 
-		--STATE = STATE_LOGIN_SCREEN
+		return false
 	end
 
 	return nil
@@ -477,6 +465,7 @@ function updateGamestateIfNeeded()
 	-- post an action to the network thread to fetch a new gamestate
 	if (GAMESTATE_NEEDS_UPDATING) then
 		server:getGamestate()
+
 		GAMESTATE_NEEDS_UPDATING = false	
 	end
 
@@ -512,7 +501,7 @@ function updateMoves(dt)
 		end
 	end
 
-	if not (stillMoving) then STATE = STATE_IDLE end
+	--if not (stillMoving) then STATE = STATE_IDLE end
 end
 
 function updateRelativeMousePosition()
@@ -532,6 +521,13 @@ end
   \__,_|_|  \__,_| \_/\_/  
                            
 ]]
+
+function drawLoadingScreen()
+	for _key, _value in pairs(uiLoadingScreen) do
+		graphicsHandler:draw(_value.mAssetID, _value.mX, _value.mY, nil, 1)
+	end			
+end
+
 function drawGameBackground()
    	graphicsHandler:draw(graphicsHandler:asset("background"), love.graphics.getWidth()/2, love.graphics.getHeight()/2)
 end
@@ -576,8 +572,7 @@ function drawGameUI()
 	end
 end
 
---[[
-                                 
+--[[                      
   _ __ ___   ___  _   _ ___  ___ 
  | '_ ` _ \ / _ \| | | / __|/ _ \
  | | | | | | (_) | |_| \__ \  __/
@@ -589,23 +584,25 @@ function mousePressedGame(x, y, button)
 	if button == "l" then
 		local state_changed = false
 		
-
 		--last = "left pressed"		
 		if(STATE == STATE_IDLE and not state_changed) then								
 			local clicked_x = math.floor(mouse_x_relative / GFX_R_SZ)
 			local clicked_y = math.floor(mouse_y_relative / GFX_R_SZ)
 			
 			grid = buildRadial(clicked_x, clicked_y)
-			
+
 			if grid then
+
+				print("Switching to radial")
 				radialMenu = grid
+
 				--	if we did, set state to radial with ego radial
 				STATE = STATE_RADIAL
 								
 				state_changed = true
 			else
 				-- check if we clicked a different square
-				--	if we did, set state to radial with room radial
+				-- if we did, set state to radial with room radial
 				-- go into pan mode	
 				if not (tickMenu:clickCheck()) then	
 					STATE = STATE_PAN				
@@ -626,6 +623,7 @@ function mousePressedGame(x, y, button)
 				end
 			end
 			
+			print("(STATE == STATE_RADIAL and not state_changed)")
 			STATE = STATE_IDLE
 		end	
 	elseif button == "r" then
@@ -665,16 +663,20 @@ function mouseReleasedGame(x, y, button)
 		--last = "middle released"
 	elseif button == "wu" then
 		--last = "scrollwheel up released"
+
+		--[[
 		GFX_R_SZ = GFX_R_SZ + 6
 		GFX_D_SZ = GFX_D_SZ + 2
 		OFFSET_CHANGE = OFFSET_CHANGE + 6
+		]]
 	
 	elseif button == "wd" then
 		--last = "scrollwheel down released"
+		--[[
 		GFX_R_SZ = GFX_R_SZ - 6
 		GFX_D_SZ = GFX_D_SZ - 2
 		OFFSET_CHANGE = OFFSET_CHANGE - 6
-
+		]]
 	end
 end
 
@@ -690,16 +692,19 @@ end
 function gameKeyPressed(key, code)
 
 	-- For specific game states, should be filtered based on that.
+
+	--[[
 	if key == "kp+" then
-		GFX_R_SZ = GFX_R_SZ + 6
-		GFX_D_SZ = GFX_D_SZ + 2
-		OFFSET_CHANGE = OFFSET_CHANGE + 6
-	elseif key == "kp-" then
-		GFX_R_SZ = GFX_R_SZ - 6
-		GFX_D_SZ = GFX_D_SZ - 2
-		OFFSET_CHANGE = OFFSET_CHANGE - 6
-	end		
-	
+				GFX_R_SZ = GFX_R_SZ + 6
+				GFX_D_SZ = GFX_D_SZ + 2
+				OFFSET_CHANGE = OFFSET_CHANGE + 6
+			elseif key == "kp-" then
+				GFX_R_SZ = GFX_R_SZ - 6
+				GFX_D_SZ = GFX_D_SZ - 2
+				OFFSET_CHANGE = OFFSET_CHANGE - 6
+			end		
+	]]
+
 	-- For specific game states, should be filtered based on that.
 	if key == "up" then
 		addMove(0,-1)
@@ -731,8 +736,6 @@ function addMove( xMod, yMod )
 
 	gamestate.virtualPawn.x = gamestate.virtualPawn.x+xMod 
 	gamestate.virtualPawn.y = gamestate.virtualPawn.y+yMod 
-
-	STATE = STATE_MOVING
 end
 
 function refreshSession()
