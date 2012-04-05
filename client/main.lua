@@ -137,107 +137,132 @@ function love.load()
 end
 
 
-function love.update(dt)	
-	-- get incoming messages
-	server:update()
 
-	if(STATE == STATE_LOGIN_SCREEN) then
-		--server:login("foo@bar.com", "foobar")
-
-		if GUI.Input(login, love.graphics.getWidth()/2 - 150, love.graphics.getHeight()/2-20, 300, 20) then
+-- INPUT SNIPPETS
+function inputGetLoginInfo() 
+	if GUI.Input(login, love.graphics.getWidth()/2 - 150, love.graphics.getHeight()/2-20, 300, 20) then
 			print('Text changed:', login.text)
-		end
-		if GUI.Password(password, love.graphics.getWidth()/2 - 150, love.graphics.getHeight()/2+5, 300, 20) then
-			print('Text changed:', password.text)
-		end
-		if GUI.Button('Login', love.graphics.getWidth()/2 - 150, love.graphics.getHeight()/2+40,300,20) then
-			server:login(login.text, password.text)
-
-			STATE = STATE_LOGGING_IN
-		end
 	end
-
-	-- If we're in the logging in state, see if the network thread has returned
-	-- the message that the login was successful.
-	if(STATE == STATE_LOGGING_IN) then		
-		local serverMessage = server:getMessage("login")
-
-		if(serverMessage == "login_ok") then
-			print("Got login_ok!")
-			STATE = STATE_IDLE
-		elseif (serverMessage == "login_failed" ) then
-			print("Login failed!")
-			STATE = STATE_LOGIN_SCREEN
-		end
+	if GUI.Password(password, love.graphics.getWidth()/2 - 150, love.graphics.getHeight()/2+5, 300, 20) then
+		print('Text changed:', password.text)
 	end
+	if GUI.Button('Login', love.graphics.getWidth()/2 - 150, love.graphics.getHeight()/2+40,300,20) then
+		server:login(login.text, password.text)
 
-
-	if(STATE == STATE_IDLE) then
-		-- if we're in idle, and we need to update the gamestate
-		-- post an action to the network thread to fetch a new gamestate
-		if (GAMESTATE_NEEDS_UPDATING) then
-			server:getGamestate()
-			GAMESTATE_NEEDS_UPDATING = false	
-		end
-
-		if (stored_gamestate) then
-			local okToUpdate = true
-
-			for key, value in pairs(pawnObjects) do
-				
-				if(# value.mMoves > 0) then okToUpdate = false end
-			end
-
-			if(okToUpdate) then 
-				gamestate = stored_gamestate
-				stored_gamestate = nil
-				refreshSession() 
-			end 
-		end
+		STATE = STATE_LOGGING_IN
 	end
+end
 
+-- THREAD CHECK SNIPPETS
+function threadcheckLoggingIn()
+	local serverMessage = server:getMessage("login")
+
+	if(serverMessage == "login_ok") then
+		print("Got login_ok!")
+		STATE = STATE_IDLE
+	elseif (serverMessage == "login_failed" ) then
+		print("Login failed!")
+		STATE = STATE_LOGIN_SCREEN
+	end
+end
+
+function threadcheckLookForGamestate()
 	-- Thread has returned a new gamestate for us. Lets decode it,
-	-- and refresh the session.
+	-- and tell the session there's a new gamestate waiting to be 
+	-- put to use.
 	local temp_stored_state = server:getMessage("get gamestate")
 
 	if not (temp_stored_state == nil) then
 		stored_gamestate = json.decode(temp_stored_state)
 	end
+end
 
-	--  Thread has just returned the info that an action has been added.
-	-- Lets flag the gamestate for update.
-	if(flags == THREAD_ADD_ACTION) then
-		GAMESTATE_NEEDS_UPDATING = true
+-- UPDATE SNIPPETS
+function updateGamestateIfNeeded()
+	-- If we need to update the gamestate
+	-- post an action to the network thread to fetch a new gamestate
+	if (GAMESTATE_NEEDS_UPDATING) then
+		server:getGamestate()
+		GAMESTATE_NEEDS_UPDATING = false	
 	end
 
-
-	if(STATE == STATE_PAN) then
-		OFFSET_X = lbuttonDown[4] + love.mouse.getX() - lbuttonDown[2]
-		OFFSET_Y = lbuttonDown[5] + love.mouse.getY() - lbuttonDown[3]
-	end
-	
-	if(STATE == STATE_MOVING) then
-		local stillMoving = false
+	if (stored_gamestate) then
+		local okToUpdate = true
 
 		for key, value in pairs(pawnObjects) do
-			value:update(dt)
-
-			if(# value.mMoves > 0) then
-				stillMoving = true
-			end
+			
+			if(# value.mMoves > 0) then okToUpdate = false end
 		end
 
-		if not (stillMoving) then STATE = STATE_IDLE end
+		if(okToUpdate) then 
+			gamestate = stored_gamestate
+			stored_gamestate = nil
+			refreshSession() 
+		end 
+	end
+end
+
+function updateMousePanOffset()
+	OFFSET_X = lbuttonDown[4] + love.mouse.getX() - lbuttonDown[2]
+	OFFSET_Y = lbuttonDown[5] + love.mouse.getY() - lbuttonDown[3]
+end
+
+function updateMoves()
+	local stillMoving = false
+
+	for key, value in pairs(pawnObjects) do
+		value:update(dt)
+
+		if(# value.mMoves > 0) then
+			stillMoving = true
+		end
 	end
 
+	if not (stillMoving) then STATE = STATE_IDLE end
+end
+
+function updateRelativeMousePosition()
 	-- update the relative mouse positions
 	start_x = OFFSET_X + GFX_R_SZ/2
 	start_y = OFFSET_Y + GFX_R_SZ/2
 
 	mouse_x_relative = -1*OFFSET_X + love.mouse.getX()
 	mouse_y_relative = -1*OFFSET_Y + love.mouse.getY()
+end
+
+function love.update(dt)	
+	-- get incoming messages
+	server:update()
+
+	if(STATE == STATE_LOGIN_SCREEN) then
+		inputGetLoginInfo()
+	end
+
+	-- If we're in the logging in state, see if the network thread has returned
+	-- the message that the login was successful.
+	if(STATE == STATE_LOGGING_IN) then		
+		threadcheckLoggingIn()
+	end
+
+
+	if(STATE == STATE_IDLE) then
+ 		updateGamestateIfNeeded()
+	end
+
+	if(STATE == STATE_PAN) then
+		updateMousePanOffset()
+	end
 	
-   	
+	if(STATE == STATE_MOVING) then
+		updateMoves()
+	end
+
+	-- this should be put in one (or many) of the state updates
+	threadcheckLookForGamestate()
+
+	-- This shouldn't get called everytime
+	updateRelativeMousePosition()	
+
 	-- call the graphicshandler to update any animations we currently
 	-- have running.
 	graphicsHandler:update(dt)
