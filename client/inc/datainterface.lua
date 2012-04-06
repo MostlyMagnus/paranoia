@@ -105,7 +105,7 @@ function add_text(session, params)
 		return #s
 	end)
 	
-	local url = global_server.."gamestates/"..global_gamestate_id.."/add_text?text="..params
+	local url = global_server.."gamestates/"..global_gamestate_id.."/add_text?text="..curl.escape(params)
 	
 	-- set OPT_URL to the passed parameter url
 	session:setopt(curl.OPT_URL,url)

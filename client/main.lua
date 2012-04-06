@@ -80,6 +80,7 @@ uiLoadingScreen = { }
 
 -- chatbox
 chatLog = { }
+chatbox= { }
 
 -- login functions to finish
 functionQueue = { }
@@ -228,17 +229,23 @@ function love.update(dt)
 
  		updateGamestateIfNeeded()
 
+ 		inputGameGetChatbox()
+
 		threadcheckLookForGamestate()
 	end
 
 	if(STATE == STATE_RADIAL) then
 		updateMoves(dt)
 
+ 		inputGameGetChatbox()
+
 		threadcheckLookForGamestate()
 	end
 
 	if(STATE == STATE_PAN) then
 		updateMoves(dt)
+
+ 		inputGameGetChatbox()
 
 		updateMousePanOffset()
 
@@ -432,6 +439,18 @@ function inputGetLoginInfo()
 	end
 end
 
+function inputGameGetChatbox()
+	if GUI.Input(chatbox, 200, love.graphics.getHeight()-20, 300, 20) then
+		print('Text changed:', chatbox.text)
+	end
+	if GUI.Button('Send', 500, love.graphics.getHeight() - 20, 100,20) then
+		server:addText(chatbox.text)
+		server:getText(chatLog[# chatLog].line_id)
+		
+		chatbox.text = ""	
+	end
+end
+
 --[[
   _   _                        _        _               _    
  | |_| |__  _ __ ___  __ _  __| |   ___| |__   ___  ___| | __
@@ -604,8 +623,7 @@ function drawGameUI()
 	end
 
 	for _key, _value in pairs(chatLog) do
-		
-		love.graphics.print(_value.name.." : ".._value.text, 230, -20+love.graphics.getHeight()-_key*20)
+		love.graphics.print(_value.pawn.." : ".._value.text, 230, -20+love.graphics.getHeight()-_key*20)
 	end
 end
 
@@ -619,8 +637,6 @@ end
 function mousePressedGame(x, y, button)
 	-- Checks which button was pressed.
 	if button == "l" then
-		server:addText("Testing!")
-
 		local state_changed = false
 		
 		--last = "left pressed"		
