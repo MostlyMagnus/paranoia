@@ -73,7 +73,7 @@ class GamestatesController < ApplicationController
     #redirect_to gamestate_path
   end
   
-  def add_line
+  def add_text
     @gamestate = Gamestate.find_by_id(params[:id])
     @pawns = Pawn.find_all_by_gamestate_id(@gamestate.id)
 
@@ -86,7 +86,7 @@ class GamestatesController < ApplicationController
     line = @user_pawn.lines.create!(:text => params[:text])
 
     print line
-    
+
     @pawns.each do |pawn|
       pawn.heards.create!(:line_id => line.id, :scramble => 0)
     end
