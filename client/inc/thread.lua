@@ -59,5 +59,15 @@ while true do
 				task.post(main_id, "add text", 1)
 			end
 		end
+
+		if(fromMain["type"] == "get text") then
+			if(session) then
+
+				local text = get_text(session, fromMain["parameters"])
+				
+				task.post(main_id, text, 1)
+			end
+		end
+
 	end
 end

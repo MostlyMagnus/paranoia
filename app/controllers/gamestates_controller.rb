@@ -99,7 +99,7 @@ class GamestatesController < ApplicationController
     lines = Array.new
 
     @user_pawn.heards.where('line_id > ?', params[:id_greater_than]).each do |heard|
-      lines.push(Line.find_by_id(heard.line_id).scramble(heard.scramble))
+      lines.push({:line_id => line.line_id, :text => Line.find_by_id(heard.line_id).scramble(heard.scramble)})
     end
 
     render :text => lines.to_json

@@ -71,6 +71,16 @@ function ServerInterface:addText(action)
 --	self:getGamestate()
 end
 
+function ServerInterface:getText(action)
+	local task = {}
+
+	task["type"] = "get text"
+	task["parameters"] = action
+
+	self:_addTask(task)
+--	self:getGamestate()
+end
+
 function ServerInterface:addAction(action)
 	local task = {}
 
@@ -181,6 +191,19 @@ function ServerInterface:update()
 						if(self.mTasks[1].type == "add text") then
 							if(flag == 1) then
 								print("Text added ok.")
+							end							
+						end						
+
+						if(self.mTasks[1].type == "get text") then
+							if(flag == 1) then
+								print("Received text ok.")
+
+								local message = {}
+
+								message["type"] = "get text"
+								message["data"] = messageFromThread
+
+								table.insert(self.mMessages, message)							
 							end							
 						end						
 

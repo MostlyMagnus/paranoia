@@ -78,6 +78,12 @@ uiObjects = { }
 uiActionQueue = { }
 uiLoadingScreen = { }
 
+-- chatbox
+chatLog = { }
+
+-- login functions to finish
+functionQueue = { }
+
 -- radialMenu contains the current options for the radial select.
 radialMenu = { }
 radialGrid = { }
@@ -188,7 +194,8 @@ function love.update(dt)
 		local loginCheck = threadcheckLoggingIn()
 
 		if(loginCheck == true) then
-			server:getGamestate()
+
+			STATE_SUBSTATE = 0
 
 			STATE = STATE_LOADING
 		elseif(loginCheck == false) then
@@ -197,8 +204,25 @@ function love.update(dt)
 	end
 
 	if(STATE == STATE_LOADING) then
-		if(threadcheckLookForGamestate()) then
-			STATE = STATE_IDLE
+		if(STATE_SUBSTATE == 0) then
+			server:getText(0)	
+
+			STATE_SUBSTATE = 1
+		end
+		if(STATE_SUBSTATE == 1) then
+			if(threadcheckLookForChatlog()) then
+				STATE_SUBSTATE = 2
+			end
+		end
+		if(STATE_SUBSTATE == 2) then
+			server:getGamestate()	
+
+			STATE_SUBSTATE = 3
+		end
+		if(STATE_SUBSTATE == 3) then
+			if(threadcheckLookForGamestate()) then
+				STATE = STATE_IDLE	
+			end
 		end
 	end
 
@@ -445,6 +469,19 @@ function threadcheckLookForGamestate()
 
 	if not (temp_stored_state == nil) then
 		stored_gamestate = json.decode(temp_stored_state)
+
+		return true
+	end
+
+	return false
+end
+
+function threadcheckLookForChatlog()
+
+	local temp_stored_chatlog = server:getMessage("get text")
+
+	if not (temp_stored_chatlog == nil) then
+		chatLog = json.decode(temp_stored_chatlog)
 
 		return true
 	end
