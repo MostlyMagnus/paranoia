@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120406065954) do
+ActiveRecord::Schema.define(:version => 20120406142704) do
 
   create_table "actions", :force => true do |t|
     t.integer  "pawn_id"
@@ -39,7 +39,7 @@ ActiveRecord::Schema.define(:version => 20120406065954) do
     t.datetime "update_when"
   end
 
-  create_table "heard_lines", :force => true do |t|
+  create_table "heards", :force => true do |t|
     t.integer  "pawn_id"
     t.integer  "line_id"
     t.integer  "scramble"
@@ -47,14 +47,8 @@ ActiveRecord::Schema.define(:version => 20120406065954) do
     t.datetime "updated_at"
   end
 
-  add_index "heard_lines", ["line_id"], :name => "index_heard_lines_on_line_id"
-  add_index "heard_lines", ["pawn_id", "line_id"], :name => "index_heard_lines_on_pawn_id_and_line_id", :unique => true
-  add_index "heard_lines", ["pawn_id"], :name => "index_heard_lines_on_pawn_id"
-
   create_table "lines", :force => true do |t|
-    t.integer  "line_id"
     t.integer  "pawn_id"
-    t.integer  "gamestate_id"
     t.string   "text"
     t.datetime "created_at"
     t.datetime "updated_at"

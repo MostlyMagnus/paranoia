@@ -1,3 +1,3 @@
 class Line < ActiveRecord::Base
-	belongs_to :gamestate
+	belongs_to :pawn
 end

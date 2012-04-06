@@ -112,7 +112,6 @@ function ServerInterface:_addTask(task)
 			else
 				table.insert(self.mTasks, # self.mTasks, task)
 
-				print("Task added. There are now ".. # self.mTasks .. " in queue.")
 				return 1			
 			end
 		end	
@@ -133,6 +132,8 @@ function ServerInterface:update()
 				if (self.mState == SERVER_IDLE) then
 					-- we're idle, but there are tasks to be done.
 					task.post(self.mWorker, json.encode(self.mTasks[1]), 1)
+
+					print("Thread running with  ".. # self.mTasks .. " tasks in queue.")
 					
 					print(json.encode(self.mTasks[1]))
 
@@ -185,7 +186,7 @@ function ServerInterface:update()
 
 						if (flag >= 0) then
 							table.remove(self.mTasks, 1)
-							print (# self.mTasks.." task(s) left to do.")
+							print ("Task completd. "..# self.mTasks.." task(s) left to do.")
 						end
 
 						self.mState = SERVER_IDLE
