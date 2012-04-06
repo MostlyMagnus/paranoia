@@ -85,6 +85,8 @@ class GamestatesController < ApplicationController
 
     line = @user_pawn.lines.create!(:text => params[:text])
 
+    print line
+    
     @pawns.each do |pawn|
       pawn.heards.create!(:line_id => line.id, :scramble => 0)
     end

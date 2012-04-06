@@ -21,11 +21,12 @@ Paranoia::Application.routes.draw do
       get :json_possibleactions
       get :json_clean_gamestatepawns
       get :json_snapshots
-	  get :json_pawndata
-	  get :json_actionqueue
+      get :json_pawndata
+      get :json_actionqueue
       
       get :add_action
       get :remove_action
+      get :add_text
       
       get :node_use  
     end
