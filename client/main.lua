@@ -501,7 +501,8 @@ function threadcheckLookForChatlog()
 
 	local temp_stored_chatlog = server:getMessage("get text")
 
-	if not (temp_stored_chatlog == nil) or if not (temp_stored_chatlog == 0) then
+	if not (temp_stored_chatlog == "[]") then
+	if not (temp_stored_chatlog == nil) then
 
 		local decoded_log = json.decode(temp_stored_chatlog)
 
@@ -512,6 +513,7 @@ function threadcheckLookForChatlog()
 		timeSinceLastChatUpdate = 0
 
 		return true
+	end
 	end
 
 	return false
