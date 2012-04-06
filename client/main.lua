@@ -604,7 +604,8 @@ function drawGameUI()
 	end
 
 	for _key, _value in pairs(chatLog) do
-		love.graphics.print(value.name.." : "_value.text, 230, -20+love.graphics.getHeight()-_key*20)
+		
+		love.graphics.print(_value.name.." : ".._value.text, 230, -20+love.graphics.getHeight()-_key*20)
 	end
 end
 

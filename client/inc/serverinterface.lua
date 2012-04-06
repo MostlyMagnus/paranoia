@@ -203,6 +203,7 @@ function ServerInterface:update()
 								message["type"] = "get text"
 								message["data"] = messageFromThread
 
+								print (messageFromThread)
 								table.insert(self.mMessages, message)							
 							end							
 						end						
