@@ -206,6 +206,7 @@ function love.update(dt)
 	if(STATE == STATE_LOADING) then
 		if(STATE_SUBSTATE == 0) then
 			server:getText(0)	
+			server:getGamestate()	
 
 			STATE_SUBSTATE = 1
 		end
@@ -215,17 +216,11 @@ function love.update(dt)
 			end
 		end
 		if(STATE_SUBSTATE == 2) then
-			server:getGamestate()	
-
-			STATE_SUBSTATE = 3
-		end
-		if(STATE_SUBSTATE == 3) then
 			if(threadcheckLookForGamestate()) then
 				STATE = STATE_IDLE	
 			end
 		end
 	end
-
 
 	-- IN GAME STATES
 	if(STATE == STATE_IDLE) then
@@ -606,6 +601,10 @@ function drawGameUI()
 
 	for _key, _value in pairs(ui) do
 		graphicsHandler:draw(_value.mAssetID, _value.mX, _value.mY, nil, 1)
+	end
+
+	for _key, _value in pairs(chatLog) do
+		love.graphics.print(value.name.." : "_value.text, 230, -20+love.graphics.getHeight()-_key*20)
 	end
 end
 
