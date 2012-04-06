@@ -57,7 +57,7 @@ GFX_COL_BG = GFX_COL_BLACK
 -- set up the handler to handle our graphics
 graphicsHandler = GraphicsHandler:new()
 
-server = ServerInterface:new()
+server = ServerInterface:new("http://192.168.1.248/")
 
 -- set up the left menu function MenuHandler:__init(frameID, vertSwoop, HoriSwoop, x, y, w, h)
 tickMenu = TickMenu:new(graphicsHandler:asset("tick_frame"), nil, nil, 96, 360,

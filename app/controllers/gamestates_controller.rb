@@ -72,7 +72,24 @@ class GamestatesController < ApplicationController
     
     #redirect_to gamestate_path
   end
-   
+  
+  def add_line
+    @gamestate = Gamestate.find_by_id(params[:id])
+    @pawns = Pawn.find_all_by_gamestate_id(@gamestate.id)
+
+    @user_pawn = Pawn.find_by_gamestate_id_and_user_id(params[:id], current_user.id) 
+
+    #line.create(:pawn_id => pawn, :text =>...)
+    #for each pawn that couldve heard this
+    # => pawn.heard_lines.create(:line_id => ..., :scramble = > ...)
+
+    line = @gamestate.lines.create!(:pawn_id => @user_pawn.id, :text => params[:text])
+
+    @pawns.each do |pawn|
+      pawn.heard_lines.create!(:line_id => line.id, :scramble => 0)
+    end
+  end
+
   # GET code  
   
   def index

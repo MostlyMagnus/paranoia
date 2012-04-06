@@ -1,0 +1,11 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  pawn_id: 1
+  line_id: 1
+  scramble: 1
+
+two:
+  pawn_id: 1
+  line_id: 1
+  scramble: 1

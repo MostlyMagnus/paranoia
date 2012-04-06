@@ -21,7 +21,17 @@ class Pawn < ActiveRecord::Base
   belongs_to :user
   has_many :actions,:dependent => :destroy
   has_many :notifications,:dependent => :destroy
-  
+
+  #line.create(:pawn_id => pawn, :text =>...)
+  #for each pawn that couldve heard this
+  # => pawn.heard_lines.create(:line_id => ..., :scramble = > ...)
+
+  has_many :heard_lines,  :foreign_key => "pawn_id",
+                          :dependent => :destroy
+
+  has_many :lines, :through => :heard_lines, :source => :lines
+
+
   validates :user_id,       :presence => true
   validates :gamestate_id,  :presence => true
   validates :role,          :presence => true

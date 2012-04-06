@@ -27,6 +27,7 @@ class Gamestate < ActiveRecord::Base
   attr_accessor :game_ship, :checked_grid, :gamestatePawns, :turn
   
   has_many :pawns, :dependent => :destroy
+  has_many :lines, :dependent => :destroy
   has_many :user_events, :dependent => :destroy
   has_many :log_entries, :dependent => :destroy
   has_many :snapshots, :dependent => :destroy

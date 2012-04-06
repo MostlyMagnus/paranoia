@@ -1,0 +1,11 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  line_id: 1
+  pawn_id: 1
+  text: MyString
+
+two:
+  line_id: 1
+  pawn_id: 1
+  text: MyString

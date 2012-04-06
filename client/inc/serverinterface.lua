@@ -16,8 +16,9 @@ SERVER_WAITING = 1
 class "ServerInterface" {
 	mMainThreadId	= nil;
 
+	mServer = "";
 	--mServer = "http://192.168.1.248/";
-	mServer = "http://83.191.71.93/";
+	--mServer = "http://83.191.71.93/";
 	--mServer = "http://localhost:3000/";
 
 	mSession = "";
@@ -31,6 +32,7 @@ class "ServerInterface" {
 }
 
 function ServerInterface:__init(server)
+	self.mServer = server
 end
 
 function ServerInterface:start()
@@ -116,7 +118,6 @@ function ServerInterface:update()
 		else
 		--print("Have worker.")
 			if(task.isrunning(self.mWorker)) then
-				print ("Task running with "..# self.mTasks.." task(s) left to do.")
 
 				if (self.mState == SERVER_IDLE) then
 					-- we're idle, but there are tasks to be done.
@@ -167,6 +168,7 @@ function ServerInterface:update()
 
 						if (flag >= 0) then
 							table.remove(self.mTasks, 1)
+							print (# self.mTasks.." task(s) left to do.")
 						end
 
 						self.mState = SERVER_IDLE
