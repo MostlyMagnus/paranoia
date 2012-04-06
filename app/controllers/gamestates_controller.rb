@@ -102,7 +102,11 @@ class GamestatesController < ApplicationController
       lines.push({:line_id => heard.line_id, :pawn => Line.find_by_id(heard.line_id).name(heard.scramble), :text => Line.find_by_id(heard.line_id).scramble(heard.scramble)})
     end
 
-    render :text => lines.to_json
+    if lines.size > 0 then
+      render :text => lines.to_json
+    else 
+      render :text => "0"
+    end
   end
 
   # GET code  

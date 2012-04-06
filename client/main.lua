@@ -81,6 +81,7 @@ uiLoadingScreen = { }
 -- chatbox
 chatLog = { }
 chatbox= { }
+timeSinceLastChatUpdate = 0
 
 -- login functions to finish
 functionQueue = { }
@@ -226,29 +227,35 @@ function love.update(dt)
 	-- IN GAME STATES
 	if(STATE == STATE_IDLE) then
 		updateMoves(dt)
+		updateChatLog(dt)
 
  		updateGamestateIfNeeded()
 
  		inputGameGetChatbox()
 
+		threadcheckLookForChatlog()
 		threadcheckLookForGamestate()
 	end
 
 	if(STATE == STATE_RADIAL) then
 		updateMoves(dt)
+		updateChatLog(dt)
 
  		inputGameGetChatbox()
 
+		threadcheckLookForChatlog()
 		threadcheckLookForGamestate()
 	end
 
 	if(STATE == STATE_PAN) then
 		updateMoves(dt)
+		updateChatLog(dt)
 
  		inputGameGetChatbox()
 
 		updateMousePanOffset()
 
+		threadcheckLookForChatlog()
 		threadcheckLookForGamestate()
 	end	
 
@@ -446,7 +453,7 @@ function inputGameGetChatbox()
 	if GUI.Button('Send', 500, love.graphics.getHeight() - 20, 100,20) then
 		server:addText(chatbox.text)
 		server:getText(chatLog[# chatLog].line_id)
-		
+
 		chatbox.text = ""	
 	end
 end
@@ -494,8 +501,15 @@ function threadcheckLookForChatlog()
 
 	local temp_stored_chatlog = server:getMessage("get text")
 
-	if not (temp_stored_chatlog == nil) then
-		chatLog = json.decode(temp_stored_chatlog)
+	if not (temp_stored_chatlog == nil) or if not (temp_stored_chatlog == 0) then
+
+		local decoded_log = json.decode(temp_stored_chatlog)
+
+		for key, value in pairs(decoded_log) do
+			table.insert(chatLog, value)
+		end
+
+		timeSinceLastChatUpdate = 0
 
 		return true
 	end
@@ -564,6 +578,14 @@ function updateRelativeMousePosition()
 	mouse_y_relative = -1*OFFSET_Y + love.mouse.getY()
 end
 
+function updateChatLog(dt)
+	timeSinceLastChatUpdate = timeSinceLastChatUpdate + dt
+	
+	if timeSinceLastChatUpdate > 3 then
+		server:getText(# chatLog)
+	end 
+end
+
 --[[
       _                    
    __| |_ __ __ ___      __
@@ -595,7 +617,6 @@ function drawGameObjects()
 		graphicsHandler:draw(_value.mAssetID, start_x+_value.mX*GFX_R_SZ, start_y+_value.mY*GFX_R_SZ, nil, GFX_R_SZ/graphicsHandler:getWidth(_value.mAssetID))
 	end
 
-	
 	-- draw textObjects
 	for key, value in pairs(textObjects) do
 		love.graphics.print(value.mText, start_x+value.mX*GFX_R_SZ-love.graphics.getFont():getWidth(value.mText)/2, start_y+value.mY*GFX_R_SZ - GFX_R_SZ*0.6)
@@ -622,8 +643,14 @@ function drawGameUI()
 		graphicsHandler:draw(_value.mAssetID, _value.mX, _value.mY, nil, 1)
 	end
 
+	-- temporary code to only display X lines of chat
+	local linesToDraw = 8
+	local logOffset = # chatLog - linesToDraw
+
 	for _key, _value in pairs(chatLog) do
-		love.graphics.print(_value.pawn.." : ".._value.text, 230, -20+love.graphics.getHeight()-_key*20)
+		if(_key > logOffset) then
+			love.graphics.print(_value.pawn.." : ".._value.text, 230, (-40-linesToDraw*20)  +love.graphics.getHeight()+(_key-logOffset)*20)
+		end
 	end
 end
 
