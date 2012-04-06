@@ -89,3 +89,27 @@ function add_action(session, actionType, params)
 	
 	if table.concat(t) == 1 then return true else return false end
 end
+
+function add_text(session, params)
+	-- since we use the same session throughout the app, and we know that this function
+	-- should only be GETs, set OPT_POST to false. 
+	session:setopt(curl.OPT_POST, 0)
+	
+	local t = {}
+	
+	session:setopt(curl.OPT_WRITEFUNCTION, function (a, b)
+		local s
+		-- luacurl and Lua-cURL friendly
+		if type(a) == "string" then s = a else s = b end
+		table.insert(t, s)
+		return #s
+	end)
+	
+	local url = global_server.."gamestates/"..global_gamestate_id.."/add_text?text="..params
+	
+	-- set OPT_URL to the passed parameter url
+	session:setopt(curl.OPT_URL,url)
+	assert(session:perform())
+	
+	return table.concat(t) 
+end

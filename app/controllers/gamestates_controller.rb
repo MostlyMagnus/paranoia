@@ -83,6 +83,7 @@ class GamestatesController < ApplicationController
     #for each pawn that couldve heard this
     # => pawn.heard_lines.create(:line_id => ..., :scramble = > ...)
 
+    print "SSS"
     line = @gamestate.lines.create!(:pawn_id => @user_pawn.id, :text => params[:text])
 
     @pawns.each do |pawn|

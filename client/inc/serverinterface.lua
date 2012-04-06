@@ -61,6 +61,16 @@ function ServerInterface:login(username, password)
 
 end
 
+function ServerInterface:addText(action)
+	local task = {}
+
+	task["type"] = "add text"
+	task["parameters"] = action
+
+	self:_addTask(task)
+--	self:getGamestate()
+end
+
 function ServerInterface:addAction(action)
 	local task = {}
 
@@ -102,6 +112,7 @@ function ServerInterface:_addTask(task)
 			else
 				table.insert(self.mTasks, # self.mTasks, task)
 
+				print("Task added. There are now ".. # self.mTasks .. " in queue.")
 				return 1			
 			end
 		end	
@@ -163,6 +174,12 @@ function ServerInterface:update()
 						if(self.mTasks[1].type == "add action") then
 							if(flag == 1) then
 								print("Action added ok.")
+							end							
+						end						
+
+						if(self.mTasks[1].type == "add text") then
+							if(flag == 1) then
+								print("Text added ok.")
 							end							
 						end						
 

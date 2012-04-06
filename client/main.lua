@@ -582,6 +582,8 @@ end
 function mousePressedGame(x, y, button)
 	-- Checks which button was pressed.
 	if button == "l" then
+		server:addText("Testing!")
+
 		local state_changed = false
 		
 		--last = "left pressed"		

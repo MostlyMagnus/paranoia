@@ -1,4 +1,4 @@
-class HeardLines < ActiveRecord::Base
+class HeardLine < ActiveRecord::Base
 	attr_accessible :line_id
 
   belongs_to :pawn_id, :class_name => "Pawn"

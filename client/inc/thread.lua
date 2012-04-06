@@ -50,5 +50,14 @@ while true do
 				task.post(main_id, gamestate, 1)
 			end
 		end
+
+		if(fromMain["type"] == "add text") then
+			if(session) then
+
+				print(add_text(session, fromMain["parameters"]))
+
+				task.post(main_id, "add text", 1)
+			end
+		end
 	end
 end
