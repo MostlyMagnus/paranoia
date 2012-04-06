@@ -447,10 +447,10 @@ function inputGetLoginInfo()
 end
 
 function inputGameGetChatbox()
-	if GUI.Input(chatbox, 200, love.graphics.getHeight()-20, 300, 20) then
+	if GUI.Input(chatbox, 220, love.graphics.getHeight()-20, 400, 20) then
 		print('Text changed:', chatbox.text)
 	end
-	if GUI.Button('Send', 500, love.graphics.getHeight() - 20, 100,20) then
+	if GUI.Button('Send', 640, love.graphics.getHeight() - 20, 100,20) then
 		server:addText(chatbox.text)
 		server:getText(chatLog[# chatLog].line_id)
 
@@ -501,19 +501,19 @@ function threadcheckLookForChatlog()
 
 	local temp_stored_chatlog = server:getMessage("get text")
 
-	if not (temp_stored_chatlog == "[]") then
 	if not (temp_stored_chatlog == nil) then
-
-		local decoded_log = json.decode(temp_stored_chatlog)
-
-		for key, value in pairs(decoded_log) do
-			table.insert(chatLog, value)
-		end
-
 		timeSinceLastChatUpdate = 0
 
-		return true
-	end
+		if not (temp_stored_chatlog == "[]") then
+
+			local decoded_log = json.decode(temp_stored_chatlog)
+
+			for key, value in pairs(decoded_log) do
+				table.insert(chatLog, value)
+			end
+
+			return true
+		end
 	end
 
 	return false
@@ -583,7 +583,9 @@ end
 function updateChatLog(dt)
 	timeSinceLastChatUpdate = timeSinceLastChatUpdate + dt
 	
-	if timeSinceLastChatUpdate > 3 then
+	if timeSinceLastChatUpdate > 10 then
+		timeSinceLastChatUpdate = 0
+
 		server:getText(# chatLog)
 	end 
 end
