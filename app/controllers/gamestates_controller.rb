@@ -85,11 +85,24 @@ class GamestatesController < ApplicationController
 
     line = @user_pawn.lines.create!(:text => params[:text])
 
-    print line
-
     @pawns.each do |pawn|
       pawn.heards.create!(:line_id => line.id, :scramble => 0)
     end
+  end
+
+  def get_text
+    @gamestate = Gamestate.find_by_id(params[:id])
+    @pawns = Pawn.find_all_by_gamestate_id(@gamestate.id)
+
+    @user_pawn = Pawn.find_by_gamestate_id_and_user_id(params[:id], current_user.id) 
+
+    lines = Array.new
+
+    @user_pawn.heards.where('line_id > ?', params[:id_greater_than]).each do |heard|
+      lines.push(Line.find_by_id(heard.line_id).scramble(heard.scramble))
+    end
+
+    render :text => lines.to_json
   end
 
   # GET code  
