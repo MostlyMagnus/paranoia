@@ -358,6 +358,7 @@ class Gamestate < ActiveRecord::Base
 
   	# The actual gamestate. This should be cleaned up so that the node health isnt passed along.
   	returned_data[:gamestate] = self
+
   	
     # Get visible gamestatepawns sanitizes the gamestatepawns hash based on what the current vpawn sees.
   	returned_data[:gamestatePawns] = getVisibleGamestatePawns(@pawn)
@@ -372,6 +373,7 @@ class Gamestate < ActiveRecord::Base
     returned_data[:events] = getEvents
   	returned_data[:log] = self.log_entries
 
+    returned_data[:updateIn] = self.update_when - Time.now 
     return returned_data
   end  
          

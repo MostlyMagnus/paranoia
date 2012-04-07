@@ -33,7 +33,7 @@ assert(require('inc/tickmenu'))
 assert(require('inc/serverinterface'))
 
 -- QUICKIE UI.
-GUI = require('inc/ui')
+GUI = require('inc/ui/')
 
 -- Testing Quickie UI.
 local login = {text = "", cursor = 0}
@@ -57,7 +57,9 @@ GFX_COL_BG = GFX_COL_BLACK
 -- set up the handler to handle our graphics
 graphicsHandler = GraphicsHandler:new()
 
-server = ServerInterface:new("http://192.168.1.248/")
+host = { text = "192.168.1.248" }
+
+server = ServerInterface:new()
 
 -- set up the left menu function MenuHandler:__init(frameID, vertSwoop, HoriSwoop, x, y, w, h)
 tickMenu = TickMenu:new(graphicsHandler:asset("tick_frame"), nil, nil, 96, 360,
@@ -90,12 +92,10 @@ functionQueue = { }
 radialMenu = { }
 radialGrid = { }
 
--- debugtext
+-- gamestate
 gamestate = {}
 stored_gamestate = nil
-
-debugtext = ""
-deb = ""
+timeSinceLastGamestateUpdate = 0
 
 -- program state definitions
 STATE_LOADING = 0
@@ -167,7 +167,6 @@ function love.load()
 	-- set up loading screen
 	table.insert(uiLoadingScreen, ScreenObject:new((love.graphics.getWidth()/2), (love.graphics.getHeight()/2), graphicsHandler:asset("loading_circle")))
 
-	server:start()
 end
 
 --[[
@@ -229,7 +228,7 @@ function love.update(dt)
 		updateMoves(dt)
 		updateChatLog(dt)
 
- 		updateGamestateIfNeeded()
+ 		updateGamestateIfNeeded(dt)
 
  		inputGameGetChatbox()
 
@@ -433,6 +432,9 @@ end
          |_|              
 ]]
 function inputGetLoginInfo() 
+	if GUI.Input(host, love.graphics.getWidth()/2 - 150, love.graphics.getHeight()/2-45, 300, 20) then
+			print('Text changed:', host.text)
+	end	
 	if GUI.Input(login, love.graphics.getWidth()/2 - 150, love.graphics.getHeight()/2-20, 300, 20) then
 			print('Text changed:', login.text)
 	end
@@ -440,6 +442,8 @@ function inputGetLoginInfo()
 		print('Text changed:', password.text)
 	end
 	if GUI.Button('Login', love.graphics.getWidth()/2 - 150, love.graphics.getHeight()/2+40,300,20) then
+		server:setHost("http://"..host.text.."/")
+		server:start()
 		server:login(login.text, password.text)
 
 		STATE = STATE_LOGGING_IN
@@ -451,10 +455,7 @@ function inputGameGetChatbox()
 		print('Text changed:', chatbox.text)
 	end
 	if GUI.Button('Send', 640, love.graphics.getHeight() - 20, 100,20) then
-		server:addText(chatbox.text)
-		server:getText(chatLog[# chatLog].line_id)
-
-		chatbox.text = ""	
+		gameSendChatBox()
 	end
 end
 
@@ -527,21 +528,30 @@ end
   \__,_| .__/ \__,_|\__,_|\__|\___|
        |_|                         
 ]]
-function updateGamestateIfNeeded()
+function updateGamestateIfNeeded(dt)
 	-- If we need to update the gamestate
 	-- post an action to the network thread to fetch a new gamestate
-	if (GAMESTATE_NEEDS_UPDATING) then
-		server:getGamestate()
 
-		GAMESTATE_NEEDS_UPDATING = false	
+	if (GAMESTATE_NEEDS_UPDATING) then
+		if not server:tasksPending() then
+			server:getGamestate()
+
+			GAMESTATE_NEEDS_UPDATING = false	
+		end
 	end
 
 	if (stored_gamestate) then
 		local okToUpdate = true
 
-		for key, value in pairs(pawnObjects) do
-			
-			if(# value.mMoves > 0) then okToUpdate = false end
+		if (server:tasksPending()) then 
+			-- user has modified his local gamestate since this data was fetched, discard it
+			stored_gamestate = nil
+
+			-- its not ok to update
+			okToUpdate = false 
+
+			-- we need to get a new state
+			GAMESTATE_NEEDS_UPDATING = true
 		end
 
 		if(okToUpdate) then 
@@ -583,10 +593,10 @@ end
 function updateChatLog(dt)
 	timeSinceLastChatUpdate = timeSinceLastChatUpdate + dt
 	
-	if timeSinceLastChatUpdate > 10 then
+	if timeSinceLastChatUpdate > 5 then
 		timeSinceLastChatUpdate = 0
 
-		server:getText(# chatLog)
+		server:getText(chatLog[# chatLog].line_id)
 	end 
 end
 
@@ -653,7 +663,9 @@ function drawGameUI()
 
 	for _key, _value in pairs(chatLog) do
 		if(_key > logOffset) then
-			love.graphics.print(_value.pawn.." : ".._value.text, 230, (-40-linesToDraw*20)  +love.graphics.getHeight()+(_key-logOffset)*20)
+			if (_value.pawn) and (_value.text) then
+				love.graphics.print(_value.pawn.." : ".._value.text, 230, (-40-linesToDraw*20)  +love.graphics.getHeight()+(_key-logOffset)*20)
+			end
 		end
 	end
 end
@@ -790,17 +802,30 @@ function gameKeyPressed(key, code)
 				OFFSET_CHANGE = OFFSET_CHANGE - 6
 			end		
 	]]
+	if key == "return" then
+		gameSendChatBox()
+	end
+
+	if key == "a" then
+		print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+		print ("n"..json.encode(gamestate.ship.map[tostring(gamestate.virtualPawn.x)][tostring(gamestate.virtualPawn.y)].access[1]))
+		print ("w"..json.encode(gamestate.ship.map[tostring(gamestate.virtualPawn.x)][tostring(gamestate.virtualPawn.y)].access[2]))
+		print ("s"..json.encode(gamestate.ship.map[tostring(gamestate.virtualPawn.x)][tostring(gamestate.virtualPawn.y)].access[3]))
+		print ("e"..json.encode(gamestate.ship.map[tostring(gamestate.virtualPawn.x)][tostring(gamestate.virtualPawn.y)].access[4]))
+		print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+	end
 
 	-- For specific game states, should be filtered based on that.
-	if key == "up" then
+	if key == "up" and canIMoveThisWay(0, -1) then
 		addMove(0,-1)
-	elseif key == "down" then		
+	elseif key == "down" and canIMoveThisWay(0, 1) then		
 		addMove(0,1)
-	elseif key == "right" then
+	elseif key == "right" and canIMoveThisWay(1, 0) then
 		addMove(1,0)
-	elseif key == "left" then
+	elseif key == "left" and canIMoveThisWay(-1, 0) then
 		addMove(-1,0)
 	end			
+
 
 end
 
@@ -815,7 +840,48 @@ end
 
 ]]
 
+function canIMoveThisWay(xMod, yMod)
+
+	-- not 120
+--1 north
+--2 west
+--3 south
+--4 east
+
+	if(xMod < 0) and not (gamestate.ship.map[tostring(gamestate.virtualPawn.x)][tostring(gamestate.virtualPawn.y)].access[2] == "120") then
+		return true
+	end
+
+	if(xMod > 0) and not (gamestate.ship.map[tostring(gamestate.virtualPawn.x)][tostring(gamestate.virtualPawn.y)].access[4] == "120") then
+		return true
+	end
+
+
+	if(yMod < 0) and not (gamestate.ship.map[tostring(gamestate.virtualPawn.x)][tostring(gamestate.virtualPawn.y)].access[1] == "120") then
+		return true
+	end
+
+	if(yMod > 0) and not (gamestate.ship.map[tostring(gamestate.virtualPawn.x)][tostring(gamestate.virtualPawn.y)].access[3] == "120") then
+		return true
+	end
+
+
+	return false
+
+end
+
+function gameSendChatBox()
+	if not (chatbox.text == "") then
+		server:addText(chatbox.text)
+		server:getText(chatLog[# chatLog].line_id)
+
+		chatbox.text = ""	
+	end
+end
+
 function addMove( xMod, yMod )
+	GAMESTATE_NEEDS_UPDATING = true
+
 	pawnObjects[PAWNOBJECTS_VIRTUALPAWN]:addMove(xMod, yMod)
 
 	server:addAction(MenuObject:new(nil, nil, nil, "4", gamestate.virtualPawn.x+xMod ..","..gamestate.virtualPawn.y+yMod))
@@ -896,6 +962,7 @@ function buildscreenObjects()
 				if not value_y.seen then
 					table.insert(screenObjects, ScreenObject:new(key_x+1, key_y+1, graphicsHandler:asset("fog")))
 				end
+
 			end
 		end
 	end
@@ -909,7 +976,9 @@ function buildscreenObjects()
 	
 	-- add the virtual pawn
 	table.insert(pawnObjects, PawnObject:new(gamestate.virtualPawn.x+1, gamestate.virtualPawn.y+1, graphicsHandler:asset("player"), "Your virtual pawn!"))
-
+	print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+	print(gamestate["gamestate"]["gamestate"].update_when)
+	print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
 
 	PAWNOBJECTS_VIRTUALPAWN = # pawnObjects 	
 end

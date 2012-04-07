@@ -31,8 +31,11 @@ class "ServerInterface" {
 	mState = 0;
 }
 
-function ServerInterface:__init(server)
-	self.mServer = server
+function ServerInterface:__init()
+end
+
+function ServerInterface:setHost(host)
+	self.mServer = host
 end
 
 function ServerInterface:start()
@@ -42,7 +45,9 @@ function ServerInterface:start()
 end
 
 
-
+function ServerInterface:tasksPending()
+	if (# self.mTasks > 0) then return true else return false end
+end
 
 function ServerInterface:login(username, password)
 
@@ -78,7 +83,6 @@ function ServerInterface:getText(action)
 	task["parameters"] = action
 
 	self:_addTask(task)
---	self:getGamestate()
 end
 
 function ServerInterface:addAction(action)
@@ -88,7 +92,7 @@ function ServerInterface:addAction(action)
 	task["parameters"] = action
 
 	self:_addTask(task)
-	self:getGamestate()
+	--self:getGamestate()
 end
 
 function ServerInterface:getGamestate()
@@ -116,7 +120,7 @@ function ServerInterface:_addTask(task)
 	-- 	get gamestate should always be last in the task list, and there should only be one or none.
 
 	if(# self.mTasks > 0) then
-		if(self.mTasks[# self.mTasks]["type"] == "get gamestate") then				
+		if(self.mTasks[# self.mTasks]["type"] == "get gamestate") and not (self.mTasks[1]["type"] == "get gamestate") then				
 			if(task["type"] == "get gamestate") then
 				return 0		
 			else
@@ -143,9 +147,9 @@ function ServerInterface:update()
 					-- we're idle, but there are tasks to be done.
 					task.post(self.mWorker, json.encode(self.mTasks[1]), 1)
 
-					print("Thread running with  ".. # self.mTasks .. " tasks in queue.")
+					print("["..self.mTasks[1].type.."] Thread running with ".. # self.mTasks .." tasks in queue.")
 					
-					print(json.encode(self.mTasks[1]))
+					--print(json.encode(self.mTasks[1]))
 
 					self.mState = SERVER_WAITING
 				elseif (self.mState == SERVER_WAITING) then
@@ -154,64 +158,22 @@ function ServerInterface:update()
 					local messageFromThread, flag, returnCode = task.receive(0)
 
 					if not(messageFromThread == nil) then
-						print("We got a message from the thread.")
+						print("["..self.mTasks[1].type.."] Result received.")
 
-						if(self.mTasks[1].type == "login") then
-							if(flag == 1) then
-								print("Login returned a message.")
+						if(flag == 1) then
+							local message = {}
 
-								local message = {}
+							message["type"] = self.mTasks[1].type
+							message["data"] = messageFromThread
 
-								message["type"] = "login"
-								message["data"] = messageFromThread
-
-								table.insert(self.mMessages, message)
-							end
+							table.insert(self.mMessages, message)
 						end
-
-						if(self.mTasks[1].type == "get gamestate") then
-							if(flag == 1) then
-								print("Received gamestate ok.")
-
-								local message = {}
-
-								message["type"] = "get gamestate"
-								message["data"] = messageFromThread
-
-								table.insert(self.mMessages, message)
-							end
-						end
-
-						if(self.mTasks[1].type == "add action") then
-							if(flag == 1) then
-								print("Action added ok.")
-							end							
-						end						
-
-						if(self.mTasks[1].type == "add text") then
-							if(flag == 1) then
-								print("Text added ok.")
-							end							
-						end						
-
-						if(self.mTasks[1].type == "get text") then
-							if(flag == 1) then
-								print("Received text ok.")
-
-								local message = {}
-
-								message["type"] = "get text"
-								message["data"] = messageFromThread
-
-								print (messageFromThread)
-								table.insert(self.mMessages, message)							
-							end							
-						end						
 
 						if (flag >= 0) then
+							print ("["..self.mTasks[1].type.."] Completed. "..(# self.mTasks -1).." task(s) left to do.")
 							table.remove(self.mTasks, 1)
-							print ("Task completd. "..# self.mTasks.." task(s) left to do.")
 						end
+
 
 						self.mState = SERVER_IDLE
 					end
