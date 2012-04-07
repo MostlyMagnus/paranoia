@@ -93,6 +93,8 @@ chatLog = { }
 chatbox= { }
 timeSinceLastChatUpdate = 0
 gameLog = { }
+chatSlider = {value = 0, min = 0, max = 8, vertical = true}
+
 
 -- login functions to finish
 functionQueue = { }
@@ -167,7 +169,7 @@ function love.load()
 	love.graphics.setBackgroundColor(GFX_COL_BG)
 	
 	-- set up UI
-	table.insert(uiObjects, ScreenObject:new(love.graphics.getWidth()/2, 20, graphicsHandler:asset("logo_small")))
+	table.insert(uiObjects, ScreenObject:new(love.graphics.getWidth()-150, love.graphics.getHeight()-20, graphicsHandler:asset("logo_small")))
 
 	-- set up loading screen
 	table.insert(uiLoadingScreen, ScreenObject:new((love.graphics.getWidth()/2), (love.graphics.getHeight()/2), graphicsHandler:asset("loading_circle")))
@@ -297,13 +299,18 @@ function love.draw()
 	love.graphics.setFont(defaultFont)
 
 	if(STATE == STATE_LOGIN_SCREEN) then
+		graphicsHandler:draw(graphicsHandler:asset("logo_big"), love.graphics.getWidth()/2, love.graphics.getHeight()/2)
 	end
 
 	if(STATE == STATE_LOGGING_IN) then
+		graphicsHandler:draw(graphicsHandler:asset("logo_big"), love.graphics.getWidth()/2, love.graphics.getHeight()/2)
+
 		drawLoadingScreen()
 	end
 
 	if(STATE == STATE_LOADING) then
+		graphicsHandler:draw(graphicsHandler:asset("logo_big"), love.graphics.getWidth()/2, love.graphics.getHeight()/2)
+
 		drawLoadingScreen()
 	end
 
@@ -545,9 +552,13 @@ end
 function inputGameLogState()
 	if GUI.Button('Chat', 5, love.graphics.getHeight() - 205, 100,20) then
 		logToDraw = "chat"
+		chatSlider.max = # chatLog
+		chatSlider.value = 0
 	end
 	if GUI.Button('System', 110, love.graphics.getHeight() - 205, 100,20) then
 		logToDraw = "game"
+		chatSlider.max = # gameLog
+		chatSlider.value = 0
 	end
 end
 
@@ -821,17 +832,25 @@ function drawGameUI()
 		temp_log = gameLog
 	end
 
-	local linesToDraw = 8
-	local logOffset = # temp_log - linesToDraw
+	--chatSlider = {value = 0, min = 0, max = 8, vertical = true}
+	-- = # temp_log
+	GUI.Slider(chatSlider, 505,love.graphics.getHeight()-210,20,175)
 
-	for _key, _value in pairs(temp_log) do
+	local linesToDraw = 8
+	local logOffset = (# temp_log - math.ceil(chatSlider.value)) - linesToDraw
+
+	for i=logOffset+1,logOffset+linesToDraw do
+		love.graphics.print("["..temp_log[i].pawn.."] "..temp_log[i].text, 5, (-40-linesToDraw*20)  +love.graphics.getHeight()+(i-logOffset)*20)
+	end
+
+--[[	for _key, _value in pairs(temp_log) do
 		if(_key > logOffset) then
 			if (_value.pawn) and (_value.text) then
 				love.graphics.print("[".._value.pawn.."] ".._value.text, 5, (-40-linesToDraw*20)  +love.graphics.getHeight()+(_key-logOffset)*20)
 			end
 		end
 	end
-
+]]
 	love.graphics.print("Crew Manifest", 1020, 5)
 
 	love.graphics.print("Status", 1090, 30)
