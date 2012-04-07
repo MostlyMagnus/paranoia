@@ -64,10 +64,19 @@ while true do
 			if(session) then
 
 				local text = get_text(session, fromMain["parameters"])
-				
+
 				task.post(main_id, text, 1)
 			end
 		end
 
+		if(fromMain["type"] == "get logs") then
+			if(session) then
+
+				local text = get_logs(session, fromMain["parameters"])
+
+				task.post(main_id, text, 1)
+			end
+		end
+		
 	end
 end

@@ -72,6 +72,15 @@ function ServerInterface:login(username, password)
 	self:_addTask(task)
 end
 
+function ServerInterface:getLogs(action)
+	local task = {}
+
+	task["type"] = "get logs"
+	task["parameters"] = action
+
+	self:_addTask(task)
+end
+
 function ServerInterface:addText(action)
 	local task = {}
 

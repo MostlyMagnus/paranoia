@@ -80,10 +80,11 @@ uiObjects = { }
 uiActionQueue = { }
 uiLoadingScreen = { }
 
--- chatbox
+-- logs
 chatLog = { }
 chatbox= { }
 timeSinceLastChatUpdate = 0
+gameLog = { }
 
 -- login functions to finish
 functionQueue = { }
@@ -157,10 +158,6 @@ function love.load()
 
 	love.graphics.setBackgroundColor(GFX_COL_BG)
 	
-	-- Set up some bogus things to look at while we're logging in.
-	--table.insert(screenObjects, ScreenObject:new(love.graphics.getWidth()/2, love.graphics.getHeight()/2, graphicsHandler:asset("logo_big")))
-	--table.insert(textObjects, TextObject:new("logging in", (love.graphics.getWidth()/GFX_R_SZ)/2-1, (love.graphics.getHeight()/GFX_R_SZ)/2-0.5, love.graphics.getFont():getWidth("logging in"), fontLogo))
-
 	-- set up UI
 	table.insert(uiObjects, ScreenObject:new(love.graphics.getWidth()/2, 20, graphicsHandler:asset("logo_small")))
 
@@ -206,17 +203,23 @@ function love.update(dt)
 
 	if(STATE == STATE_LOADING) then
 		if(STATE_SUBSTATE == 0) then
+			server:getLogs(0)
 			server:getText(0)	
 			server:getGamestate()	
 
 			STATE_SUBSTATE = 1
 		end
 		if(STATE_SUBSTATE == 1) then
-			if(threadcheckLookForChatlog()) then
+			if(threadcheckLookForGamelog()) then
 				STATE_SUBSTATE = 2
 			end
-		end
+		end		
 		if(STATE_SUBSTATE == 2) then
+			if(threadcheckLookForChatlog()) then
+				STATE_SUBSTATE = 3
+			end
+		end
+		if(STATE_SUBSTATE == 3) then
 			if(threadcheckLookForGamestate()) then
 				STATE = STATE_IDLE	
 			end
@@ -511,6 +514,27 @@ function threadcheckLookForChatlog()
 
 			for key, value in pairs(decoded_log) do
 				table.insert(chatLog, value)
+			end
+
+			return true
+		end
+	end
+
+	return false
+end
+
+function threadcheckLookForGamelog()
+
+	local temp_stored_log = server:getMessage("get logs")
+
+	if not (temp_stored_log == nil) then
+
+		if not (temp_stored_log == "[]") then
+
+			local decoded_log = json.decode(temp_stored_log)
+
+			for key, value in pairs(decoded_log) do
+				table.insert(gameLog, value)
 			end
 
 			return true
