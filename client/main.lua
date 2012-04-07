@@ -32,8 +32,12 @@ assert(require('inc/tickmenu'))
 
 assert(require('inc/serverinterface'))
 
+assert(require('inc/actionmanifest'))
+
 -- QUICKIE UI.
 GUI = require('inc/ui/')
+
+actionManifest = ActionManifest:new()
 
 -- Testing Quickie UI.
 local login = {text = "", cursor = 0}
@@ -62,9 +66,12 @@ host = { text = "192.168.1.248" }
 server = ServerInterface:new()
 
 -- set up the left menu function MenuHandler:__init(frameID, vertSwoop, HoriSwoop, x, y, w, h)
+--[[
 tickMenu = TickMenu:new(graphicsHandler:asset("tick_frame"), nil, nil, 96, 360,
 						graphicsHandler:getWidth(graphicsHandler:asset("tick_frame")), 
 						graphicsHandler:getHeight(graphicsHandler:asset("tick_frame")))
+]]
+queuedActions = { }
 
 -- handles all the objects to be drawn to the screen
 screenObjects = { }
@@ -81,7 +88,7 @@ uiActionQueue = { }
 uiLoadingScreen = { }
 
 -- logs
-logToDraw = "game"
+logToDraw = "chat"
 chatLog = { }
 chatbox= { }
 timeSinceLastChatUpdate = 0
@@ -152,7 +159,7 @@ PAWNOBJECTS_VIRTUALPAWN = 0
 function love.load()
 
 	--font setup
-	defaultFont = love.graphics.newFont('fonts/coalition_v2.ttf', 16)
+	defaultFont = love.graphics.newFont('fonts/designosaur_regular.ttf', 16)
 	love.graphics.setFont(defaultFont)
    
 	love.graphics.setColor(255,255,255,190)
@@ -180,7 +187,7 @@ function love.update(dt)
 	server:update()
 	updateRelativeMousePosition()	
 	-- update menus
-	tickMenu:update(dt)
+	--tickMenu:update(dt)
 
 	-- PRE GAME STATES
 	if(STATE == STATE_LOGIN_SCREEN) then
@@ -235,6 +242,9 @@ function love.update(dt)
  		updateGamestateIfNeeded(dt)
 
  		inputGameGetChatbox()
+ 		inputGameLogState()
+ 		inputGameActionMenu()
+ 		inputGameCrewMenu()
 
 		threadcheckLookForChatlog()
 		threadcheckLookForGamestate()
@@ -245,6 +255,9 @@ function love.update(dt)
 		updateChatLog(dt)
 
  		inputGameGetChatbox()
+ 		inputGameLogState()
+ 		inputGameActionMenu()
+ 		inputGameCrewMenu()
 
 		threadcheckLookForChatlog()
 		threadcheckLookForGamestate()
@@ -255,6 +268,9 @@ function love.update(dt)
 		updateChatLog(dt)
 
  		inputGameGetChatbox()
+ 		inputGameLogState()
+ 		inputGameActionMenu()
+ 		inputGameCrewMenu()
 
 		updateMousePanOffset()
 
@@ -435,6 +451,69 @@ end
  |_|_| |_| .__/ \__,_|\__|
          |_|              
 ]]
+
+function inputGameCrewMenu()
+	local pawnPrint = 0
+
+	for key, value in pairs(gamestate.gamestatePawns) do
+		if not (value.pawn_id == gamestate.virtualPawn.pawn_id) then
+			if GUI.Button('Airlock', 1020, 53+25*pawnPrint, 60, 20) then
+				server:addAction(MenuObject:new(nil, nil, nil, "5", value.pawn_id))
+				GAMESTATE_NEEDS_UPDATING = true
+			end
+		end
+		pawnPrint = pawnPrint+1
+	end
+end
+function inputGameActionMenu()
+--	love.graphics.print("Actions", 35, 30)
+	if GUI.Button('Undo', 95, 30, 55,20) then
+		server:removeAction()
+		if(# queuedActions > 0) then
+			
+			if(queuedActions[# queuedActions].action_type == 4) then
+				local coords_current = split(queuedActions[# queuedActions].parameters, ",")
+				local coords_previous = { }
+
+				local count = # queuedActions-1
+
+				local xMod = nil
+				local yMod = nil
+
+				while count > 0 do
+				
+					if(queuedActions[count].action_type == 4) then
+						coords_previous = split(queuedActions[count].parameters, ",")
+
+						xMod = coords_previous[1] - coords_current[1]
+						yMod = coords_previous[2] - coords_current[2] 
+
+						count = 0
+					end
+
+					count = count - 1
+				end
+				
+				if(xMod == nil) or (yMod == nil) then
+ 					for key, value in pairs(gamestate.gamestatePawns) do
+						if(value.pawn_id == gamestate.virtualPawn.pawn_id) then
+							xMod = value.x - coords_current[1]
+							yMod = value.y - coords_current[2]							
+						end
+					end
+				end
+
+				addMove(xMod, yMod)				
+			end 
+
+			table.remove(queuedActions)
+
+		end
+
+		GAMESTATE_NEEDS_UPDATING = true
+	end
+end
+
 function inputGetLoginInfo() 
 	if GUI.Input(host, love.graphics.getWidth()/2 - 150, love.graphics.getHeight()/2-45, 300, 20) then
 			print('Text changed:', host.text)
@@ -455,11 +534,20 @@ function inputGetLoginInfo()
 end
 
 function inputGameGetChatbox()
-	if GUI.Input(chatbox, 220, love.graphics.getHeight()-20, 400, 20) then
+	if GUI.Input(chatbox, 5, love.graphics.getHeight()-25, 415, 20) then
 		print('Text changed:', chatbox.text)
 	end
-	if GUI.Button('Send', 640, love.graphics.getHeight() - 20, 100,20) then
+	if GUI.Button('Send', 425, love.graphics.getHeight() - 25, 100,20) then
 		gameSendChatBox()
+	end
+end
+
+function inputGameLogState()
+	if GUI.Button('Chat', 5, love.graphics.getHeight() - 205, 100,20) then
+		logToDraw = "chat"
+	end
+	if GUI.Button('System', 110, love.graphics.getHeight() - 205, 100,20) then
+		logToDraw = "game"
 	end
 end
 
@@ -576,6 +664,8 @@ function updateGamestateIfNeeded(dt)
 		if(okToUpdate) then 
 			if not (gamestate.turn == stored_gamestate.turn) then
 				print("This gamestate is for the next turn.")
+
+				server:getLogs(gameLog[#gameLog].line_id)
 			end
 
 			gamestate = stored_gamestate
@@ -584,7 +674,7 @@ function updateGamestateIfNeeded(dt)
 		end 
 	end
 
-	if(timeSinceLastGamestateUpdate > 45) then
+	if(timeSinceLastGamestateUpdate > 60) then
 		GAMESTATE_NEEDS_UPDATING = true
 		timeSinceLastGamestateUpdate = 0
 	end
@@ -691,11 +781,36 @@ function drawGameUI()
 		graphicsHandler:draw(_value.mAssetID, _value.mX, _value.mY, nil, 1)
 	end	
 
-	local ui = tickMenu:getMenuAssets()
+--[[	local ui = tickMenu:getMenuAssets()
 
 	for _key, _value in pairs(ui) do
 		graphicsHandler:draw(_value.mAssetID, _value.mX, _value.mY, nil, 1)
 	end
+]]
+
+	-- Action Queue
+	local y = 30
+
+	love.graphics.print("Actions", 35, y)
+	love.graphics.print("AP", 5, y)
+
+	local ticksTotal = 0
+
+	for _key, _value in pairs(queuedActions) do
+		love.graphics.print(_value.cost, 5, y+20+20*ticksTotal)
+		love.graphics.print(_value.text, 35, y+20+20*ticksTotal)
+
+		for i=1,_value.cost-1 do
+			love.graphics.print("...", 35, y+20+20*(ticksTotal+i))
+		end
+
+		ticksTotal = ticksTotal + _value.cost
+	end
+
+	love.graphics.print(ticksTotal, 5, y+20+20*(ticksTotal+1))
+
+	love.graphics.print("Total", 35, y+20+20*(ticksTotal+1))
+
 
 	-- temporary code to only display X lines of chat
 	local temp_log = ""
@@ -712,9 +827,28 @@ function drawGameUI()
 	for _key, _value in pairs(temp_log) do
 		if(_key > logOffset) then
 			if (_value.pawn) and (_value.text) then
-				love.graphics.print(_value.pawn.." : ".._value.text, 230, (-40-linesToDraw*20)  +love.graphics.getHeight()+(_key-logOffset)*20)
+				love.graphics.print("[".._value.pawn.."] ".._value.text, 5, (-40-linesToDraw*20)  +love.graphics.getHeight()+(_key-logOffset)*20)
 			end
 		end
+	end
+
+	love.graphics.print("Crew Manifest", 1020, 5)
+
+	love.graphics.print("Status", 1090, 30)
+	love.graphics.print("Name", 1150, 30)
+	
+	local pawnPrint = 0
+
+	for key, value in pairs(gamestate.gamestatePawns) do
+		love.graphics.print((value.status*100).."%", 1090, 55+25*pawnPrint)
+
+		love.graphics.print(value.persona.persona.name, 1150, 55+25*pawnPrint)
+
+		if value.pawn_id == gamestate.virtualPawn.pawn_id then
+			love.graphics.print("*", 1080, 55+25*pawnPrint)			
+		end
+
+		pawnPrint = pawnPrint+1
 	end
 
 	love.graphics.print("Turn ".. gamestate.turn .." ends in "..math.ceil(gamestate.updateIn/60).." minutes.", 5, 5)
@@ -753,12 +887,12 @@ function mousePressedGame(x, y, button)
 				-- check if we clicked a different square
 				-- if we did, set state to radial with room radial
 				-- go into pan mode	
-				if not (tickMenu:clickCheck()) then	
-					STATE = STATE_PAN				
-					lbuttonDown = { true, x, y, OFFSET_X, OFFSET_Y }
-				else
-					state_changed = true
-				end
+				--if not (tickMenu:clickCheck()) then	
+				STATE = STATE_PAN				
+				lbuttonDown = { true, x, y, OFFSET_X, OFFSET_Y }
+				--else
+				--	state_changed = true
+				--end
 			end
 		end
 		
@@ -768,11 +902,12 @@ function mousePressedGame(x, y, button)
 					mouse_x_relative < (value.mX+0.5)*GFX_R_SZ + love.graphics.getFont():getWidth(value.mText)/2 and
 					mouse_y_relative > (value.mY+0.5)*GFX_R_SZ and
 					mouse_y_relative < (value.mY+0.5)*GFX_R_SZ + love.graphics.getFont():getHeight(value.mText)  then				
-					server:addAction(value)						
+					server:addAction(value)			
+
+					GAMESTATE_NEEDS_UPDATING = true
 				end
 			end
 			
-			print("(STATE == STATE_RADIAL and not state_changed)")
 			STATE = STATE_IDLE
 		end	
 	elseif button == "r" then
@@ -867,16 +1002,36 @@ function gameKeyPressed(key, code)
 	end
 
 	-- For specific game states, should be filtered based on that.
+	local xMod = 0
+	local yMod = 0
+
+	local legalMove = false
+
 	if key == "up" and canIMoveThisWay(0, -1) then
-		addMove(0,-1)
+		xMod = 0
+		yMod = -1
+		legalMove = true
 	elseif key == "down" and canIMoveThisWay(0, 1) then		
-		addMove(0,1)
+		xMod = 0
+		yMod = 1
+		legalMove = true
 	elseif key == "right" and canIMoveThisWay(1, 0) then
-		addMove(1,0)
+		xMod = 1
+		yMod = 0
+		legalMove = true
 	elseif key == "left" and canIMoveThisWay(-1, 0) then
-		addMove(-1,0)
+		xMod = -1
+		yMod = 0
+		legalMove = true
 	end			
 
+	if legalMove then
+		addMove(xMod, yMod)
+		server:addAction(MenuObject:new(nil, nil, nil, "4", gamestate.virtualPawn.x+xMod ..","..gamestate.virtualPawn.y+yMod))
+
+		gamestate.virtualPawn.x = gamestate.virtualPawn.x+xMod 
+		gamestate.virtualPawn.y = gamestate.virtualPawn.y+yMod 
+	end
 
 end
 
@@ -933,11 +1088,6 @@ function addMove( xMod, yMod )
 	GAMESTATE_NEEDS_UPDATING = true
 
 	pawnObjects[PAWNOBJECTS_VIRTUALPAWN]:addMove(xMod, yMod)
-
-	server:addAction(MenuObject:new(nil, nil, nil, "4", gamestate.virtualPawn.x+xMod ..","..gamestate.virtualPawn.y+yMod))
-
-	gamestate.virtualPawn.x = gamestate.virtualPawn.x+xMod 
-	gamestate.virtualPawn.y = gamestate.virtualPawn.y+yMod 
 end
 
 function refreshSession()
@@ -1031,8 +1181,10 @@ function buildscreenObjects()
 end
 
 function buildTickmenu()
-	tickMenu:clear()
+--	tickMenu:clear()
+	queuedActions = { }
 
+--[[
 	tickMenu:addButton(graphicsHandler:asset("open"), graphicsHandler:asset("open"),						
 					tickMenu.mWidth, tickMenu.mHeight/2, 
 					graphicsHandler:getWidth(graphicsHandler:asset("open")), 
@@ -1041,11 +1193,15 @@ function buildTickmenu()
 					function () 
 						tickMenu:swapState()
 					end)						
-
+]]
 	-- rebuild the actionqueue menu
 	for key, tick in pairs(gamestate.actionQueue) do
 		for key, action in pairs (tick) do
 			-- function Button:__init( id, hover_id,  x, y, w, h, metadata, callback )
+
+			table.insert(queuedActions, {text = actionManifest:getString(action["action_type"]), cost = action["tick_cost"], action_type = action["action_type"], queue_number = action["queue_number"], parameters = action["params"] })
+
+--[[
 			tickMenu:addButton(graphicsHandler:asset("tick"), 
 								graphicsHandler:asset("tick_hovering"),						
 								92, 
@@ -1056,6 +1212,8 @@ function buildTickmenu()
 								function () 
 									tickMenu:swapState()
 								end)
+]]
+
 		end
 	end
 

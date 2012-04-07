@@ -44,6 +44,15 @@ while true do
 			end
 		end
 
+		if(fromMain["type"] == "remove action") then
+			if(session) then
+				remove_action(session)
+
+				task.post(main_id, '', 1)
+			end
+		end
+
+
 		if(fromMain["type"] == "get gamestate") then
 			if(session) then
 				local gamestate = get(session, global_server..'gamestates/'..global_gamestate_id..'/json_gamestate')

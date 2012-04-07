@@ -108,6 +108,14 @@ function ServerInterface:addAction(action)
 	self:_addTask(task)
 end
 
+function ServerInterface:removeAction()
+	local task = {}
+
+	task["type"] = "remove action"
+
+	self:_addTask(task)
+end
+
 function ServerInterface:getGamestate()
 	local task = {}
 
