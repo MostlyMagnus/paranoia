@@ -81,6 +81,7 @@ uiActionQueue = { }
 uiLoadingScreen = { }
 
 -- logs
+logToDraw = "game"
 chatLog = { }
 chatbox= { }
 timeSinceLastChatUpdate = 0
@@ -697,10 +698,18 @@ function drawGameUI()
 	end
 
 	-- temporary code to only display X lines of chat
-	local linesToDraw = 8
-	local logOffset = # chatLog - linesToDraw
+	local temp_log = ""
 
-	for _key, _value in pairs(chatLog) do
+	if logToDraw == "chat" then
+		temp_log = chatLog
+	elseif logToDraw == "game" then
+		temp_log = gameLog
+	end
+
+	local linesToDraw = 8
+	local logOffset = # temp_log - linesToDraw
+
+	for _key, _value in pairs(temp_log) do
 		if(_key > logOffset) then
 			if (_value.pawn) and (_value.text) then
 				love.graphics.print(_value.pawn.." : ".._value.text, 230, (-40-linesToDraw*20)  +love.graphics.getHeight()+(_key-logOffset)*20)

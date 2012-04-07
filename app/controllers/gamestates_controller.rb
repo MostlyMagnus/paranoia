@@ -93,6 +93,14 @@ class GamestatesController < ApplicationController
   def get_logs 
     @gamestate = Gamestate.find_by_id(params[:id])
     render :text => @gamestate.log_entries.where('id > ?', params[:id_greater_than]).to_json
+
+    lines Array.new
+
+    @gamestate.log_entries.where('id > ?', params[:id_greater_than]).each do |log_entry|
+      lines.push({:line_id => log_entry.id, :pawn => "System", :text => log_entry.entry})
+    end    
+
+    render :text => lines.to_json
   end
 
   def get_text
