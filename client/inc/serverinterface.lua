@@ -45,8 +45,16 @@ function ServerInterface:start()
 end
 
 
-function ServerInterface:tasksPending()
-	if (# self.mTasks > 0) then return true else return false end
+function ServerInterface:tasksPendingAffectingGamestate()
+	local tasksPending = false
+
+	for key, value in pairs(self.mTasks) do
+		if(value.type == "add action") then
+			tasksPending = true
+		end
+	end
+
+	return tasksPending	
 end
 
 function ServerInterface:login(username, password)
@@ -62,8 +70,6 @@ function ServerInterface:login(username, password)
 	task["parameters"] = userInfo
 
 	self:_addTask(task)
-	--self:getGamestate()
-
 end
 
 function ServerInterface:addText(action)
@@ -73,7 +79,6 @@ function ServerInterface:addText(action)
 	task["parameters"] = action
 
 	self:_addTask(task)
---	self:getGamestate()
 end
 
 function ServerInterface:getText(action)
@@ -92,7 +97,6 @@ function ServerInterface:addAction(action)
 	task["parameters"] = action
 
 	self:_addTask(task)
-	--self:getGamestate()
 end
 
 function ServerInterface:getGamestate()
@@ -124,7 +128,10 @@ function ServerInterface:_addTask(task)
 			if(task["type"] == "get gamestate") then
 				return 0		
 			else
+
 				table.insert(self.mTasks, # self.mTasks, task)
+
+				print("["..task["type"].."] Task added at position "..(# self.mTasks-1).." in queue.")
 
 				return 1			
 			end
@@ -132,6 +139,8 @@ function ServerInterface:_addTask(task)
 	end
 
 	table.insert(self.mTasks, task)
+
+	print("["..task["type"].."] Task added at position "..(# self.mTasks).." in queue.")
 end
 
 function ServerInterface:update()

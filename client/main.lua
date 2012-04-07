@@ -532,18 +532,12 @@ function updateGamestateIfNeeded(dt)
 	-- If we need to update the gamestate
 	-- post an action to the network thread to fetch a new gamestate
 
-	if (GAMESTATE_NEEDS_UPDATING) then
-		if not server:tasksPending() then
-			server:getGamestate()
-
-			GAMESTATE_NEEDS_UPDATING = false	
-		end
-	end
+	timeSinceLastGamestateUpdate = timeSinceLastGamestateUpdate + dt
 
 	if (stored_gamestate) then
 		local okToUpdate = true
 
-		if (server:tasksPending()) then 
+		if (server:tasksPendingAffectingGamestate()) then 
 			-- user has modified his local gamestate since this data was fetched, discard it
 			stored_gamestate = nil
 
@@ -560,8 +554,24 @@ function updateGamestateIfNeeded(dt)
 			refreshSession() 
 		end 
 	end
+
+	if(timeSinceLastGamestateUpdate > 45) then
+		GAMESTATE_NEEDS_UPDATING = true
+		timeSinceLastGamestateUpdate = 0
+	end
+
+	if (GAMESTATE_NEEDS_UPDATING) then
+		if not server:tasksPendingAffectingGamestate() then
+			server:getGamestate()
+
+			GAMESTATE_NEEDS_UPDATING = false	
+		end
+	end
 end
 
+function checkTurnTimer()
+	
+end
 function updateMousePanOffset()
 	OFFSET_X = lbuttonDown[4] + love.mouse.getX() - lbuttonDown[2]
 	OFFSET_Y = lbuttonDown[5] + love.mouse.getY() - lbuttonDown[3]
@@ -668,6 +678,9 @@ function drawGameUI()
 			end
 		end
 	end
+
+	love.graphics.print("Turn ends in "..math.ceil(gamestate.updateIn/60).." minutes.", 5, 5)
+
 end
 
 --[[                      
@@ -865,7 +878,6 @@ function canIMoveThisWay(xMod, yMod)
 		return true
 	end
 
-
 	return false
 
 end
@@ -976,9 +988,6 @@ function buildscreenObjects()
 	
 	-- add the virtual pawn
 	table.insert(pawnObjects, PawnObject:new(gamestate.virtualPawn.x+1, gamestate.virtualPawn.y+1, graphicsHandler:asset("player"), "Your virtual pawn!"))
-	print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-	print(gamestate["gamestate"]["gamestate"].update_when)
-	print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
 
 	PAWNOBJECTS_VIRTUALPAWN = # pawnObjects 	
 end
