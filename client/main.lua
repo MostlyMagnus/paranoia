@@ -162,7 +162,7 @@ function love.load()
 	--table.insert(textObjects, TextObject:new("logging in", (love.graphics.getWidth()/GFX_R_SZ)/2-1, (love.graphics.getHeight()/GFX_R_SZ)/2-0.5, love.graphics.getFont():getWidth("logging in"), fontLogo))
 
 	-- set up UI
-	table.insert(uiObjects, ScreenObject:new(150, 20, graphicsHandler:asset("logo_small")))
+	table.insert(uiObjects, ScreenObject:new(love.graphics.getWidth()/2, 20, graphicsHandler:asset("logo_small")))
 
 	-- set up loading screen
 	table.insert(uiLoadingScreen, ScreenObject:new((love.graphics.getWidth()/2), (love.graphics.getHeight()/2), graphicsHandler:asset("loading_circle")))
@@ -549,6 +549,10 @@ function updateGamestateIfNeeded(dt)
 		end
 
 		if(okToUpdate) then 
+			if not (gamestate.turn == stored_gamestate.turn) then
+				print("This gamestate is for the next turn.")
+			end
+
 			gamestate = stored_gamestate
 			stored_gamestate = nil
 			refreshSession() 
@@ -572,6 +576,7 @@ end
 function checkTurnTimer()
 	
 end
+
 function updateMousePanOffset()
 	OFFSET_X = lbuttonDown[4] + love.mouse.getX() - lbuttonDown[2]
 	OFFSET_Y = lbuttonDown[5] + love.mouse.getY() - lbuttonDown[3]
@@ -679,7 +684,7 @@ function drawGameUI()
 		end
 	end
 
-	love.graphics.print("Turn ends in "..math.ceil(gamestate.updateIn/60).." minutes.", 5, 5)
+	love.graphics.print("Turn ".. gamestate.turn .." ends in "..math.ceil(gamestate.updateIn/60).." minutes.", 5, 5)
 
 end
 

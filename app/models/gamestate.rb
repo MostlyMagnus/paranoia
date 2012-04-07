@@ -120,7 +120,7 @@ class Gamestate < ActiveRecord::Base
       # Idle logic goes here (detoriation, random events, etc)
  
       # Bump the turn for this update cycle
-      @turn = ((self.updated_at.advance(:minutes => self.timescale * i)  - self.created_at)/(60 * self.timescale)).floor
+      @turn = ((self.update_when.advance(:minutes => self.timescale * i)  - self.created_at)/(60 * self.timescale)).floor
       	  
       # distance from home: fixed number
       # expected turns: distance_from_home(1/difficulty_rating)
@@ -370,7 +370,7 @@ class Gamestate < ActiveRecord::Base
     returned_data[:actionQueue] = getActionqueue
 
     returned_data[:events] = getEvents
-  	returned_data[:log] = self.log_entries
+#  	returned_data[:log] = self.log_entries
 
     returned_data[:updateIn] = self.update_when - Time.now 
     returned_data[:turn] =  ((self.updated_at - self.created_at)/(60 * self.timescale)).floor
