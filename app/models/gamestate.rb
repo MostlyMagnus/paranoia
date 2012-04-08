@@ -365,6 +365,8 @@ class Gamestate < ActiveRecord::Base
       end      
     end
 
+    test = Array.new
+
     # Now lets calculate distances and add accordingly to the remaining players.
     getGamestatePawns(self.playerstatus).each do |gspawn|
       if !visPawnsIDs.include?(gspawn[1].pawn_id) then
@@ -381,6 +383,8 @@ class Gamestate < ActiveRecord::Base
           scramble = 2
         end
 
+        test.push(dist)
+
         # There's more granularity to be had here but I'm not sure if we want it.
         #elsif dist <= 4
         #  scramble = 3
@@ -394,6 +398,8 @@ class Gamestate < ActiveRecord::Base
         end
       end
     end
+
+    return test.to_json
   end
 
   # == JSON calls
