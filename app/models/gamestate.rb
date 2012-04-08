@@ -371,6 +371,20 @@ class Gamestate < ActiveRecord::Base
         y = self.getPosition(@user_pawn).y - gspawn[1].y
 
         dist = Math.hypot(x.abs, y.abs)
+
+        scramble = -1
+
+        if dist <= 2 then 
+          scramble = 1
+        elsif dist <= 3
+          scramble = 2
+        elsif dist <= 4
+          scramble = 3
+        end
+
+        if scramble > 0 then
+          Pawn.find_by_id(gspawn[1].pawn_id).heards.create!(:line_id => line.id, :scramble => scramble)
+        end
       end
     end
 
