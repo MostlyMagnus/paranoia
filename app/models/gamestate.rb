@@ -373,7 +373,7 @@ class Gamestate < ActiveRecord::Base
        # x = self.getPosition(@pawn).x - gspawn[1].x
        # y = self.getPosition(@pawn).y - gspawn[1].y
 
-        dist = Math.hypot(x.abs, y.abs)
+       # dist = Math.hypot(x.abs, y.abs)
 
         scramble = -1
 
