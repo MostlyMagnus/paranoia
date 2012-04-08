@@ -357,9 +357,11 @@ class Gamestate < ActiveRecord::Base
     visPawnsIDs = Array.new
 
     self.getVisibleGamestatePawns(@pawn).each do |gspawn|
-      Pawn.find_by_id(gspawn[1].pawn_id).heards.create!(:line_id => line.id, :scramble => 0)
+      if(gspawn[1].positionAllowed) then 
+        Pawn.find_by_id(gspawn[1].pawn_id).heards.create!(:line_id => line.id, :scramble => 0)
       
-      visPawnsIDs.push(gspawn[1].pawn_id)
+        visPawnsIDs.push(gspawn[1].pawn_id)
+      end      
     end
 
     # lets find our position
