@@ -60,7 +60,7 @@ Scrmb	Distance of		Example
 				# the entire thing.
 				if salt > wordCount then
 					# Reset the salt marker
-					salt -= 0
+					salt = 0
 				end
 			end
 
