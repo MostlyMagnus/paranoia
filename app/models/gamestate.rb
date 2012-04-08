@@ -339,7 +339,43 @@ class Gamestate < ActiveRecord::Base
 
 	end
   end
+  
+  # ==
+
+  def addText(current_user, text)
+    setup
+    pawnSetup(current_user)
+
+    #line.create(:pawn_id => pawn, :text =>...)
+    #for each pawn that couldve heard this
+    # => pawn.heard_lines.create(:line_id => ..., :scramble = > ...)
+
+    line = @pawn.lines.create!(:text => text)
+
+    # add the line non scrambled to the pawns in sight.
+
+    visPawnsIDs = Array.new
+
+    @gamestate.getVisibleGamestatePawns(@pawn).each do |gspawn|
+      Pawn.find_by_id(gspawn.pawn_id).heards.create!(:line_id => line.id, :scramble => 0)
       
+      visPawnsIDs.push(gspawn.pawn_id)
+    end
+
+    # lets find our position
+
+    @gamestatePawns.each do |gspawn|
+      if !visPawnsIDs.include?(gspawn.pawn_id) then
+        # the pawn isnt visible, lets calculate the distance
+        x = self.getPosition(@user_pawn).x - gspawn.x
+        y = self.getPosition(@user_pawn).y - gspawn.y
+
+        dist = Math.hypot(x.abs, y.abs)
+      end
+    end
+
+  end
+
   # == JSON calls
   # The front end uses these to get the relevant information
 

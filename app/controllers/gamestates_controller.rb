@@ -75,37 +75,7 @@ class GamestatesController < ApplicationController
   
   def add_text
     @gamestate = Gamestate.find_by_id(params[:id])
-    @pawns = Pawn.find_all_by_gamestate_id(@gamestate.id)
-
-    @user_pawn = Pawn.find_by_gamestate_id_and_user_id(params[:id], current_user.id) 
-
-    #line.create(:pawn_id => pawn, :text =>...)
-    #for each pawn that couldve heard this
-    # => pawn.heard_lines.create(:line_id => ..., :scramble = > ...)
-
-    line = @user_pawn.lines.create!(:text => params[:text])
-
-    # add the line non scrambled to the pawns in sight.
-
-    visPawnsIDs = Array.new
-
-    @gamestate.getVisibleGamestatePawns(@user_pawn).each do |gspawn|
-      Pawn.find_by_id(gspawn.pawn_id).heards.create!(:line_id => line.id, :scramble => 0)
-      visPawnsIDs.push(gspawn.pawn_id)
-    end
-
-    # lets find our position
-
-    @gamestate.gamestatePawns.each do |gspawn|
-      if !visPawnsIDs.include?(gspawn.pawn_id) then
-        # the pawn isnt visible, lets calculate the distance
-        x = @gamestate.getPosition(@user_pawn).x - gspawn.x
-        y = @gamestate.getPosition(@user_pawn).y - gspawn.y
-
-        dist = Math.hypot(x.abs, y.abs)
-      end
-    end
-
+    @gamestate.addText(current_user, params[:text])
   end
 
   def get_logs 
