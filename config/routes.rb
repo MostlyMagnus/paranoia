@@ -38,7 +38,7 @@ Paranoia::Application.routes.draw do
   #match '/about',   :to => 'pages#about'
   #match '/help',    :to => 'pages#help'
   
-  #match '/signin',  :to => 'sessions#new'
+  match '/signin',  :to => 'sessions#new'
   #match '/signout', :to => 'sessions#destroy'
 
   #match '/lobbies', :to => 'lobbies#index'
