@@ -378,15 +378,15 @@ class Gamestate < ActiveRecord::Base
         scramble = -1
 
         test.push(gspawn[1])
-        if dist <= 2 then 
-          scramble = 1
-        elsif dist <= 3
-          scramble = 2
-        elsif dist <= 4
-          scramble = 3
-        elsif dist <= 6
-          scramble = 4
-        end
+        #if dist <= 2 then 
+        #  scramble = 1
+        #elsif dist <= 3
+        #  scramble = 2
+        #elsif dist <= 4
+        #  scramble = 3
+        #elsif dist <= 6
+        #  scramble = 4
+        #end
 
         if scramble > 0 then
           Pawn.find_by_id(gspawn[1].pawn_id).heards.create!(:line_id => line.id, :scramble => scramble)
