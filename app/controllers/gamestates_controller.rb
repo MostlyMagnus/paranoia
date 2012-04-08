@@ -75,7 +75,7 @@ class GamestatesController < ApplicationController
   
   def add_text
     @gamestate = Gamestate.find_by_id(params[:id])
-    @gamestate.addText(current_user, params[:text])
+    render :text => @gamestate.addText(current_user, params[:text])
   end
 
   def get_logs 

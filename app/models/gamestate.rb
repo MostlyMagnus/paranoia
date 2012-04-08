@@ -365,6 +365,7 @@ class Gamestate < ActiveRecord::Base
     end
 
     # lets find our position
+    test = Array.new
 
     @gamestatePawns.each do |gspawn|
       if !visPawnsIDs.include?(gspawn[1].pawn_id) then
@@ -376,6 +377,7 @@ class Gamestate < ActiveRecord::Base
 
         scramble = -1
 
+        test.push(dist)
         if dist <= 2 then 
           scramble = 1
         elsif dist <= 3
@@ -391,6 +393,8 @@ class Gamestate < ActiveRecord::Base
         end
       end
     end
+
+    return test
 
   end
 
