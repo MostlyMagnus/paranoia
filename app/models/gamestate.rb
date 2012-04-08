@@ -304,7 +304,7 @@ class Gamestate < ActiveRecord::Base
   
   def scanDirection(user_pawn, multiplier_x, multiplier_y, passed_gamestatepawns = @gamestatePawns)
     # You see a long way down hallways.
-    @view_distance = 35;
+    @view_distance = 4;
     
     pawn_position = getPosition(user_pawn, passed_gamestatepawns)
 
@@ -382,6 +382,8 @@ class Gamestate < ActiveRecord::Base
           scramble = 2
         elsif dist <= 4
           scramble = 3
+        elsif dist <= 6
+          scramble = 4
         end
 
         if scramble > 0 then
