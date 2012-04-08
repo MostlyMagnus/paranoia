@@ -23,12 +23,14 @@ Scrmb	Distance of		Example
 =end
 
 	def scramble(level, salt = 1)
-		muffledString = "[...]"
+		
 		if level <= 1 then
 			self.text
 		else 			
-			splitString = self.text.split
+			# Define the string which should be applied by the pattern. The user will see this.
+			muffledString = "[...]"
 
+			# Define the pattern for scrambling the text.
 			if level == 2 then
 				pattern = Array.new([muffledString, nil, nil]*20)
 			elsif level == 3 then
@@ -37,30 +39,43 @@ Scrmb	Distance of		Example
 				pattern = Array.new([muffledString]*20)
 			end
 
+			# Getting ready to apply the pattern.
+			splitString = self.text.split
 			wordCount = self.text.split.size - 1
+
+			# Apply the pattern.
+
+			# Loop for every word in the splitString array.
 			for i in 0..wordCount
+				# If the pattern marker isn't nil, we should scramble this word.
 				if(pattern[i] != nil) then
+					# Salt is a word marker that was randomly picked when the user heard this.
 					splitString[salt] = pattern[i]
 				end
 
+				# Lets step forward through the sentence.
 				salt += 1
+
+				# We've reached the end of the sentence, but chances are we havent gone through
+				# the entire thing.
 				if salt > wordCount then
+					# Reset the salt marker but keep the offset.
 					salt -= wordCount
 				end
 			end
 
-			mergedString = Array.new()
-
+			# Pattern has been applied. Merge any adjacent muffledStrings.
 			for i in 0..splitString.size()-1
-			
+				# We're currently at a muffledString.
 				if splitString[i] == muffledString then
+					# As long as the next one is a muffled string, delete it.
 					while(splitString[i+1] == muffledString) do
 						splitString.delete_at(i+1)
 					end								
 				end
-
 			end
 
+			# Join the array into a string and return it.
 			splitString.join(" ")
 		end		
 	end
