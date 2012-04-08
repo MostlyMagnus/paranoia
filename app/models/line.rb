@@ -37,7 +37,7 @@ Scrmb	Distance of		Example
 				pattern = Array.new([muffledString]*20)
 			end
 
-			for i in 0..self.text.split.size
+			for i in 1..self.text.split.size
 				if(pattern[i] != nil) then
 					splitString[salt] = pattern[i]
 				end
