@@ -350,10 +350,11 @@ class Gamestate < ActiveRecord::Base
     #for each pawn that couldve heard this
     # => pawn.heard_lines.create(:line_id => ..., :scramble = > ...)
 
+    # We add the line to the database of things said.
     line = @pawn.lines.create!(:text => text)
 
-    # add the line non scrambled to the pawns in sight.
-
+    # Add the line non scrambled to the pawns in sight. While we're at it,
+    # we save a list of whoever was in line of sight.
     visPawnsIDs = Array.new
 
     self.getVisibleGamestatePawns(@pawn).each do |gspawn|
@@ -364,12 +365,9 @@ class Gamestate < ActiveRecord::Base
       end      
     end
 
-    # lets find our position
-    test = Array.new
-
+    # Now lets calculate distances and add accordingly to the remaining players.
     getGamestatePawns(self.playerstatus).each do |gspawn|
       if !visPawnsIDs.include?(gspawn[1].pawn_id) then
-        # the pawn isnt visible, lets calculate the distance
         x = self.getPosition(@pawn).x - gspawn[1].x
         y = self.getPosition(@pawn).y - gspawn[1].y
 
@@ -377,7 +375,6 @@ class Gamestate < ActiveRecord::Base
 
         scramble = -1
 
-        test.push(dist)
         if dist <= 2 then 
           scramble = 1
         elsif dist <= 3
@@ -389,13 +386,11 @@ class Gamestate < ActiveRecord::Base
         end
 
         if scramble > 0 then
-          Pawn.find_by_id(gspawn[1].pawn_id).heards.create!(:line_id => line.id, :scramble => scramble)
+          # Add the line_id, scramble level, and finally something to create a repeatable randomness with.
+          Pawn.find_by_id(gspawn[1].pawn_id).heards.create!(:line_id => line.id, :scramble => scramble, :salt => rand(line.text.split.size()))
         end
       end
     end
-
-    return test.to_json
-
   end
 
   # == JSON calls
