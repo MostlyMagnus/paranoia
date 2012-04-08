@@ -370,14 +370,14 @@ class Gamestate < ActiveRecord::Base
     @gamestatePawns.each do |gspawn|
       if !visPawnsIDs.include?(gspawn[1].pawn_id) then
         # the pawn isnt visible, lets calculate the distance
-        x = self.getPosition(@pawn).x - gspawn[1].x
-        y = self.getPosition(@pawn).y - gspawn[1].y
+       # x = self.getPosition(@pawn).x - gspawn[1].x
+       # y = self.getPosition(@pawn).y - gspawn[1].y
 
         dist = Math.hypot(x.abs, y.abs)
 
         scramble = -1
 
-        test.push(dist)
+        test.push(gspawn[1])
         if dist <= 2 then 
           scramble = 1
         elsif dist <= 3
