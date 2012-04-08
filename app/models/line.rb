@@ -53,16 +53,15 @@ Scrmb	Distance of		Example
 					splitString[salt] = pattern[i]
 				end
 
-				# We've reached the end of the sentence, but chances are we havent gone through
-				# the entire thing.
-				if salt > wordCount then
-					# Reset the salt marker but keep the offset.
-					salt -= wordCount
-				end
-
 				# Lets step forward through the sentence.
 				salt += 1
 
+				# We've reached the end of the sentence, but chances are we havent gone through
+				# the entire thing.
+				if salt > wordCount then
+					# Reset the salt marker
+					salt -= 0
+				end
 			end
 
 			# Pattern has been applied. Merge any adjacent muffledStrings.
