@@ -49,6 +49,18 @@ Scrmb	Distance of		Example
 				end
 			end
 
+			mergedString = Array.new()
+
+			for i in 0..splitString.size()-1
+			
+				if splitString[i] == muffledString then
+					while(splitString[i+1] == muffledString) do
+						splitString.delete_at(i+1)
+					end								
+				end
+
+			end
+
 			splitString.join(" ")
 		end		
 	end
