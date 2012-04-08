@@ -356,7 +356,7 @@ class Gamestate < ActiveRecord::Base
 
     visPawnsIDs = Array.new
 
-    @gamestate.getVisibleGamestatePawns(@pawn).each do |gspawn|
+    self.getVisibleGamestatePawns(@pawn).each do |gspawn|
       Pawn.find_by_id(gspawn.pawn_id).heards.create!(:line_id => line.id, :scramble => 0)
       
       visPawnsIDs.push(gspawn.pawn_id)
