@@ -31,7 +31,7 @@ Scrmb	Distance of		Example
 			
 			splitString = self.text.split
 	
-			for i in 0..string.split.size
+			for i in 0..self.text.split.size
 				if(pattern[i] != nil) then
 					splitString[salt] = pattern[i]
 				end
