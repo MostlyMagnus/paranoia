@@ -95,7 +95,6 @@ timeSinceLastChatUpdate = 0
 gameLog = { }
 chatSlider = {value = 0, min = 0, max = 8, vertical = true}
 
-
 -- login functions to finish
 functionQueue = { }
 
@@ -226,6 +225,7 @@ function love.update(dt)
 		end		
 		if(STATE_SUBSTATE == 2) then
 			if(threadcheckLookForChatlog()) then
+
 				STATE_SUBSTATE = 3
 			end
 		end
@@ -249,6 +249,7 @@ function love.update(dt)
  		inputGameCrewMenu()
 
 		threadcheckLookForChatlog()
+		threadcheckLookForGamelog()
 		threadcheckLookForGamestate()
 	end
 
@@ -262,6 +263,7 @@ function love.update(dt)
  		inputGameCrewMenu()
 
 		threadcheckLookForChatlog()
+		threadcheckLookForGamelog()
 		threadcheckLookForGamestate()
 	end
 
@@ -277,6 +279,7 @@ function love.update(dt)
 		updateMousePanOffset()
 
 		threadcheckLookForChatlog()
+		threadcheckLookForGamelog()
 		threadcheckLookForGamestate()
 	end	
 
@@ -464,9 +467,38 @@ function inputGameCrewMenu()
 
 	for key, value in pairs(gamestate.gamestatePawns) do
 		if not (value.pawn_id == gamestate.virtualPawn.pawn_id) then
-			if GUI.Button('Airlock', 1020, 53+25*pawnPrint, 60, 20) then
-				server:addAction(MenuObject:new(nil, nil, nil, "5", value.pawn_id))
-				GAMESTATE_NEEDS_UPDATING = true
+			local voteInitiated = false
+			local eventID = nil
+
+			for event_key, event in pairs(gamestate.events) do
+				--print (json.encode(event))
+				if (# event > 0) then
+					if tonumber(event[1].user_event.params) == tonumber(value.pawn_id) then
+						eventID = event[1].user_event.id
+						voteInitiated = true
+					end	
+				end
+			end
+
+			if not(voteInitiated) then
+				if GUI.Button('Airlock', 1020, 53+25*pawnPrint, 60, 20) then
+					server:addAction(MenuObject:new(nil, nil, nil, actionManifest:getActionID("A_INITVOTE"), value.pawn_id))
+
+					GAMESTATE_NEEDS_UPDATING = true
+				end
+			else
+				-- cast vote but check if user is in user_events already
+				if GUI.Button('Yes', 1020, 53+25*pawnPrint, 30, 20) then
+					server:addAction(MenuObject:new(nil, nil, nil, actionManifest:getActionID("A_VOTE"), eventID..",1"))
+
+					GAMESTATE_NEEDS_UPDATING = true
+				end
+				if GUI.Button('No', 1053, 53+25*pawnPrint, 27, 20) then
+					server:addAction(MenuObject:new(nil, nil, nil, actionManifest:getActionID("A_VOTE"), eventID..",-1"))
+
+					GAMESTATE_NEEDS_UPDATING = true
+				end
+				
 			end
 		end
 		pawnPrint = pawnPrint+1
@@ -547,19 +579,22 @@ function inputGameGetChatbox()
 	if GUI.Button('Send', 425, love.graphics.getHeight() - 25, 100,20) then
 		gameSendChatBox()
 	end
+
 end
 
 function inputGameLogState()
-	if GUI.Button('Chat', 5, love.graphics.getHeight() - 205, 100,20) then
+	if GUI.Button('Chat', 5, love.graphics.getHeight() - 215, 100,20) then
 		logToDraw = "chat"
 		chatSlider.max = # chatLog
 		chatSlider.value = 0
 	end
-	if GUI.Button('System', 110, love.graphics.getHeight() - 205, 100,20) then
+	if GUI.Button('System', 110, love.graphics.getHeight() - 215, 100,20) then
 		logToDraw = "game"
 		chatSlider.max = # gameLog
 		chatSlider.value = 0
 	end
+
+	GUI.Slider(chatSlider, 505,love.graphics.getHeight()-215,20,185)
 end
 
 --[[
@@ -609,15 +644,22 @@ function threadcheckLookForChatlog()
 		timeSinceLastChatUpdate = 0
 
 		if not (temp_stored_chatlog == "[]") then
-
 			local decoded_log = json.decode(temp_stored_chatlog)
 
 			for key, value in pairs(decoded_log) do
-				table.insert(chatLog, value)
-			end
+				local okToAdd = true
 
-			return true
+				if(#chatLog > 0) then
+					if (chatLog[#chatLog].line_id == value.line_id) then
+						okToAdd = false
+					end
+				end
+				
+				if (okToAdd) then table.insert(chatLog, value) end
+			end
 		end
+
+		return true
 	end
 
 	return false
@@ -637,8 +679,9 @@ function threadcheckLookForGamelog()
 				table.insert(gameLog, value)
 			end
 
-			return true
 		end
+
+		return true
 	end
 
 	return false
@@ -674,9 +717,13 @@ function updateGamestateIfNeeded(dt)
 
 		if(okToUpdate) then 
 			if not (gamestate.turn == stored_gamestate.turn) then
-				print("This gamestate is for the next turn.")
+				print("This gamestate is for turn "..stored_gamestate.turn..".")
 
-				server:getLogs(gameLog[#gameLog].line_id)
+				if (# gameLog > 0) then
+					server:getLogs(gameLog[#gameLog].line_id)
+				else
+					server:getLogs(0)
+				end
 			end
 
 			gamestate = stored_gamestate
@@ -699,10 +746,6 @@ function updateGamestateIfNeeded(dt)
 	end
 end
 
-function checkTurnTimer()
-	
-end
-
 function updateMousePanOffset()
 	OFFSET_X = lbuttonDown[4] + love.mouse.getX() - lbuttonDown[2]
 	OFFSET_Y = lbuttonDown[5] + love.mouse.getY() - lbuttonDown[3]
@@ -718,8 +761,6 @@ function updateMoves(dt)
 			stillMoving = true
 		end
 	end
-
-	--if not (stillMoving) then STATE = STATE_IDLE end
 end
 
 function updateRelativeMousePosition()
@@ -737,7 +778,9 @@ function updateChatLog(dt)
 	if timeSinceLastChatUpdate > 5 then
 		timeSinceLastChatUpdate = 0
 
-		server:getText(chatLog[# chatLog].line_id)
+		if(# chatLog > 0) then
+			server:getText(chatLog[# chatLog].line_id)			
+		end
 	end 
 end
 
@@ -792,13 +835,6 @@ function drawGameUI()
 		graphicsHandler:draw(_value.mAssetID, _value.mX, _value.mY, nil, 1)
 	end	
 
---[[	local ui = tickMenu:getMenuAssets()
-
-	for _key, _value in pairs(ui) do
-		graphicsHandler:draw(_value.mAssetID, _value.mX, _value.mY, nil, 1)
-	end
-]]
-
 	-- Action Queue
 	local y = 30
 
@@ -832,25 +868,17 @@ function drawGameUI()
 		temp_log = gameLog
 	end
 
-	--chatSlider = {value = 0, min = 0, max = 8, vertical = true}
-	-- = # temp_log
-	GUI.Slider(chatSlider, 505,love.graphics.getHeight()-210,20,175)
-
 	local linesToDraw = 8
-	local logOffset = (# temp_log - math.ceil(chatSlider.value)) - linesToDraw
+	local logOffset = (# temp_log - math.floor(chatSlider.value)) 
 
-	for i=logOffset+1,logOffset+linesToDraw do
-		love.graphics.print("["..temp_log[i].pawn.."] "..temp_log[i].text, 5, (-40-linesToDraw*20)  +love.graphics.getHeight()+(i-logOffset)*20)
-	end
+	chatSlider.max = # temp_log - linesToDraw
 
---[[	for _key, _value in pairs(temp_log) do
-		if(_key > logOffset) then
-			if (_value.pawn) and (_value.text) then
-				love.graphics.print("[".._value.pawn.."] ".._value.text, 5, (-40-linesToDraw*20)  +love.graphics.getHeight()+(_key-logOffset)*20)
-			end
+	for i=logOffset-linesToDraw+1,logOffset do
+		if i >= 1 and i <= # temp_log then
+			love.graphics.print("["..temp_log[i].pawn.."] "..temp_log[i].text, 5, -50+love.graphics.getHeight()+(i-logOffset)*20)
 		end
 	end
-]]
+
 	love.graphics.print("Crew Manifest", 1020, 5)
 
 	love.graphics.print("Status", 1090, 30)
@@ -887,6 +915,7 @@ function mousePressedGame(x, y, button)
 		local state_changed = false
 		
 		--last = "left pressed"		
+
 		if(STATE == STATE_IDLE and not state_changed) then								
 			local clicked_x = math.floor(mouse_x_relative / GFX_R_SZ)
 			local clicked_y = math.floor(mouse_y_relative / GFX_R_SZ)
@@ -909,11 +938,13 @@ function mousePressedGame(x, y, button)
 				--if not (tickMenu:clickCheck()) then	
 				STATE = STATE_PAN				
 				lbuttonDown = { true, x, y, OFFSET_X, OFFSET_Y }
+
 				--else
 				--	state_changed = true
 				--end
 			end
 		end
+
 		
 		if(STATE == STATE_RADIAL and not state_changed) then
 			for key, value in pairs(radialMenu) do				
@@ -1011,7 +1042,7 @@ function gameKeyPressed(key, code)
 		gameSendChatBox()
 	end
 
-	if key == "a" then
+--[[	if key == "a" then
 		print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
 		print ("n"..json.encode(gamestate.ship.map[tostring(gamestate.virtualPawn.x)][tostring(gamestate.virtualPawn.y)].access[1]))
 		print ("w"..json.encode(gamestate.ship.map[tostring(gamestate.virtualPawn.x)][tostring(gamestate.virtualPawn.y)].access[2]))
@@ -1019,7 +1050,7 @@ function gameKeyPressed(key, code)
 		print ("e"..json.encode(gamestate.ship.map[tostring(gamestate.virtualPawn.x)][tostring(gamestate.virtualPawn.y)].access[4]))
 		print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
 	end
-
+]]
 	-- For specific game states, should be filtered based on that.
 	local xMod = 0
 	local yMod = 0
@@ -1046,7 +1077,7 @@ function gameKeyPressed(key, code)
 
 	if legalMove then
 		addMove(xMod, yMod)
-		server:addAction(MenuObject:new(nil, nil, nil, "4", gamestate.virtualPawn.x+xMod ..","..gamestate.virtualPawn.y+yMod))
+		server:addAction(MenuObject:new(nil, nil, nil, actionManifest:getActionID("A_MOVE"), gamestate.virtualPawn.x+xMod ..","..gamestate.virtualPawn.y+yMod))
 
 		gamestate.virtualPawn.x = gamestate.virtualPawn.x+xMod 
 		gamestate.virtualPawn.y = gamestate.virtualPawn.y+yMod 
@@ -1097,7 +1128,11 @@ end
 function gameSendChatBox()
 	if not (chatbox.text == "") then
 		server:addText(chatbox.text)
-		server:getText(chatLog[# chatLog].line_id)
+		if(# chatLog > 0) then
+			server:getText(chatLog[# chatLog].line_id)
+		else
+			server:getText(0)
+		end
 
 		chatbox.text = ""	
 	end

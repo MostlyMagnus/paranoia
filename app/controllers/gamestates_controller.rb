@@ -85,9 +85,27 @@ class GamestatesController < ApplicationController
 
     line = @user_pawn.lines.create!(:text => params[:text])
 
-    @pawns.each do |pawn|
-      pawn.heards.create!(:line_id => line.id, :scramble => 0)
+    # add the line non scrambled to the pawns in sight.
+
+    visPawnsIDs = Array.new
+
+    @gamestate.getVisibleGamestatePawns(@user_pawn).each do |gspawn|
+      Pawn.find_by_id(gspawn.pawn_id).heards.create!(:line_id => line.id, :scramble => 0)
+      visPawnsIDs.push(gspawn.pawn_id)
     end
+
+    # lets find our position
+
+    @gamestate.gamestatePawns.each do |gspawn|
+      if !visPawnsIDs.include?(gspawn.pawn_id) then
+        # the pawn isnt visible, lets calculate the distance
+        x = @gamestate.getPosition(@user_pawn).x - gspawn.x
+        y = @gamestate.getPosition(@user_pawn).y - gspawn.y
+
+        dist = Math.hypot(x.abs, y.abs)
+      end
+    end
+
   end
 
   def get_logs 

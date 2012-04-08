@@ -17,14 +17,14 @@ function ActionManifest:__init()
   A_STATUS  = 7
   ]]
   
-  table.insert(self.mManifest, {action_id = nil, 	action_name = "Nil"					})
-  table.insert(self.mManifest, {action_id = 1, 		action_name = "Use"					})
-  table.insert(self.mManifest, {action_id = 2, 		action_name = "Kill"				})
-  table.insert(self.mManifest, {action_id = 3, 		action_name = "Tinker"				})
-  table.insert(self.mManifest, {action_id = 4, 		action_name = "Move"				})
-  table.insert(self.mManifest, {action_id = 5, 		action_name = "Initiate vote"		})
-  table.insert(self.mManifest, {action_id = 6, 		action_name = "Cast vote"			})
-  table.insert(self.mManifest, {action_id = 7, 		action_name = "Check ship status"	})
+  table.insert(self.mManifest, {action_id = nil, 	action_code = "A_NIL",       action_name = "Nil" })
+  table.insert(self.mManifest, {action_id = 1, 		action_code = "A_USE",       action_name = "Use" })
+  table.insert(self.mManifest, {action_id = 2, 		action_code = "A_KILL",      action_name = "Kill"	})
+  table.insert(self.mManifest, {action_id = 3, 		action_code = "A_REPAIR",    action_name = "Tinker"	})
+  table.insert(self.mManifest, {action_id = 4, 		action_code = "A_MOVE",      action_name = "Move"	})
+  table.insert(self.mManifest, {action_id = 5, 		action_code = "A_INITVOTE",  action_name = "Initiate vote" })
+  table.insert(self.mManifest, {action_id = 6, 		action_code = "A_VOTE",      action_name = "Cast vote" })
+  table.insert(self.mManifest, {action_id = 7, 		action_code = "A_STATUS",    action_name = "Check ship status" })
 end
 
 function ActionManifest:getString(actiontype)
@@ -35,4 +35,12 @@ function ActionManifest:getString(actiontype)
 	end
 
 	return "Unknown action"
+end
+
+function ActionManifest:getActionID(actioncode)
+  for key, value in pairs(self.mManifest) do
+    if(value.action_code == actioncode) then
+      return value.action_id
+    end
+  end
 end

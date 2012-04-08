@@ -145,7 +145,6 @@ function ServerInterface:_addTask(task)
 			if(task["type"] == "get gamestate") then
 				return 0		
 			else
-
 				table.insert(self.mTasks, # self.mTasks, task)
 
 				print("["..task["type"].."] Task added at position "..(# self.mTasks-1).." in queue.")
