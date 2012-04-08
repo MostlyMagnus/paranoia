@@ -370,23 +370,23 @@ class Gamestate < ActiveRecord::Base
     getGamestatePawns(self.playerstatus).each do |gspawn|
       if !visPawnsIDs.include?(gspawn[1].pawn_id) then
         # the pawn isnt visible, lets calculate the distance
-       # x = self.getPosition(@pawn).x - gspawn[1].x
-       # y = self.getPosition(@pawn).y - gspawn[1].y
+        x = self.getPosition(@pawn).x - gspawn[1].x
+        y = self.getPosition(@pawn).y - gspawn[1].y
 
-       # dist = Math.hypot(x.abs, y.abs)
+        dist = Math.hypot(x.abs, y.abs)
 
         scramble = -1
 
-        test.push(gspawn[1])
-        #if dist <= 2 then 
-        #  scramble = 1
-        #elsif dist <= 3
-        #  scramble = 2
-        #elsif dist <= 4
-        #  scramble = 3
-        #elsif dist <= 6
-        #  scramble = 4
-        #end
+        test.push(dist)
+        if dist <= 2 then 
+          scramble = 1
+        elsif dist <= 3
+          scramble = 2
+        elsif dist <= 4
+          scramble = 3
+        elsif dist <= 6
+          scramble = 4
+        end
 
         if scramble > 0 then
           Pawn.find_by_id(gspawn[1].pawn_id).heards.create!(:line_id => line.id, :scramble => scramble)
