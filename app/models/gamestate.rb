@@ -394,7 +394,7 @@ class Gamestate < ActiveRecord::Base
       end
     end
 
-    return test
+    return test.to_json
 
   end
 
