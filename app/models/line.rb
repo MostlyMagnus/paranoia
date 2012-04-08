@@ -42,6 +42,7 @@ Scrmb	Distance of		Example
 				end
 			end
 
+			return splitString.join(" ")
 		#elsif level == 3 then
 		#elsif level == 4 then
 		#	muffledString
