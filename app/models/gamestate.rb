@@ -379,11 +379,14 @@ class Gamestate < ActiveRecord::Base
           scramble = 1
         elsif dist <= 3
           scramble = 2
+        end
+
+        # There's more granularity to be had here but I'm not sure if we want it.
         #elsif dist <= 4
         #  scramble = 3
-        elsif dist <= 5
-          scramble = 4
-        end
+        #elsif dist <= 5
+        #  scramble = 4
+        #end
 
         if scramble > 0 then
           # Add the line_id, scramble level, and finally something to create a repeatable randomness with.
