@@ -23,14 +23,20 @@ Scrmb	Distance of		Example
 =end
 
 	def scramble(level, salt = 1)
-		muffledString = "[muffled]"
+		muffledString = "[...]"
 		if level <= 1 then
 			self.text
-		else # level == 2 then
-			pattern = Array.new([muffledString, nil, nil]*10)
-			
+		else 			
 			splitString = self.text.split
-	
+
+			if level == 2 then
+				pattern = Array.new([muffledString, nil, nil]*20)
+			elsif level == 3 then
+				pattern = Array.new([muffledString, muffledString, muffledString, nil]*20)
+			elsif level == 4 then
+				pattern = Array.new([muffledString]*20)
+			end
+
 			for i in 0..self.text.split.size
 				if(pattern[i] != nil) then
 					splitString[salt] = pattern[i]
@@ -42,10 +48,7 @@ Scrmb	Distance of		Example
 				end
 			end
 
-			return splitString.join(" ")
-		#elsif level == 3 then
-		#elsif level == 4 then
-		#	muffledString
+			splitString.join(" ")
 		end		
 	end
 end
