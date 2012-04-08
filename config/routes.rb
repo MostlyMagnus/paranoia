@@ -32,14 +32,14 @@ Paranoia::Application.routes.draw do
   
   #match '/tempIndex', :to => 'pages#tempIndex'
   
-  match '/signup',  :to => 'users#new'
+  #match '/signup',  :to => 'users#new'
 
   #match '/contact', :to => 'pages#contact'
   #match '/about',   :to => 'pages#about'
   #match '/help',    :to => 'pages#help'
   
   match '/signin',  :to => 'sessions#new'
-  #match '/signout', :to => 'sessions#destroy'
+  match '/signout', :to => 'sessions#destroy'
 
   #match '/lobbies', :to => 'lobbies#index'
   

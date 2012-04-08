@@ -1223,13 +1223,13 @@ function buildscreenObjects()
 	
 	for key, value in pairs(gamestate.gamestatePawns) do
 		if (value.x) then
-			table.insert(screenObjects, PawnObject:new(value.x+1, value.y+1, graphicsHandler:asset("player"), value.pawn_id))
+			table.insert(screenObjects, PawnObject:new(value.x+1, value.y+1, graphicsHandler:asset("picard"), value.pawn_id))
 			table.insert(textObjects, TextObject:new(value.persona.persona.name, value.x+1, value.y+1, love.graphics.getFont():getWidth(value.persona.persona.name)))
 		end
 	end
 	
 	-- add the virtual pawn
-	table.insert(pawnObjects, PawnObject:new(gamestate.virtualPawn.x+1, gamestate.virtualPawn.y+1, graphicsHandler:asset("player"), "Your virtual pawn!"))
+	table.insert(pawnObjects, PawnObject:new(gamestate.virtualPawn.x+1, gamestate.virtualPawn.y+1, graphicsHandler:asset("picard"), "Your virtual pawn!"))
 
 	PAWNOBJECTS_VIRTUALPAWN = # pawnObjects 	
 end
