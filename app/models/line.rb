@@ -37,8 +37,8 @@ Scrmb	Distance of		Example
 				end
 
 				salt += 1
-				if salt > string.split.size then
-					salt -= string.split.size
+				if salt > self.text.split.size then
+					salt -= self.text.split.size
 				end
 			end
 
