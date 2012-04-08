@@ -367,7 +367,7 @@ class Gamestate < ActiveRecord::Base
     # lets find our position
     test = Array.new
 
-    @gamestatePawns.each do |gspawn|
+    getGamestatePawns(self.playerstatus).each do |gspawn|
       if !visPawnsIDs.include?(gspawn[1].pawn_id) then
         # the pawn isnt visible, lets calculate the distance
        # x = self.getPosition(@pawn).x - gspawn[1].x
