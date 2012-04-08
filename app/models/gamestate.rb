@@ -377,7 +377,7 @@ class Gamestate < ActiveRecord::Base
 
         if dist <= 2 then 
           scramble = 1
-        elsif dist <= 3
+        elsif dist <= 4
           scramble = 2
         end
 
