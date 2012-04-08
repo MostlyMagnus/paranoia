@@ -22,7 +22,29 @@ Scrmb	Distance of		Example
 
 =end
 
-	def scramble(level)
-		self.text	
+	def scramble(level, salt = 1)
+		muffledString = "[muffled]"
+		if level <= 1 then
+			self.text
+		else # level == 2 then
+			pattern = Array.new([muffledString, nil, nil]*10)
+			
+			splitString = self.text.split
+	
+			for i in 0..string.split.size
+				if(pattern[i] != nil) then
+					splitString[salt] = pattern[i]
+				end
+
+				salt += 1
+				if salt > string.split.size then
+					salt -= string.split.size
+				end
+			end
+
+		#elsif level == 3 then
+		#elsif level == 4 then
+		#	muffledString
+		end		
 	end
 end
