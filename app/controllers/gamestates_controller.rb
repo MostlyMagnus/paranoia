@@ -95,9 +95,9 @@ class GamestatesController < ApplicationController
     end    
 
 
-    lines.sort_by! { |line| line[:created_at] }
+    sortedLines = lines.sort_by { |line| line[:created_at] }
 
-    render :text => lines.to_json
+    render :text => sortedLines.to_json
   end
 
   def get_text
