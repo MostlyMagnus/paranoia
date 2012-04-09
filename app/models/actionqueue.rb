@@ -251,7 +251,7 @@ class ActionQueue
 
     # node_type is operating at (nodes[logic_node.node_type][:status] / nodes[logic_node.node_type][:count]*100) %
 
-    nodesTypes.each do |node|
+    nodeTypes.each do |node|
       notification = "["+nodes[node][:string]+"] Status: "+((nodes[node][:status]/nodes[node][:count])*100) + "%, Health: "+((nodes[node][:status]/nodes[node][:count])*100)
 
 
