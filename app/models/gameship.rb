@@ -1,4 +1,5 @@
 require 'structdef'
+require 'appconfig'
 
 class NodeTypeDef
   N_NIL               = nil
@@ -68,6 +69,41 @@ class GameShip
       @logic_nodes[pushNode.id.to_i] = pushNode
       
     end
+  end
+
+  def logEntryForNode(node)
+    case node[:type]
+    when NodeTypeDef::N_GENERATOR
+      "Generators outputting at "+(node[:status]/node[:count]*100).round.to_s+"%. Energy reserves at "+(node[:health]/node[:count]*100).round.to_s+"%."
+    when NodeTypeDef::N_ENGINE
+      "Engines operating at "+(node[:health]/node[:count]*100).round.to_s+"%."
+    when NodeTypeDef::N_WATER_CONTAINER
+      "Water Tanks at "+(node[:health]/node[:count]*(node[:count]*AppConfig::WATER_FULL_TANK)).round.to_s+" of "+(node[:count]*AppConfig::WATER_FULL_TANK).round.to_s+" "+ AppConfig::WATER_UNIT+"(s) ("+((node[:health]/node[:count])*100).round.to_s+"%)."
+    when NodeTypeDef::N_AIRLOCK_ACTIVATOR
+      returnString = ""
+
+      if(node[:status]==1) then
+        returnString = "Airlock module is operational. Diagnostics show "
+        
+        if node[:health] == 1 then
+          returnString += "no structural damage."
+        elsif node[:health] > 0.8 then
+          returnString += "some structural damage."
+        elsif node[:health] > 0.4 then
+          returnString += "structural damage. "
+        else
+          returnString += "heavy strucutral damage. Breakdown imminent."
+        end
+
+      else
+        returnString = "Airlock module non-functional."
+      end
+
+      returnString
+    else
+      return "["+node[:type]+"] "+node[:count].to_s+" nodes. Status: "+node[:status].to_s+", Health: "+node[:health].round(2).to_s
+    end
+
   end
   
   def drainWater(delta_water)

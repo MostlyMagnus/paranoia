@@ -240,7 +240,7 @@ class ActionQueue
 
     @gamestate.game_ship.logic_nodes.each do |logic_node| 
       if !(nodes[logic_node.node_type])then
-        nodes[logic_node.node_type] = { :string => logic_node.node_type, :count => 0, :status => 0, :health => 0}    
+        nodes[logic_node.node_type] = { :type => logic_node.node_type, :count => 0, :status => 0, :health => 0}    
         nodeTypes.push(logic_node.node_type)  
       end
 
@@ -252,10 +252,10 @@ class ActionQueue
     # node_type is operating at (nodes[logic_node.node_type][:status] / nodes[logic_node.node_type][:count]*100) %
 
     nodeTypes.each do |node|
-      notification = "["+nodes[node][:string]+"] "+nodes[node][:count].to_s+" nodes. Status: "+nodes[node][:status].to_s+", Health: "+nodes[node][:health].round(2).to_s
 
+#      notification = "["+nodes[node][:string]+"] "+nodes[node][:count].to_s+" nodes. Status: "+nodes[node][:status].to_s+", Health: "+nodes[node][:health].round(2).to_s
 
-     pawn.notifications.create!(:action_type => action.action_type, :params => notification)
+      pawn.notifications.create!(:action_type => action.action_type, :params => @gamestate.game_ship.logEntryForNode(nodes[node]))
  
     end
 

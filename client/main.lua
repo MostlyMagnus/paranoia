@@ -748,11 +748,13 @@ function updateGamestateIfNeeded(dt)
 			if not (gamestate.turn == stored_gamestate.turn) then
 				print("This gamestate is for turn "..stored_gamestate.turn..".")
 
-				server:getLogs()
+				--server:getLogs()
 			end
 
 			gamestate = stored_gamestate
 			
+			server:getLogs()
+
 			timeTurnToEnd = 0
 			timeSinceLastGamestateUpdate = 0
 
@@ -932,7 +934,43 @@ function drawGameUI()
 		pawnPrint = pawnPrint+1
 	end
 --timeTurnToEnd > gamestate.updateIn
-	love.graphics.print("Turn ".. gamestate.turn .." ends in "..math.floor((gamestate.updateIn-timeTurnToEnd)).." seconds.", 5, 5)
+	local temp = gamestate.updateIn-timeTurnToEnd
+	local turnEndsInString = "Turn ends in "
+
+	local days = 0
+	local hours = 0
+	local minutes = 0
+	local seconds = 0
+
+	if(math.floor(temp/86400) > 0) then
+		days = math.floor(temp/86400)
+
+		temp = temp - 86400*days
+
+		turnEndsInString = turnEndsInString..days.." days, "
+	end
+
+	if(math.floor(temp/3600) > 0) then
+		hours = math.floor(temp/3600)
+
+		temp = temp - 3600*hours
+
+		turnEndsInString = turnEndsInString..hours.." hours, "
+	end
+
+	if(math.floor(temp/60) > 0) then
+		minutes = math.floor(temp/60)
+
+		temp = temp - 60*minutes
+
+		turnEndsInString = turnEndsInString..minutes.." minutes, "
+	end
+
+	seconds = math.ceil(temp)
+	turnEndsInString = turnEndsInString..seconds.." seconds."
+
+
+	love.graphics.print(turnEndsInString, 5, 5)
 
 end
 
