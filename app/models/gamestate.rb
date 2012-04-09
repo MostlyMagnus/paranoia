@@ -432,7 +432,6 @@ class Gamestate < ActiveRecord::Base
     returned_data[:actionQueue] = getActionqueue
 
     returned_data[:events] = getEvents
-#  	returned_data[:log] = self.log_entries
 
     returned_data[:updateIn] = self.update_when - Time.now 
     returned_data[:turn] =  ((self.updated_at - self.created_at)/(60 * self.timescale)).floor
@@ -477,13 +476,13 @@ class Gamestate < ActiveRecord::Base
     #possibleActionIndex.push({:verbose => "Initiate vote", :action_type => ActionTypeDef::A_VOTE, :params => "-1"})
     possibleActionIndex.push({:verbose => "Check Shipstatus", :action_type => ActionTypeDef::A_STATUS, :params => "-1"})
 	
-	if(@game_ship.rooms[virtualPawn.x][virtualPawn.y].seen) then
-		getGamestatePawnsAtGrid(S_Position.new(virtualPawn.x, virtualPawn.y), @gamestatePawns).each do |gspawn|
-			unless @pawn.id == gspawn.pawn_id then
-				possibleActionIndex.push({:verbose => "Kill "+gspawn.persona.name, :action_type => ActionTypeDef::A_KILL, :params =>  gspawn.pawn_id.to_s})
-			end
-		end
-	end
+  	if(@game_ship.rooms[virtualPawn.x][virtualPawn.y].seen) then
+  		getGamestatePawnsAtGrid(S_Position.new(virtualPawn.x, virtualPawn.y), @gamestatePawns).each do |gspawn|
+  			unless @pawn.id == gspawn.pawn_id then
+  				possibleActionIndex.push({:verbose => "Kill "+gspawn.persona.name, :action_type => ActionTypeDef::A_KILL, :params =>  gspawn.pawn_id.to_s})
+  			end
+  		end
+  	end
     
     if !@game_ship.somethingInteractiveHere?(virtualPawn).nil? then
       possibleActionIndex.push({:verbose => "Use "      +@game_ship.somethingInteractiveHere?(virtualPawn).node_type, :action_type => ActionTypeDef::A_USE, :params => @game_ship.somethingInteractiveHere?(virtualPawn).id})

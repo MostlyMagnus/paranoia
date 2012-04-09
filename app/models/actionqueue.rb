@@ -234,7 +234,8 @@ class ActionQueue
   
   def executeA_Status!(action, gamestatePawn)
     pawn = Pawn.find_by_id(gamestatePawn.pawn_id)
-    
-    pawn.notifications.create!(:action_type => action.action_type, :params => "Replace this with updates about the ship status.")
+
+    pawn.notifications.create!(:action_type => action.action_type, :params => @gamestate.game_ship.logic_nodes.to_json)
+
   end
 end
