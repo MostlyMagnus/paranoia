@@ -250,7 +250,7 @@ class ActionQueue
     # node_type is operating at (nodes[logic_node.node_type][:status] / nodes[logic_node.node_type][:count]*100) %
 
     nodes.each do |node|
-      notification = "["+pluralize(node[:count], node[:string])+"] Status: "+((node[:status]/node[:count])*100) + "%, Health: "+((node[:status]/node[:count])*100)
+      notification = "["+node[:string]+"] Status: "+((node[:status]/node[:count])*100) + "%, Health: "+((node[:status]/node[:count])*100)
       pawn.notifications.create!(:action_type => action.action_type, :params => notification)
     end
   end
