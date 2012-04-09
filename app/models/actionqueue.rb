@@ -237,7 +237,7 @@ class ActionQueue
 
     nodes = Hash.new()
 
-    for @gamestate.game_ship.logic_nodes.each do |logic_node| 
+    @gamestate.game_ship.logic_nodes.each do |logic_node| 
       if !(nodes[logic_node.node_type])then
         nodes[logic_node.node_type] = { :count => 0, :status => 0, :health => 0}      
       end
