@@ -235,7 +235,16 @@ class ActionQueue
   def executeA_Status!(action, gamestatePawn)
     pawn = Pawn.find_by_id(gamestatePawn.pawn_id)
 
-    pawn.notifications.create!(:action_type => action.action_type, :params => @gamestate.game_ship.logic_nodes.to_json)
+    nodes = Hash.new
 
+    for @gamestate.game_ship.logic_nodes.each do |logic_node| 
+      #if(nodes[logic_node.node_type])then
+        nodes[logic_node.node_type][:count] += 1
+        nodes[logic_node.node_type][:status] += logic_node.status
+        nodes[logic_node.node_type][:health] += logic_node.health
+      #end
+    end
+
+    pawn.notifications.create!(:action_type => action.action_type, :params => nodes.to_json)
   end
 end

@@ -567,3 +567,5 @@ class Gamestate < ActiveRecord::Base
     return snapshot_data
   end
 end
+
+
