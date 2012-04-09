@@ -61,10 +61,6 @@ GFX_COL_BG = GFX_COL_BLACK
 -- set up the handler to handle our graphics
 graphicsHandler = GraphicsHandler:new()
 
-host = { text = "192.168.1.248" }
-
-host = { text = "127.0.0.1:3000" }
-
 server = ServerInterface:new()
 
 -- set up the left menu function MenuHandler:__init(frameID, vertSwoop, HoriSwoop, x, y, w, h)
@@ -305,18 +301,14 @@ function love.draw()
 	love.graphics.setFont(defaultFont)
 
 	if(STATE == STATE_LOGIN_SCREEN) then
-		graphicsHandler:draw(graphicsHandler:asset("logo_big"), love.graphics.getWidth()/2, love.graphics.getHeight()/2)
+		drawLoginScreen()
 	end
 
 	if(STATE == STATE_LOGGING_IN) then
-		graphicsHandler:draw(graphicsHandler:asset("logo_big"), love.graphics.getWidth()/2, love.graphics.getHeight()/2)
-
 		drawLoadingScreen()
 	end
 
 	if(STATE == STATE_LOADING) then
-		graphicsHandler:draw(graphicsHandler:asset("logo_big"), love.graphics.getWidth()/2, love.graphics.getHeight()/2)
-
 		drawLoadingScreen()
 	end
 
@@ -557,22 +549,44 @@ function inputGameActionMenu()
 end
 
 function inputGetLoginInfo() 
-	if GUI.Input(host, love.graphics.getWidth()/2 - 150, love.graphics.getHeight()/2-45, 300, 20) then
-			print('Text changed:', host.text)
-	end	
-	if GUI.Input(login, love.graphics.getWidth()/2 - 150, love.graphics.getHeight()/2-20, 300, 20) then
+	y = love.graphics.getHeight()/2-100
+
+	if GUI.Input(login, love.graphics.getWidth()/2 - 150, y, 300, 20) then
 			print('Text changed:', login.text)
 	end
-	if GUI.Password(password, love.graphics.getWidth()/2 - 150, love.graphics.getHeight()/2+5, 300, 20) then
+	if GUI.Password(password, love.graphics.getWidth()/2 - 150, y+25, 300, 20) then
 		print('Text changed:', password.text)
 	end
-	if GUI.Button('Login', love.graphics.getWidth()/2 - 150, love.graphics.getHeight()/2+40,300,20) then
-		server:setHost("http://"..host.text.."/")
+	if GUI.Button('127.0.0.1:3000', love.graphics.getWidth()/2 - 150, y+60,300,20) then
+		server:setHost("http://127.0.0.1:3000/")
 		server:start()
 		server:login(login.text, password.text)
 
 		STATE = STATE_LOGGING_IN
 	end
+
+	if GUI.Button('192.168.1.248', love.graphics.getWidth()/2 - 150, y+85,300,20) then
+		server:setHost("http://192.168.1.248/")
+		server:start()
+		server:login(login.text, password.text)
+
+		STATE = STATE_LOGGING_IN
+	end
+
+	if GUI.Button('83.191.71.93', love.graphics.getWidth()/2 - 150, y+110,300,20) then
+		server:setHost("http://83.191.71.93/")
+		server:start()
+		server:login(login.text, password.text)
+
+		STATE = STATE_LOGGING_IN
+	end
+
+
+--[[
+host = { text = "192.168.1.248" }
+host = { text = "83.191.71.93" }
+host = { text = "127.0.0.1:3000" }
+]]
 end
 
 function inputGameGetChatbox()
@@ -808,6 +822,10 @@ end
   \__,_|_|  \__,_| \_/\_/  
                            
 ]]
+
+function drawLoginScreen()
+	graphicsHandler:draw(graphicsHandler:asset("logo_big"), love.graphics.getWidth()/2, love.graphics.getHeight()/2-200)
+end
 
 function drawLoadingScreen()
 	for _key, _value in pairs(uiLoadingScreen) do
