@@ -106,6 +106,7 @@ radialGrid = { }
 gamestate = {}
 stored_gamestate = nil
 timeSinceLastGamestateUpdate = 0
+timeTurnToEnd = 0
 
 -- program state definitions
 STATE_LOADING = 0
@@ -699,6 +700,17 @@ end
 function updateGamestateIfNeeded(dt)
 	-- If we need to update the gamestate
 	-- post an action to the network thread to fetch a new gamestate
+	timeTurnToEnd = timeTurnToEnd + dt
+
+	if(gamestate.updateIn) then
+		if(timeTurnToEnd > gamestate.updateIn) and not (GAMESTATE_NEEDS_UPDATING) then
+			GAMESTATE_NEEDS_UPDATING = true
+			
+			timeTurnToEnd = -300
+
+			print("[timeTurnToEnd] Time to update the gamestate.")
+		end
+	end
 
 	timeSinceLastGamestateUpdate = timeSinceLastGamestateUpdate + dt
 
@@ -720,16 +732,16 @@ function updateGamestateIfNeeded(dt)
 			if not (gamestate.turn == stored_gamestate.turn) then
 				print("This gamestate is for turn "..stored_gamestate.turn..".")
 
-
---				if (# gameLog > 0) then
---					server:getLogs(gameLog[#gameLog].line_id)
---				else
-					server:getLogs()
---				end
+				server:getLogs()
 			end
 
 			gamestate = stored_gamestate
+			
+			timeTurnToEnd = 0
+			timeSinceLastGamestateUpdate = 0
+
 			stored_gamestate = nil
+
 			refreshSession() 
 		end 
 	end
@@ -900,7 +912,7 @@ function drawGameUI()
 		pawnPrint = pawnPrint+1
 	end
 
-	love.graphics.print("Turn ".. gamestate.turn .." ends in "..math.ceil(gamestate.updateIn/60).." minutes.", 5, 5)
+	love.graphics.print("Turn ".. gamestate.turn .." ends in "..math.floor(gamestate.updateIn/60).." minutes.", 5, 5)
 
 end
 

@@ -86,13 +86,14 @@ class GamestatesController < ApplicationController
 
     lines = Array.new
 
+    @user_pawn.notifications.each do |notification| 
+      lines.push({:line_id => notification.id, :pawn => "Notification", :text => notification.params, :created_at => notification.created_at, :type => "notification"})
+    end
+
     @gamestate.log_entries.each do |log_entry|
       lines.push({:line_id => log_entry.id, :pawn => "System", :text => log_entry.entry, :created_at => log_entry.created_at, :type => "log"})
     end    
 
-    @user_pawn.notifications.each do |notification| 
-      lines.push({:line_id => notification.id, :pawn => "Notification", :text => notification.params, :created_at => notification.created_at, :type => "notification"})
-    end
 
     lines.sort_by { |line| line[:created_at] }
 
