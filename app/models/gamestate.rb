@@ -75,7 +75,7 @@ class Gamestate < ActiveRecord::Base
   end
   
   def setup
-    @game_ship = GameShip.new(self.ship_id)
+    @game_ship = GameShip.new(self.ship_id, self.nodestatus)
     
     @gamestatePawns = getGamestatePawns(self.playerstatus)
     
@@ -108,7 +108,7 @@ class Gamestate < ActiveRecord::Base
 
     # (3 litres/full tank of water)*amount of pawns = water consumption per turn
     # Should not use self.pawns.size but instead count the number of alive pawns.
-    delta_water_per_turn = (3.0/AppConfig::WATER_FULL_TANK.to_f)*self.pawns.size;
+    delta_water_per_turn = (AppConfig::WATER_CONSUMED_PER_PERSON/AppConfig::WATER_FULL_TANK.to_f)*self.pawns.size;
 	
     for i in 0..@updatesRequired
       # Idle logic goes here (detoriation, random events, etc)

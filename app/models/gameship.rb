@@ -13,11 +13,11 @@ end
 class GameShip
   attr_accessor :logic_nodes, :rooms
 
-  def initialize(ship_id)	
+  def initialize(ship_id, nodestatus)	
     @ship_id = ship_id
 	
     setup_ship(@ship_id)
-    build_logic_nodes("")
+    build_logic_nodes(nodestatus)
   end
   
   def getTempShip
@@ -71,16 +71,23 @@ class GameShip
   end
   
   def drainWater(delta_water)
-    @logic_nodes.each do |node|
-      case node.node_type
+    @logic_nodes.each_index do |index|
+      case @logic_nodes[index].node_type
       when NodeTypeDef::N_WATER_CONTAINER
-        if node.health.to_f > 0 then
-          node.health = (node.health.to_f - delta_water).to_s
+        if @logic_nodes[index].health.to_f > 0 then
+          @logic_nodes[index].health = (@logic_nodes[index].health.to_f - delta_water).to_s
 
-          break
-        elsif node.health.to_f <= 0 then
-          delta_water = 0 #node.health.to_f.abs
+          if @logic_nodes[index].health.to_f < 0 then
+            delta_water = @logic_nodes[index].health.to_f.abs
+
+            @logic_nodes[index].health = "0"
+          else
+            delta_water = 0
+          end
+
         end
+
+        if delta_water < 0 then break end
       end
     end
   end

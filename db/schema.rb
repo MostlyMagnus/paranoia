@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120406142704) do
+ActiveRecord::Schema.define(:version => 20120408154941) do
 
   create_table "actions", :force => true do |t|
     t.integer  "pawn_id"
@@ -45,6 +45,7 @@ ActiveRecord::Schema.define(:version => 20120406142704) do
     t.integer  "scramble"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "salt"
   end
 
   create_table "lines", :force => true do |t|

@@ -63,6 +63,8 @@ graphicsHandler = GraphicsHandler:new()
 
 host = { text = "192.168.1.248" }
 
+host = { text = "127.0.0.1:3000" }
+
 server = ServerInterface:new()
 
 -- set up the left menu function MenuHandler:__init(frameID, vertSwoop, HoriSwoop, x, y, w, h)

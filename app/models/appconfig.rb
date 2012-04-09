@@ -12,6 +12,7 @@ class AppConfig
   ACTION_COST_STATUS  	= 2
   
   # WATER RELATED
+  WATER_CONSUMED_PER_PERSON = 50
   WATER_UNIT			= "litre"
   WATER_FULL_TANK		= 1000
   
