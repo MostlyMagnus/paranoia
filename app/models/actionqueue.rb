@@ -236,10 +236,12 @@ class ActionQueue
     pawn = Pawn.find_by_id(gamestatePawn.pawn_id)
 
     nodes = Hash.new()
+    nodeTypes = Array.new()
 
     @gamestate.game_ship.logic_nodes.each do |logic_node| 
       if !(nodes[logic_node.node_type])then
-        nodes[logic_node.node_type] = { :string => logic_node.node_type, :count => 0, :status => 0, :health => 0}      
+        nodes[logic_node.node_type] = { :string => logic_node.node_type, :count => 0, :status => 0, :health => 0}    
+        nodeTypes.push(logic_node.node_type)  
       end
 
       nodes[logic_node.node_type][:count] += 1
@@ -249,9 +251,13 @@ class ActionQueue
 
     # node_type is operating at (nodes[logic_node.node_type][:status] / nodes[logic_node.node_type][:count]*100) %
 
-    nodes.each do |node|
-      notification = "["+node[:string]+"] Status: "+((node[:status]/node[:count])*100) + "%, Health: "+((node[:status]/node[:count])*100)
-      pawn.notifications.create!(:action_type => action.action_type, :params => notification)
+    nodesTypes.each do |node|
+      notification = "["+nodes[node][:string]+"] Status: "+((nodes[node][:status]/nodes[node][:count])*100) + "%, Health: "+((nodes[node][:status]/nodes[node][:count])*100)
+
+
+     pawn.notifications.create!(:action_type => action.action_type, :params => notification)
+ 
     end
+
   end
 end
