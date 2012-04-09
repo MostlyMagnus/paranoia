@@ -911,8 +911,8 @@ function drawGameUI()
 
 		pawnPrint = pawnPrint+1
 	end
-
-	love.graphics.print("Turn ".. gamestate.turn .." ends in "..math.floor(gamestate.updateIn/60).." minutes.", 5, 5)
+--timeTurnToEnd > gamestate.updateIn
+	love.graphics.print("Turn ".. gamestate.turn .." ends in "..math.floor((gamestate.updateIn-timeTurnToEnd)).." seconds.", 5, 5)
 
 end
 
