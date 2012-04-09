@@ -74,8 +74,8 @@ class Gamestate < ActiveRecord::Base
     pawnSetup(current_user)
   end
   
-  def setup
-    @game_ship = GameShip.new(self.ship_id)
+  def game_ship
+    @setup = GameShip.new(self.ship_id)
     
     @gamestatePawns = getGamestatePawns(self.playerstatus)
     
@@ -101,7 +101,8 @@ class Gamestate < ActiveRecord::Base
     setup
     
     # Notifications shouldn't linger. Let's clean it up.
-    crunch_notifications
+    # Actually, let them linger. We'll mix them with the system logs but they'll be subjective.
+    # crunch_notifications
     
     @actionQueue = ActionQueue.new(self)
     @actionQueue.buildExecuteAndClearActions!
