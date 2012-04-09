@@ -565,8 +565,8 @@ function inputGetLoginInfo()
 		STATE = STATE_LOGGING_IN
 	end
 
-	if GUI.Button('192.168.1.248', love.graphics.getWidth()/2 - 150, y+85,300,20) then
-		server:setHost("http://192.168.1.248/")
+	if GUI.Button('192.168.1.201', love.graphics.getWidth()/2 - 150, y+85,300,20) then
+		server:setHost("http://192.168.1.201/")
 		server:start()
 		server:login(login.text, password.text)
 
