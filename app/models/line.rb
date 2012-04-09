@@ -28,7 +28,7 @@ Scrmb	Distance of		Example
 			self.text
 		else 			
 			# Define the string which should be applied by the pattern. The user will see this.
-			muffledString = "[...]"
+			muffledString = "[muffled]"
 
 			# Define the pattern for scrambling the text.
 			if level == 2 then

@@ -177,7 +177,7 @@ function get_logs(session, params)
 		return #s
 	end)
 	
-	local url = global_server.."gamestates/"..global_gamestate_id.."/get_logs?id_greater_than="..params
+	local url = global_server.."gamestates/"..global_gamestate_id.."/get_logs"
 	
 	-- set OPT_URL to the passed parameter url
 	session:setopt(curl.OPT_URL,url)

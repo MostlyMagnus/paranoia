@@ -675,9 +675,10 @@ function threadcheckLookForGamelog()
 
 			local decoded_log = json.decode(temp_stored_log)
 
-			for key, value in pairs(decoded_log) do
-				table.insert(gameLog, value)
-			end
+			--for key, value in pairs(decoded_log) do
+			--	table.insert(gameLog, value)
+			--end
+			gameLog = decoded_log
 
 		end
 
@@ -719,11 +720,12 @@ function updateGamestateIfNeeded(dt)
 			if not (gamestate.turn == stored_gamestate.turn) then
 				print("This gamestate is for turn "..stored_gamestate.turn..".")
 
-				if (# gameLog > 0) then
-					server:getLogs(gameLog[#gameLog].line_id)
-				else
-					server:getLogs(0)
-				end
+
+--				if (# gameLog > 0) then
+--					server:getLogs(gameLog[#gameLog].line_id)
+--				else
+					server:getLogs()
+--				end
 			end
 
 			gamestate = stored_gamestate

@@ -82,13 +82,19 @@ class GamestatesController < ApplicationController
 
   def get_logs 
     @gamestate = Gamestate.find_by_id(params[:id])
-#    render :text => @gamestate.log_entries.where('id > ?', params[:id_greater_than]).to_json
+    @user_pawn = Pawn.find_by_gamestate_id_and_user_id(params[:id], current_user.id) 
 
     lines = Array.new
 
-    @gamestate.log_entries.where('id > ?', params[:id_greater_than]).each do |log_entry|
-      lines.push({:line_id => log_entry.id, :pawn => "System", :text => log_entry.entry})
+    @gamestate.log_entries.each do |log_entry|
+      lines.push({:line_id => log_entry.id, :pawn => "System", :text => log_entry.entry, :created_at => log_entry.created_at, :type => "log"})
     end    
+
+    @user_pawn.notifications.each do |notification| 
+      lines.push({:line_id => notification.id, :pawn => "Notification", :text => notification.params, :created_at => log_entry.created_at, :type => "notification"})
+    end
+
+    lines.sort_by { |line| line[:created_at] }
 
     render :text => lines.to_json
   end
