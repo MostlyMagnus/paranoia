@@ -74,12 +74,12 @@ class GameShip
     @logic_nodes.each do |node|
       case node.node_type
       when NodeTypeDef::N_WATER_CONTAINER
-        node.health = (node.health.to_f - delta_water).to_s
+        if node.health.to_f > 0 then
+          node.health = (node.health.to_f - delta_water).to_s
 
-        if node.health.to_f < 0 then
-          delta_water = 0 #node.health.to_f.abs
-        else
           break
+        elsif node.health.to_f <= 0 then
+          delta_water = 0 #node.health.to_f.abs
         end
       end
     end
