@@ -102,13 +102,7 @@ class Gamestate < ActiveRecord::Base
     
     # Notifications shouldn't linger. Let's clean it up.
     # crunch_notifications
-    
-    @actionQueue = ActionQueue.new(self)
-    @actionQueue.buildExecuteAndClearActions!
-    
-    # Actions have been crunched, let's loop through events.
-    crunch_events
-    
+        
     # Now let's do some idle logic for the correct amount of turns
     @updatesRequired = ((Time.now - self.update_when)/(60 * self.timescale)).floor
 
@@ -136,6 +130,13 @@ class Gamestate < ActiveRecord::Base
       add_log_entry(LoggerTypeDef::LOG_CONSUMPTION, {:delta_water => delta_water_per_turn})
 
     end
+
+    # Execute actions
+    @actionQueue = ActionQueue.new(self)
+    @actionQueue.buildExecuteAndClearActions!
+    
+    # Actions have been crunched, let's loop through events.
+    crunch_events
 
     # When we're done, we update the update_when of our gamestate.
     self.update_when = self.update_when.advance(:minutes => self.timescale * (@updatesRequired.to_i+1))
