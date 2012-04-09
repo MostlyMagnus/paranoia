@@ -243,8 +243,8 @@ class ActionQueue
       end
 
       nodes[logic_node.node_type][:count] += 1
-      nodes[logic_node.node_type][:status] += logic_node.status
-      nodes[logic_node.node_type][:health] += logic_node.health      
+      nodes[logic_node.node_type][:status] += logic_node.status.to_f
+      nodes[logic_node.node_type][:health] += logic_node.health.to_f      
     end
 
     pawn.notifications.create!(:action_type => action.action_type, :params => nodes.to_json)
