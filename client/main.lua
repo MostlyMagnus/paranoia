@@ -935,7 +935,7 @@ function drawGameUI()
 	end
 --timeTurnToEnd > gamestate.updateIn
 	local temp = gamestate.updateIn-timeTurnToEnd
-	local turnEndsInString = "Turn ends in "
+	local turnEndsInString = "Turn "..gamestate.turn.." ends in "
 
 	local days = 0
 	local hours = 0

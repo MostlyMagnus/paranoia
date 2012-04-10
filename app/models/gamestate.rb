@@ -377,10 +377,15 @@ class Gamestate < ActiveRecord::Base
         dist = Math.hypot(x.abs, y.abs)
 
         scramble = -1
+        randomAmplification = 0
 
-        if dist <= 2 then 
+        if (rand(100) < 10) then
+          randomAmplification = 2
+        end
+
+        if dist <= 2+randomAmplification then 
           scramble = 1
-        elsif dist <= 5
+        elsif dist <= 5+randomAmplification
           scramble = 2
         end
 
