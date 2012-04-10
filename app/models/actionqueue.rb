@@ -241,7 +241,8 @@ class ActionQueue
     @gamestate.game_ship.logic_nodes.each do |logic_node| 
       if !(nodes[logic_node.node_type])then
         nodes[logic_node.node_type] = { :type => logic_node.node_type, :count => 0, :status => 0, :health => 0}    
-        nodeTypes.push(logic_node.node_type)  
+        
+        if !(nodeTypes.include?(logic_node.node_type)) then nodeTypes.push(logic_node.node_type) end
       end
 
       nodes[logic_node.node_type][:count] += 1
@@ -255,7 +256,7 @@ class ActionQueue
 
 #      notification = "["+nodes[node][:string]+"] "+nodes[node][:count].to_s+" nodes. Status: "+nodes[node][:status].to_s+", Health: "+nodes[node][:health].round(2).to_s
 
-      pawn.notifications.create!(:action_type => action.action_type, :params => @gamestate.game_ship.logEntryForNode(nodes[node]))
+      pawn.notifications.create!(:action_type => action.action_type, :params => "(" + nodeTypes.size.to_s+") "  + @gamestate.game_ship.logEntryForNode(nodes[node]))
  
     end
 
