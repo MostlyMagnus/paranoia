@@ -256,7 +256,7 @@ class ActionQueue
 
 #      notification = "["+nodes[node][:string]+"] "+nodes[node][:count].to_s+" nodes. Status: "+nodes[node][:status].to_s+", Health: "+nodes[node][:health].round(2).to_s
 
-      pawn.notifications.create!(:action_type => action.action_type, :params => "(" + nodeTypes.size.to_s+") "  + @gamestate.game_ship.logEntryForNode(nodes[node]))
+      pawn.notifications.create!(:action_type => action.action_type, :params => @gamestate.game_ship.logEntryForNode(nodes[node]))
  
     end
 
