@@ -1,6 +1,6 @@
 module GamestatesHelper
   def updateGamestate
-    ActiveRecord::Base.connection.execute('UPDATE Gamestates SET locked_by = \"'+request.session_options[:id]+'\" WHERE id = '+params[:id]+' AND locked_by = NIL')    
+    ActiveRecord::Base.connection.execute('UPDATE gamestates SET locked_by = "'+request.session_options[:id].to_s+'" WHERE id = '+params[:id].to_s+' AND locked_by = "nil"')
     gamestate = Gamestate.find_by_id(params[:id])
 
     if(gamestate.locked_by == request.session_options[:id]) then
@@ -11,7 +11,7 @@ module GamestatesHelper
         flash[:success] = "We are up to date."
       end
       
-      gamestate.locked_by = nil
+      gamestate.locked_by = "nil"
 
       if gamestate.changed? then gamestate.save end
     else

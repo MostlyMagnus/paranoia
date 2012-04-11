@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120411102959) do
+ActiveRecord::Schema.define(:version => 20120411212330) do
 
   create_table "actions", :force => true do |t|
     t.integer  "pawn_id"
@@ -37,7 +37,7 @@ ActiveRecord::Schema.define(:version => 20120411102959) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.datetime "update_when"
-    t.integer  "locked_by"
+    t.string   "locked_by",    :default => "nil"
   end
 
   create_table "heards", :force => true do |t|
