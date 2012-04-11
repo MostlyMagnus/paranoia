@@ -1,12 +1,9 @@
 module GamestatesHelper
   def updateGamestate
+    ActiveRecord::Base.connection.execute('UPDATE Gamestates SET locked_by = '+request.session_options[:id]+' WHERE id = '+params[:id]+' AND locked_by = NIL')    
     gamestate = Gamestate.find_by_id(params[:id])
-    
-#    ActiveRecord::Base.connection.execute('UPDATE Gamestates SET locked_by = '+request.session_options[:id]+' WHERE id = '+params[:id]+' AND locked_by = NULL')    
 
-    if(gamestate.locked_by == nil) then
-      gamestate.locked_by = request.session_options[:id]
-      gamestate.save
+    if(gamestate.locked_by == request.session_options[:id]) then
 
       if gamestate.update_when < Time.now
         flash[:success] = gamestate.crunch
