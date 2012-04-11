@@ -1,6 +1,6 @@
 module GamestatesHelper
   def updateGamestate
-    ActiveRecord::Base.connection.execute('UPDATE Gamestates SET locked_by = '+request.session_options[:id]+' WHERE id = '+params[:id]+' AND locked_by = NIL')    
+    ActiveRecord::Base.connection.execute('UPDATE Gamestates SET locked_by = \"'+request.session_options[:id]+'\" WHERE id = '+params[:id]+' AND locked_by = NIL')    
     gamestate = Gamestate.find_by_id(params[:id])
 
     if(gamestate.locked_by == request.session_options[:id]) then
