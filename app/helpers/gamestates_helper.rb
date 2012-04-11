@@ -2,13 +2,23 @@ module GamestatesHelper
   def updateGamestate
     gamestate = Gamestate.find_by_id(params[:id])
     
-    if gamestate.update_when < Time.now
-      flash[:success] = gamestate.crunch
+    if(gamestate.locked_by == nil) then
+      gamestate.locked_by = request.session_options[:id]
+      gamestate.save
+
+      if gamestate.update_when < Time.now
+        flash[:success] = gamestate.crunch
+      else
+        flash[:success] = "We are up to date."
+      end
+      
+      gamestate.locked_by = nil
+
+      if gamestate.changed? then gamestate.save end
     else
-      flash[:success] = "We are up to date."
+      print "Gamestate already locked by another session."
     end
-    
-    if gamestate.changed? then gamestate.save end
+
   end
     
   def nextUpdate 
