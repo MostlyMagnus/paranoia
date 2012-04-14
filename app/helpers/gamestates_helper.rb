@@ -11,11 +11,12 @@ module GamestatesHelper
         flash[:success] = "We are up to date."
       end
       
+
       gamestate.locked_by = "nil"
 
       if gamestate.changed? then gamestate.save end
     else
-      print "Gamestate already locked by another session."
+      #print "Gamestate already locked by another session."
     end
 
   end

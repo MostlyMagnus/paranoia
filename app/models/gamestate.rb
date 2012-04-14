@@ -123,8 +123,20 @@ class Gamestate < ActiveRecord::Base
       # prob("node breaks") = 0.
       # scenario: difficulty_rating,
         
+      #N_AIRLOCK_ACTIVATOR = "n_air1"
+      #N_CONTROL_PANEL     = "n_con1"
+      #N_ENGINE            = "n_eng1"
+      #N_GENERATOR         = "n_gen1"  
+      #N_WATER_CONTAINER   = "n_wat1"
+
       # Drain water from the water nodes.
-      @game_ship.drainWater(delta_water_per_turn)
+      @game_ship.decreaseNodeHealth(NodeTypeDef::N_WATER_CONTAINER, delta_water_per_turn)
+
+      # Test to see if it works.
+      @game_ship.decreaseNodeHealth(NodeTypeDef::N_AIRLOCK_ACTIVATOR, 0.01)
+      @game_ship.decreaseNodeHealth(NodeTypeDef::N_CONTROL_PANEL,     0.01)
+      @game_ship.decreaseNodeHealth(NodeTypeDef::N_ENGINE,            0.01)
+      @game_ship.decreaseNodeHealth(NodeTypeDef::N_GENERATOR,         0.01)
       
       # Add a log entry regarding the water consumption this turn. :delta_water is how much water has been used.
       add_log_entry(LoggerTypeDef::LOG_CONSUMPTION, {:delta_water => delta_water_per_turn})

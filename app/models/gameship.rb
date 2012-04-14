@@ -82,14 +82,14 @@ class GameShip
     when NodeTypeDef::N_AIRLOCK_ACTIVATOR
       returnString = ""
 
-      if(node[:status]==1) then
+      if(node[:status].to_f==1) then
         returnString = "Airlock module is operational. Diagnostics show "
         
-        if node[:health] == 1 then
+        if node[:health].to_f == 1 then
           returnString += "no structural damage."
-        elsif node[:health] > 0.8 then
+        elsif node[:health].to_f  > 0.8 then
           returnString += "some structural damage."
-        elsif node[:health] > 0.4 then
+        elsif node[:health].to_f  > 0.4 then
           returnString += "structural damage. "
         else
           returnString += "heavy strucutral damage. Breakdown imminent."
@@ -106,28 +106,50 @@ class GameShip
 
   end
   
-  def drainWater(delta_water)
+  def decreaseNodeHealth(nodetype, delta)
     @logic_nodes.each_index do |index|
       case @logic_nodes[index].node_type
-      when NodeTypeDef::N_WATER_CONTAINER
+      when nodetype
         if @logic_nodes[index].health.to_f > 0 then
-          @logic_nodes[index].health = (@logic_nodes[index].health.to_f - delta_water).to_s
+          @logic_nodes[index].health = (@logic_nodes[index].health.to_f - delta).to_s
 
           if @logic_nodes[index].health.to_f < 0 then
-            delta_water = @logic_nodes[index].health.to_f.abs
+            delta = @logic_nodes[index].health.to_f.abs
 
             @logic_nodes[index].health = "0"
           else
-            delta_water = 0
+            delta = 0
           end
 
         end
 
-        if delta_water < 0 then break end
+        if delta < 0 then break end
       end
     end
   end
   
+  def decreaseNodeStatus(nodetype, delta)
+    @logic_nodes.each_index do |index|
+      case @logic_nodes[index].node_type
+      when nodetype
+        if @logic_nodes[index].status.to_f > 0 then
+          @logic_nodes[index].status = (@logic_nodes[index].status.to_f - delta).to_s
+
+          if @logic_nodes[index].status.to_f < 0 then
+            delta = @logic_nodes[index].status.to_f.abs
+
+            @logic_nodes[index].status = "0"
+          else
+            delta = 0
+          end
+
+        end
+
+        if delta < 0 then break end
+      end
+    end
+  end
+
   def create_node_status_from_ship
     setup_ship(@ship_id)
     
