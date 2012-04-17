@@ -14,8 +14,8 @@ class SessionsController < ApplicationController
 		# Return a 0
 		render :text => "0"
     else		
-		sign_in user
-		render :text => "1"
+		sign_in user		
+    render :text => request.session_options[:id]
     end
   end
   
